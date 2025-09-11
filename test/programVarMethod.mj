@@ -1,0 +1,10 @@
+program TestProgram
+	int x;
+	int y[];
+	int z, zz;
+{
+	void main()
+	{
+	
+	}
+}

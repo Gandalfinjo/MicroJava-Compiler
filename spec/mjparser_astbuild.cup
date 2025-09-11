@@ -1,0 +1,117 @@
+package rs.ac.bg.etf.pp1;
+
+import java_cup.runtime.*;
+import rs.ac.bg.etf.pp1.ast.*;
+
+parser code {:
+	public void report_fatal_error(String message, Object info) throws java.lang.Exception {
+		done_parsing();
+		report_error(message, info);
+	}
+	
+	public void syntax_error(Symbol cur_token) {
+		report_error("\nSintaksna greska", cur_token);
+	}
+	
+	public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
+		report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+	}
+	
+	public void report_error(String message, Object info) {
+		StringBuilder msg = new StringBuilder(message);
+		
+		if (info instanceof Symbol)
+			msg.append(" na liniji ").append(((Symbol)info).left);
+		
+		System.err.println(msg.toString());
+	}
+:}
+
+scan with {:
+	Symbol s = this.getScanner().next_token();
+	
+	if (s != null && s.value != null)
+		System.out.println(s.toString() + " " + s.value.toString());
+		
+	return s;
+:}
+
+terminal PROG, BREAK, CLASS, IF, ELSE, CONST, NEW, PRINT;
+terminal READ, RETURN, VOID, EXTENDS, CONTINUE, UNION, DO;
+terminal WHILE, MAP, INTERFACE;
+terminal PLUS, MINUS, STAR, SLASH, PERCENTAGE;
+terminal EQUAL, NOT_EQUAL;
+terminal HIGHER, HIGHER_EQUAL, LOWER, LOWER_EQUAL;
+terminal AND, OR, ASSIGN, INCREMENT, DECREMENT;
+terminal SEMICOLON, COLON, COMMA, DOT;
+terminal OPEN_PARENTHESIS, CLOSED_PARENTHESIS;
+terminal OPEN_BRACKET, CLOSED_BRACKET;
+terminal OPEN_BRACE, CLOSED_BRACE;
+terminal BOOL_CONST, CHAR_CONST;
+terminal Integer NUMBER_CONST;
+terminal String IDENT;
+
+nonterminal Program Program;
+nonterminal VarDeclList VarDeclList;
+nonterminal VarDecl VarDecl;
+nonterminal VarDeclExtendedList VarDeclExtendedList;
+nonterminal VarDeclExtended VarDeclExtended;
+nonterminal MethodDeclList MethodDeclList;
+nonterminal MethodDecl MethodDecl;
+nonterminal MethodSignature MethodSignature;
+nonterminal Type Type;
+nonterminal StatementList StatementList;
+nonterminal FormPars FormPars;
+nonterminal FormParamList FormParamList;
+nonterminal FormParamArray FormParamArray;
+nonterminal FormParamExtendedList FormParamExtendedList;
+nonterminal FormParamExtended FormParamExtended;
+
+Program ::= (Program) PROG IDENT:I1 VarDeclList:V2 OPEN_BRACE MethodDeclList:M3 CLOSED_BRACE {: RESULT=new Program(I1, V2, M3); RESULT.setLine(I1left); :};
+
+VarDeclList ::= (VarDeclarations) VarDeclList:V1 VarDecl:V2 {: RESULT=new VarDeclarations(V1, V2); RESULT.setLine(V1left); :}
+				|
+				(NoVarDeclarations) {: RESULT=new NoVarDeclarations(); :} /* epsilon */
+				;
+VarDecl ::= (VarDeclaration) Type:T1 IDENT:I2 VarDeclExtendedList:V3 SEMICOLON {: RESULT=new VarDeclaration(T1, I2, V3); RESULT.setLine(T1left); :}
+				|
+				(VarDeclarationArray) Type:T1 IDENT:I2 OPEN_BRACKET CLOSED_BRACKET VarDeclExtendedList:V3 SEMICOLON {: RESULT=new VarDeclarationArray(T1, I2, V3); RESULT.setLine(T1left); :}
+				;
+VarDeclExtendedList ::= (VarDeclarationsExtended) VarDeclExtendedList:V1 VarDeclExtended:V2 {: RESULT=new VarDeclarationsExtended(V1, V2); RESULT.setLine(V1left); :}
+				|
+				(NoVarDeclarationsExtended) {: RESULT=new NoVarDeclarationsExtended(); :} /* epsilon */
+				;
+VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT:I1 {: RESULT=new VarDeclarationExtended(I1); RESULT.setLine(I1left); :}
+				|
+				(VarDeclarationExtendedArray) COMMA IDENT:I1 OPEN_BRACKET CLOSED_BRACKET {: RESULT=new VarDeclarationExtendedArray(I1); RESULT.setLine(I1left); :}
+				;
+
+MethodDeclList ::= (MethodDeclarations) MethodDeclList:M1 MethodDecl:M2 {: RESULT=new MethodDeclarations(M1, M2); RESULT.setLine(M1left); :}
+				|
+				(NoMethodDeclarations) {: RESULT=new NoMethodDeclarations(); :} /* epsilon */
+				;
+MethodDecl ::= (MethodDeclaration) MethodSignature:M1 VarDeclList:V2 OPEN_BRACE CLOSED_BRACE {: RESULT=new MethodDeclaration(M1, V2); RESULT.setLine(M1left); :};
+MethodSignature ::= (TypeMethodSignature) Type:T1 IDENT:I2 OPEN_PARENTHESIS FormPars:F3 CLOSED_PARENTHESIS {: RESULT=new TypeMethodSignature(T1, I2, F3); RESULT.setLine(T1left); :}
+				|
+				(VoidMethodSignature) VOID IDENT:I1 OPEN_PARENTHESIS FormPars:F2 CLOSED_PARENTHESIS {: RESULT=new VoidMethodSignature(I1, F2); RESULT.setLine(I1left); :}
+				;
+				
+FormPars ::= (FormParams) FormParamList:F1 {: RESULT=new FormParams(F1); RESULT.setLine(F1left); :}
+				|
+				(NoFormParams) {: RESULT=new NoFormParams(); :} /* epsilon */
+				;
+FormParamList ::= (FormParamList) Type:T1 IDENT:I2 FormParamArray:F3 FormParamExtendedList:F4 {: RESULT=new FormParamList(T1, I2, F3, F4); RESULT.setLine(T1left); :};
+FormParamArray ::= (FormArrayBrackets) OPEN_BRACKET CLOSED_BRACKET {: RESULT=new FormArrayBrackets(); :}
+				|
+				(NoFormArrayBrackets) {: RESULT=new NoFormArrayBrackets(); :} /* epsilon */
+				;
+FormParamExtendedList ::= (ExtendedFormParamList) FormParamExtendedList:F1 FormParamExtended:F2 {: RESULT=new ExtendedFormParamList(F1, F2); RESULT.setLine(F1left); :}
+				|
+				(NoExtendedFormParamList) {: RESULT=new NoExtendedFormParamList(); :} /* epsilon */
+				;
+FormParamExtended ::= (FormParamExtendedNormal) COMMA IDENT:I1 {: RESULT=new FormParamExtendedNormal(I1); RESULT.setLine(I1left); :}
+				|
+				(FormParamExtendedArary) COMMA IDENT:I1 OPEN_BRACKET CLOSED_BRACKET {: RESULT=new FormParamExtendedArary(I1); RESULT.setLine(I1left); :}
+				;
+
+Type ::= (Type) IDENT:I1 {: RESULT=new Type(I1); RESULT.setLine(I1left); :};

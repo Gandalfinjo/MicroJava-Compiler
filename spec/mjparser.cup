@@ -1,0 +1,108 @@
+package rs.ac.bg.etf.pp1;
+
+import java_cup.runtime.*;
+import rs.ac.bg.etf.pp1.ast.*;
+
+parser code {:
+	public void report_fatal_error(String message, Object info) throws java.lang.Exception {
+		done_parsing();
+		report_error(message, info);
+	}
+	
+	public void syntax_error(Symbol cur_token) {
+		report_error("\nSintaksna greska", cur_token);
+	}
+	
+	public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
+		report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+	}
+	
+	public void report_error(String message, Object info) {
+		StringBuilder msg = new StringBuilder(message);
+		
+		if (info instanceof Symbol)
+			msg.append(" na liniji ").append(((Symbol)info).left);
+		
+		System.err.println(msg.toString());
+	}
+:}
+
+scan with {:
+	Symbol s = this.getScanner().next_token();
+	
+	if (s != null && s.value != null)
+		System.out.println(s.toString() + " " + s.value.toString());
+		
+	return s;
+:}
+
+terminal PROG, BREAK, CLASS, IF, ELSE, CONST, NEW, PRINT;
+terminal READ, RETURN, VOID, EXTENDS, CONTINUE, UNION, DO;
+terminal WHILE, MAP, INTERFACE;
+terminal PLUS, MINUS, STAR, SLASH, PERCENTAGE;
+terminal EQUAL, NOT_EQUAL;
+terminal HIGHER, HIGHER_EQUAL, LOWER, LOWER_EQUAL;
+terminal AND, OR, ASSIGN, INCREMENT, DECREMENT;
+terminal SEMICOLON, COLON, COMMA, DOT;
+terminal OPEN_PARENTHESIS, CLOSED_PARENTHESIS;
+terminal OPEN_BRACKET, CLOSED_BRACKET;
+terminal OPEN_BRACE, CLOSED_BRACE;
+terminal BOOL_CONST, CHAR_CONST;
+terminal Integer NUMBER_CONST;
+terminal String IDENT;
+
+nonterminal Program;
+nonterminal VarDeclList, VarDecl, VarDeclExtendedList, VarDeclExtended;
+nonterminal MethodDeclList, MethodDecl, MethodSignature;
+nonterminal Type;
+nonterminal StatementList;
+nonterminal FormPars, FormParamList, FormParamArray, FormParamExtendedList, FormParamExtended;
+
+Program ::= (Program) PROG IDENT VarDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
+
+VarDeclList ::= (VarDeclarations) VarDeclList VarDecl
+				|
+				(NoVarDeclarations) /* epsilon */
+				;
+VarDecl ::= (VarDeclaration) Type IDENT VarDeclExtendedList SEMICOLON
+				|
+				(VarDeclarationArray) Type IDENT OPEN_BRACKET CLOSED_BRACKET VarDeclExtendedList SEMICOLON
+				;
+VarDeclExtendedList ::= (VarDeclarationsExtended) VarDeclExtendedList VarDeclExtended
+				|
+				(NoVarDeclarationsExtended) /* epsilon */
+				;
+VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT
+				|
+				(VarDeclarationExtendedArray) COMMA IDENT OPEN_BRACKET CLOSED_BRACKET
+				;
+
+MethodDeclList ::= (MethodDeclarations) MethodDeclList MethodDecl
+				|
+				(NoMethodDeclarations) /* epsilon */
+				;
+MethodDecl ::= (MethodDeclaration) MethodSignature VarDeclList OPEN_BRACE CLOSED_BRACE;
+MethodSignature ::= (TypeMethodSignature) Type IDENT OPEN_PARENTHESIS FormPars CLOSED_PARENTHESIS
+				|
+				(VoidMethodSignature) VOID IDENT OPEN_PARENTHESIS FormPars CLOSED_PARENTHESIS
+				;
+				
+FormPars ::= (FormParams) FormParamList
+				|
+				(NoFormParams) /* epsilon */
+				;
+FormParamList ::= (FormParamList) Type IDENT FormParamArray FormParamExtendedList;
+FormParamArray ::= (FormArrayBrackets) OPEN_BRACKET CLOSED_BRACKET
+				|
+				(NoFormArrayBrackets) /* epsilon */
+				;
+FormParamExtendedList ::= (ExtendedFormParamList) FormParamExtendedList FormParamExtended
+				|
+				(NoExtendedFormParamList) /* epsilon */
+				;
+FormParamExtended ::= (FormParamExtendedNormal) COMMA IDENT
+				|
+				(FormParamExtendedArary) COMMA IDENT OPEN_BRACKET CLOSED_BRACKET
+				;
+
+Type ::= (Type) IDENT;
