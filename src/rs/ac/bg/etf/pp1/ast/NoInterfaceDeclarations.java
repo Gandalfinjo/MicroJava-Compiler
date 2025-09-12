@@ -5,9 +5,9 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class FormArrayBrackets extends FormParamArray {
+public class NoInterfaceDeclarations extends InterfaceDeclList {
 
-    public FormArrayBrackets () {
+    public NoInterfaceDeclarations () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class FormArrayBrackets extends FormParamArray {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("FormArrayBrackets(\n");
+        buffer.append("NoInterfaceDeclarations(\n");
 
         buffer.append(tab);
-        buffer.append(") [FormArrayBrackets]");
+        buffer.append(") [NoInterfaceDeclarations]");
         return buffer.toString();
     }
 }

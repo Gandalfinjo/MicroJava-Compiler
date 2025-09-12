@@ -6,6 +6,14 @@ program TestProgram
 	int x;
 	int y[];
 	int z, zz;
+	
+	interface ITest {
+		void test(int m, int n);
+		
+		bool mini_test(int o, bool p) {
+		
+		}
+	}
 {
 	void main(int c, int d[])
 		int a, b;

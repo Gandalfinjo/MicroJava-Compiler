@@ -73,8 +73,10 @@ nonterminal ConstDeclExtendedList ConstDeclExtendedList;
 nonterminal ConstDeclExtended ConstDeclExtended;
 nonterminal InterfaceDeclList InterfaceDeclList;
 nonterminal InterfaceDecl InterfaceDecl;
+nonterminal InterfaceMemberList InterfaceMemberList;
+nonterminal InterfaceMember InterfaceMember;
 
-Program ::= (Program) PROG IDENT:I1 ConstDeclList:C2 VarDeclList:V3 OPEN_BRACE MethodDeclList:M4 CLOSED_BRACE {: RESULT=new Program(I1, C2, V3, M4); RESULT.setLine(I1left); :};
+Program ::= (Program) PROG IDENT:I1 ConstDeclList:C2 VarDeclList:V3 InterfaceDeclList:I4 OPEN_BRACE MethodDeclList:M5 CLOSED_BRACE {: RESULT=new Program(I1, C2, V3, I4, M5); RESULT.setLine(I1left); :};
 
 ConstDeclList ::= (ConstDeclarations) ConstDeclList:C1 ConstDecl:C2 {: RESULT=new ConstDeclarations(C1, C2); RESULT.setLine(C1left); :}
 				|
@@ -92,6 +94,18 @@ ConstDeclExtendedList ::= (ConstDeclarationsExtended) ConstDeclExtendedList:C1 C
 				(NoConstDeclarationsExtended) {: RESULT=new NoConstDeclarationsExtended(); :} /* epsilon */
 				;
 ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT:I1 ASSIGN ConstDeclValue:C2 {: RESULT=new ConstDeclarationExtended(I1, C2); RESULT.setLine(I1left); :};
+
+InterfaceDeclList ::= (InterfaceDeclarations) InterfaceDeclList:I1 InterfaceDecl:I2 {: RESULT=new InterfaceDeclarations(I1, I2); RESULT.setLine(I1left); :}
+				|
+				(NoInterfaceDeclarations) {: RESULT=new NoInterfaceDeclarations(); :} /* epsilon */
+				;
+InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT:I1 OPEN_BRACE InterfaceMemberList:I2 CLOSED_BRACE {: RESULT=new InterfaceDeclaration(I1, I2); RESULT.setLine(I1left); :};
+InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList:I1 InterfaceMember:I2 {: RESULT=new InterfaceMembers(I1, I2); RESULT.setLine(I1left); :}
+				| (NoInterfaceMembers) {: RESULT=new NoInterfaceMembers(); :} /* epsilon */
+				;
+InterfaceMember ::= (InterfaceMethodDeclaration) MethodDecl:M1 {: RESULT=new InterfaceMethodDeclaration(M1); RESULT.setLine(M1left); :}
+	 			| (InterfaceMethodSignature) MethodSignature:M1 SEMICOLON {: RESULT=new InterfaceMethodSignature(M1); RESULT.setLine(M1left); :}
+	 			;
 
 VarDeclList ::= (VarDeclarations) VarDeclList:V1 VarDecl:V2 {: RESULT=new VarDeclarations(V1, V2); RESULT.setLine(V1left); :}
 				|
@@ -133,9 +147,9 @@ FormParamExtendedList ::= (ExtendedFormParamList) FormParamExtendedList:F1 FormP
 				|
 				(NoExtendedFormParamList) {: RESULT=new NoExtendedFormParamList(); :} /* epsilon */
 				;
-FormParamExtended ::= (FormParamExtendedNormal) COMMA IDENT:I1 {: RESULT=new FormParamExtendedNormal(I1); RESULT.setLine(I1left); :}
+FormParamExtended ::= (FormParamExtendedNormal) COMMA Type:T1 IDENT:I2 {: RESULT=new FormParamExtendedNormal(T1, I2); RESULT.setLine(T1left); :}
 				|
-				(FormParamExtendedArary) COMMA IDENT:I1 OPEN_BRACKET CLOSED_BRACKET {: RESULT=new FormParamExtendedArary(I1); RESULT.setLine(I1left); :}
+				(FormParamExtendedArary) COMMA Type:T1 IDENT:I2 OPEN_BRACKET CLOSED_BRACKET {: RESULT=new FormParamExtendedArary(T1, I2); RESULT.setLine(T1left); :}
 				;
 
 Type ::= (Type) IDENT:I1 {: RESULT=new Type(I1); RESULT.setLine(I1left); :};

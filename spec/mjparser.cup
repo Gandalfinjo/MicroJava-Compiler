@@ -58,9 +58,9 @@ nonterminal Type;
 nonterminal StatementList;
 nonterminal FormPars, FormParamList, FormParamArray, FormParamExtendedList, FormParamExtended;
 nonterminal ConstDeclList, ConstDecl, ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
-nonterminal InterfaceDeclList, InterfaceDecl;
+nonterminal InterfaceDeclList, InterfaceDecl, InterfaceMemberList, InterfaceMember;
 
-Program ::= (Program) PROG IDENT ConstDeclList VarDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
+Program ::= (Program) PROG IDENT ConstDeclList VarDeclList InterfaceDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
 
 ConstDeclList ::= (ConstDeclarations) ConstDeclList ConstDecl
 				|
@@ -77,7 +77,19 @@ ConstDeclExtendedList ::= (ConstDeclarationsExtended) ConstDeclExtendedList Cons
 				|
 				(NoConstDeclarationsExtended) /* epsilon */
 				;
-ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT ASSIGN ConstDevlValue;
+ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT ASSIGN ConstDeclValue;
+
+InterfaceDeclList ::= (InterfaceDeclarations) InterfaceDeclList InterfaceDecl
+				|
+				(NoInterfaceDeclarations) /* epsilon */
+				;
+InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT OPEN_BRACE InterfaceMemberList CLOSED_BRACE;
+InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList InterfaceMember
+				| (NoInterfaceMembers) /* epsilon */
+				;
+InterfaceMember ::= (InterfaceMethodDeclaration) MethodDecl
+	 			| (InterfaceMethodSignature) MethodSignature SEMICOLON
+	 			;
 
 VarDeclList ::= (VarDeclarations) VarDeclList VarDecl
 				|
@@ -119,9 +131,9 @@ FormParamExtendedList ::= (ExtendedFormParamList) FormParamExtendedList FormPara
 				|
 				(NoExtendedFormParamList) /* epsilon */
 				;
-FormParamExtended ::= (FormParamExtendedNormal) COMMA IDENT
+FormParamExtended ::= (FormParamExtendedNormal) COMMA Type IDENT
 				|
-				(FormParamExtendedArary) COMMA IDENT OPEN_BRACKET CLOSED_BRACKET
+				(FormParamExtendedArary) COMMA Type IDENT OPEN_BRACKET CLOSED_BRACKET
 				;
 
 Type ::= (Type) IDENT;

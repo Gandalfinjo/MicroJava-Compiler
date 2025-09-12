@@ -3,7 +3,7 @@ program TestProgram
 	int y[];
 	int z, zz;
 {
-	void main(int c, d[])
+	void main(int c, int d[])
 		int a, b;
 	{
 	

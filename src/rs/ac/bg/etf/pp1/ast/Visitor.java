@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 12/8/2025 15:51:33
+// 12/8/2025 16:33:1
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,6 +8,7 @@ package rs.ac.bg.etf.pp1.ast;
 public interface Visitor { 
 
     public void visit(MethodDecl MethodDecl);
+    public void visit(InterfaceMember InterfaceMember);
     public void visit(ConstDeclValue ConstDeclValue);
     public void visit(ConstDeclExtended ConstDeclExtended);
     public void visit(ConstDecl ConstDecl);
@@ -24,6 +25,7 @@ public interface Visitor {
     public void visit(MethodDeclList MethodDeclList);
     public void visit(VarDeclExtendedList VarDeclExtendedList);
     public void visit(FormParamArray FormParamArray);
+    public void visit(InterfaceMemberList InterfaceMemberList);
     public void visit(StatementList StatementList);
     public void visit(VarDeclExtended VarDeclExtended);
     public void visit(Type Type);
@@ -49,6 +51,13 @@ public interface Visitor {
     public void visit(VarDeclaration VarDeclaration);
     public void visit(NoVarDeclarations NoVarDeclarations);
     public void visit(VarDeclarations VarDeclarations);
+    public void visit(InterfaceMethodSignature InterfaceMethodSignature);
+    public void visit(InterfaceMethodDeclaration InterfaceMethodDeclaration);
+    public void visit(NoInterfaceMembers NoInterfaceMembers);
+    public void visit(InterfaceMembers InterfaceMembers);
+    public void visit(InterfaceDeclaration InterfaceDeclaration);
+    public void visit(NoInterfaceDeclarations NoInterfaceDeclarations);
+    public void visit(InterfaceDeclarations InterfaceDeclarations);
     public void visit(ConstDeclarationExtended ConstDeclarationExtended);
     public void visit(NoConstDeclarationsExtended NoConstDeclarationsExtended);
     public void visit(ConstDeclarationsExtended ConstDeclarationsExtended);
