@@ -5,9 +5,9 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class NoFormArrayBrackets extends FormParamArray {
+public class BoolConst extends ConstDeclValue {
 
-    public NoFormArrayBrackets () {
+    public BoolConst () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class NoFormArrayBrackets extends FormParamArray {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("NoFormArrayBrackets(\n");
+        buffer.append("BoolConst(\n");
 
         buffer.append(tab);
-        buffer.append(") [NoFormArrayBrackets]");
+        buffer.append(") [BoolConst]");
         return buffer.toString();
     }
 }

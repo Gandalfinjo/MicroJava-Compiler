@@ -5,7 +5,7 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public abstract class FormPars implements SyntaxNode {
+public abstract class ConstDeclList implements SyntaxNode {
 
     private SyntaxNode parent;
 

@@ -66,8 +66,32 @@ nonterminal FormParamList FormParamList;
 nonterminal FormParamArray FormParamArray;
 nonterminal FormParamExtendedList FormParamExtendedList;
 nonterminal FormParamExtended FormParamExtended;
+nonterminal ConstDeclList ConstDeclList;
+nonterminal ConstDecl ConstDecl;
+nonterminal ConstDeclValue ConstDeclValue;
+nonterminal ConstDeclExtendedList ConstDeclExtendedList;
+nonterminal ConstDeclExtended ConstDeclExtended;
+nonterminal InterfaceDeclList InterfaceDeclList;
+nonterminal InterfaceDecl InterfaceDecl;
 
-Program ::= (Program) PROG IDENT:I1 VarDeclList:V2 OPEN_BRACE MethodDeclList:M3 CLOSED_BRACE {: RESULT=new Program(I1, V2, M3); RESULT.setLine(I1left); :};
+Program ::= (Program) PROG IDENT:I1 ConstDeclList:C2 VarDeclList:V3 OPEN_BRACE MethodDeclList:M4 CLOSED_BRACE {: RESULT=new Program(I1, C2, V3, M4); RESULT.setLine(I1left); :};
+
+ConstDeclList ::= (ConstDeclarations) ConstDeclList:C1 ConstDecl:C2 {: RESULT=new ConstDeclarations(C1, C2); RESULT.setLine(C1left); :}
+				|
+				(NoConstDeclarations) {: RESULT=new NoConstDeclarations(); :} /* epsilon */
+				;
+ConstDecl ::= (ConstDeclaration) CONST Type:T1 IDENT:I2 ASSIGN ConstDeclValue:C3 ConstDeclExtendedList:C4 SEMICOLON {: RESULT=new ConstDeclaration(T1, I2, C3, C4); RESULT.setLine(T1left); :};
+ConstDeclValue ::= (NumberConst) NUMBER_CONST:N1 {: RESULT=new NumberConst(N1); RESULT.setLine(N1left); :}
+				|
+				(CharConst) CHAR_CONST {: RESULT=new CharConst(); :}
+				|
+				(BoolConst) BOOL_CONST {: RESULT=new BoolConst(); :}
+				;
+ConstDeclExtendedList ::= (ConstDeclarationsExtended) ConstDeclExtendedList:C1 ConstDeclExtended:C2 {: RESULT=new ConstDeclarationsExtended(C1, C2); RESULT.setLine(C1left); :}
+				|
+				(NoConstDeclarationsExtended) {: RESULT=new NoConstDeclarationsExtended(); :} /* epsilon */
+				;
+ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT:I1 ASSIGN ConstDeclValue:C2 {: RESULT=new ConstDeclarationExtended(I1, C2); RESULT.setLine(I1left); :};
 
 VarDeclList ::= (VarDeclarations) VarDeclList:V1 VarDecl:V2 {: RESULT=new VarDeclarations(V1, V2); RESULT.setLine(V1left); :}
 				|

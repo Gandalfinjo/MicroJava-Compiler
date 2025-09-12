@@ -1,24 +1,31 @@
 // generated with ast extension for cup
 // version 0.8
-// 11/8/2025 23:42:33
+// 12/8/2025 15:51:33
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public interface Visitor { 
 
-    public void visit(VarDeclList VarDeclList);
-    public void visit(StatementList StatementList);
-    public void visit(MethodSignature MethodSignature);
-    public void visit(VarDeclExtended VarDeclExtended);
     public void visit(MethodDecl MethodDecl);
-    public void visit(VarDeclExtendedList VarDeclExtendedList);
-    public void visit(VarDecl VarDecl);
+    public void visit(ConstDeclValue ConstDeclValue);
+    public void visit(ConstDeclExtended ConstDeclExtended);
+    public void visit(ConstDecl ConstDecl);
+    public void visit(ConstDeclExtendedList ConstDeclExtendedList);
     public void visit(FormParamExtendedList FormParamExtendedList);
     public void visit(FormPars FormPars);
-    public void visit(FormParamArray FormParamArray);
-    public void visit(MethodDeclList MethodDeclList);
+    public void visit(VarDeclList VarDeclList);
+    public void visit(MethodSignature MethodSignature);
+    public void visit(VarDecl VarDecl);
+    public void visit(InterfaceDeclList InterfaceDeclList);
+    public void visit(ConstDeclList ConstDeclList);
+    public void visit(InterfaceDecl InterfaceDecl);
     public void visit(FormParamExtended FormParamExtended);
+    public void visit(MethodDeclList MethodDeclList);
+    public void visit(VarDeclExtendedList VarDeclExtendedList);
+    public void visit(FormParamArray FormParamArray);
+    public void visit(StatementList StatementList);
+    public void visit(VarDeclExtended VarDeclExtended);
     public void visit(Type Type);
     public void visit(FormParamExtendedArary FormParamExtendedArary);
     public void visit(FormParamExtendedNormal FormParamExtendedNormal);
@@ -42,6 +49,15 @@ public interface Visitor {
     public void visit(VarDeclaration VarDeclaration);
     public void visit(NoVarDeclarations NoVarDeclarations);
     public void visit(VarDeclarations VarDeclarations);
+    public void visit(ConstDeclarationExtended ConstDeclarationExtended);
+    public void visit(NoConstDeclarationsExtended NoConstDeclarationsExtended);
+    public void visit(ConstDeclarationsExtended ConstDeclarationsExtended);
+    public void visit(BoolConst BoolConst);
+    public void visit(CharConst CharConst);
+    public void visit(NumberConst NumberConst);
+    public void visit(ConstDeclaration ConstDeclaration);
+    public void visit(NoConstDeclarations NoConstDeclarations);
+    public void visit(ConstDeclarations ConstDeclarations);
     public void visit(Program Program);
 
 }

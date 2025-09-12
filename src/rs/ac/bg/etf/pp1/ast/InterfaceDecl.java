@@ -5,7 +5,7 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public abstract class FormPars implements SyntaxNode {
+public abstract class InterfaceDecl implements SyntaxNode {
 
     private SyntaxNode parent;
 

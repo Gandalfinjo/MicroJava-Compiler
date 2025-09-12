@@ -57,8 +57,27 @@ nonterminal MethodDeclList, MethodDecl, MethodSignature;
 nonterminal Type;
 nonterminal StatementList;
 nonterminal FormPars, FormParamList, FormParamArray, FormParamExtendedList, FormParamExtended;
+nonterminal ConstDeclList, ConstDecl, ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
+nonterminal InterfaceDeclList, InterfaceDecl;
 
-Program ::= (Program) PROG IDENT VarDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
+Program ::= (Program) PROG IDENT ConstDeclList VarDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
+
+ConstDeclList ::= (ConstDeclarations) ConstDeclList ConstDecl
+				|
+				(NoConstDeclarations) /* epsilon */
+				;
+ConstDecl ::= (ConstDeclaration) CONST Type IDENT ASSIGN ConstDeclValue ConstDeclExtendedList SEMICOLON;
+ConstDeclValue ::= (NumberConst) NUMBER_CONST
+				|
+				(CharConst) CHAR_CONST
+				|
+				(BoolConst) BOOL_CONST
+				;
+ConstDeclExtendedList ::= (ConstDeclarationsExtended) ConstDeclExtendedList ConstDeclExtended
+				|
+				(NoConstDeclarationsExtended) /* epsilon */
+				;
+ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT ASSIGN ConstDevlValue;
 
 VarDeclList ::= (VarDeclarations) VarDeclList VarDecl
 				|

@@ -1,0 +1,15 @@
+program TestProgram
+	const int g = 10;
+	const bool f = false;
+	const char h = 'h', i = 'i', j = 'j';
+
+	int x;
+	int y[];
+	int z, zz;
+{
+	void main(int c, d[])
+		int a, b;
+	{
+	
+	}
+}

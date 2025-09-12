@@ -1,24 +1,31 @@
 // generated with ast extension for cup
 // version 0.8
-// 11/8/2025 23:42:33
+// 12/8/2025 15:51:33
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public abstract class VisitorAdaptor implements Visitor { 
 
-    public void visit(VarDeclList VarDeclList) { }
-    public void visit(StatementList StatementList) { }
-    public void visit(MethodSignature MethodSignature) { }
-    public void visit(VarDeclExtended VarDeclExtended) { }
     public void visit(MethodDecl MethodDecl) { }
-    public void visit(VarDeclExtendedList VarDeclExtendedList) { }
-    public void visit(VarDecl VarDecl) { }
+    public void visit(ConstDeclValue ConstDeclValue) { }
+    public void visit(ConstDeclExtended ConstDeclExtended) { }
+    public void visit(ConstDecl ConstDecl) { }
+    public void visit(ConstDeclExtendedList ConstDeclExtendedList) { }
     public void visit(FormParamExtendedList FormParamExtendedList) { }
     public void visit(FormPars FormPars) { }
-    public void visit(FormParamArray FormParamArray) { }
-    public void visit(MethodDeclList MethodDeclList) { }
+    public void visit(VarDeclList VarDeclList) { }
+    public void visit(MethodSignature MethodSignature) { }
+    public void visit(VarDecl VarDecl) { }
+    public void visit(InterfaceDeclList InterfaceDeclList) { }
+    public void visit(ConstDeclList ConstDeclList) { }
+    public void visit(InterfaceDecl InterfaceDecl) { }
     public void visit(FormParamExtended FormParamExtended) { }
+    public void visit(MethodDeclList MethodDeclList) { }
+    public void visit(VarDeclExtendedList VarDeclExtendedList) { }
+    public void visit(FormParamArray FormParamArray) { }
+    public void visit(StatementList StatementList) { }
+    public void visit(VarDeclExtended VarDeclExtended) { }
     public void visit(Type Type) { visit(); }
     public void visit(FormParamExtendedArary FormParamExtendedArary) { visit(); }
     public void visit(FormParamExtendedNormal FormParamExtendedNormal) { visit(); }
@@ -42,6 +49,15 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(VarDeclaration VarDeclaration) { visit(); }
     public void visit(NoVarDeclarations NoVarDeclarations) { visit(); }
     public void visit(VarDeclarations VarDeclarations) { visit(); }
+    public void visit(ConstDeclarationExtended ConstDeclarationExtended) { visit(); }
+    public void visit(NoConstDeclarationsExtended NoConstDeclarationsExtended) { visit(); }
+    public void visit(ConstDeclarationsExtended ConstDeclarationsExtended) { visit(); }
+    public void visit(BoolConst BoolConst) { visit(); }
+    public void visit(CharConst CharConst) { visit(); }
+    public void visit(NumberConst NumberConst) { visit(); }
+    public void visit(ConstDeclaration ConstDeclaration) { visit(); }
+    public void visit(NoConstDeclarations NoConstDeclarations) { visit(); }
+    public void visit(ConstDeclarations ConstDeclarations) { visit(); }
     public void visit(Program Program) { visit(); }
 
 

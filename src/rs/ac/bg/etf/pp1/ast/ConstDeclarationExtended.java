@@ -5,15 +5,15 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class VoidMethodSignature extends MethodSignature {
+public class ConstDeclarationExtended extends ConstDeclExtended {
 
     private String I1;
-    private FormPars FormPars;
+    private ConstDeclValue ConstDeclValue;
 
-    public VoidMethodSignature (String I1, FormPars FormPars) {
+    public ConstDeclarationExtended (String I1, ConstDeclValue ConstDeclValue) {
         this.I1=I1;
-        this.FormPars=FormPars;
-        if(FormPars!=null) FormPars.setParent(this);
+        this.ConstDeclValue=ConstDeclValue;
+        if(ConstDeclValue!=null) ConstDeclValue.setParent(this);
     }
 
     public String getI1() {
@@ -24,12 +24,12 @@ public class VoidMethodSignature extends MethodSignature {
         this.I1=I1;
     }
 
-    public FormPars getFormPars() {
-        return FormPars;
+    public ConstDeclValue getConstDeclValue() {
+        return ConstDeclValue;
     }
 
-    public void setFormPars(FormPars FormPars) {
-        this.FormPars=FormPars;
+    public void setConstDeclValue(ConstDeclValue ConstDeclValue) {
+        this.ConstDeclValue=ConstDeclValue;
     }
 
     public void accept(Visitor visitor) {
@@ -37,35 +37,35 @@ public class VoidMethodSignature extends MethodSignature {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(FormPars!=null) FormPars.accept(visitor);
+        if(ConstDeclValue!=null) ConstDeclValue.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(FormPars!=null) FormPars.traverseTopDown(visitor);
+        if(ConstDeclValue!=null) ConstDeclValue.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(FormPars!=null) FormPars.traverseBottomUp(visitor);
+        if(ConstDeclValue!=null) ConstDeclValue.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("VoidMethodSignature(\n");
+        buffer.append("ConstDeclarationExtended(\n");
 
         buffer.append(" "+tab+I1);
         buffer.append("\n");
 
-        if(FormPars!=null)
-            buffer.append(FormPars.toString("  "+tab));
+        if(ConstDeclValue!=null)
+            buffer.append(ConstDeclValue.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [VoidMethodSignature]");
+        buffer.append(") [ConstDeclarationExtended]");
         return buffer.toString();
     }
 }
