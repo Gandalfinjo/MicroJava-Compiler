@@ -55,13 +55,27 @@ nonterminal Program;
 nonterminal VarDeclList, VarDecl, VarDeclExtendedList, VarDeclExtended;
 nonterminal MethodDeclList, MethodDecl, MethodSignature;
 nonterminal Type;
-nonterminal StatementList;
+nonterminal StatementList, Statement;
+nonterminal DesignatorStatement, DesignatorStatementTail, DesignatorStatementList, Designator, DesignatorTail;
+nonterminal ElseStatement;
+nonterminal NumConstList;
+nonterminal DoWhileOption;
+nonterminal ActPars, ActParsOption, ActParsInner;
 nonterminal FormPars, FormParamList, FormParamArray, FormParamExtendedList, FormParamExtended;
 nonterminal ConstDeclList, ConstDecl, ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
 nonterminal ClassDeclList, ClassDecl, ClassMemberList, ClassMember;
 nonterminal ExtendsType;
 nonterminal InterfaceDeclList, InterfaceDecl, InterfaceMemberList, InterfaceMember;
+nonterminal CondFact, CondFactTail, CondTerm, CondFactList, Condition, CondTermList;
+nonterminal Expr, ExprsExtended;
+nonterminal Term;
+nonterminal Factor, NewFactorTail;
+nonterminal MulopFactorList, MulopFactor;
+nonterminal AddopTermList, AddopTerm;
+nonterminal Label;
 nonterminal Assignop, Relop, Addop, Mulop, Setop;
+
+precedence left ELSE;
 
 Program ::= (Program) PROG IDENT ConstDeclList VarDeclList ClassDeclList InterfaceDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
 
@@ -118,17 +132,19 @@ InterfaceDeclList ::= (InterfaceDeclarations) InterfaceDeclList InterfaceDecl
 				;
 InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT OPEN_BRACE InterfaceMemberList CLOSED_BRACE;
 InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList InterfaceMember
-				| (NoInterfaceMembers) /* epsilon */
+				|
+				(NoInterfaceMembers) /* epsilon */
 				;
 InterfaceMember ::= (InterfaceMethodDeclaration) MethodDecl
-	 			| (InterfaceMethodSignature) MethodSignature SEMICOLON
+	 			|
+	 			(InterfaceMethodSignature) MethodSignature SEMICOLON
 	 			;
 
 MethodDeclList ::= (MethodDeclarations) MethodDeclList MethodDecl
 				|
 				(NoMethodDeclarations) /* epsilon */
 				;
-MethodDecl ::= (MethodDeclaration) MethodSignature VarDeclList OPEN_BRACE CLOSED_BRACE;
+MethodDecl ::= (MethodDeclaration) MethodSignature VarDeclList OPEN_BRACE StatementList CLOSED_BRACE;
 MethodSignature ::= (TypeMethodSignature) Type IDENT OPEN_PARENTHESIS FormPars CLOSED_PARENTHESIS
 				|
 				(VoidMethodSignature) VOID IDENT OPEN_PARENTHESIS FormPars CLOSED_PARENTHESIS
@@ -153,6 +169,141 @@ FormParamExtended ::= (FormParamExtendedNormal) COMMA Type IDENT
 				;
 
 Type ::= (Type) IDENT;
+
+StatementList ::= (Statements) StatementList Statement
+				|
+				(NoStatements) /* epsilon */
+				;
+Statement ::= (DesignatorStmt) DesignatorStatement SEMICOLON
+				|
+				(IfStatement) IF OPEN_PARENTHESIS Condition CLOSED_PARENTHESIS Statement ElseStatement
+				|
+				(BreakStatement) BREAK SEMICOLON
+				|
+				(ContinueStatement) CONTINUE SEMICOLON
+				|
+				(ReturnStatement) RETURN SEMICOLON
+				|
+				(ReturnExprStatement) RETURN Expr SEMICOLON
+				|
+				(ReadStatement) READ OPEN_PARENTHESIS Designator CLOSED_PARENTHESIS SEMICOLON
+				|
+				(PrintStatement) PRINT OPEN_PARENTHESIS Expr NumConstList CLOSED_PARENTHESIS SEMICOLON
+				|
+				(DoWhileStatement) DO Statement WHILE OPEN_PARENTHESIS DoWhileOption CLOSED_PARENTHESIS SEMICOLON
+				|
+				(MultipleStatements) OPEN_BRACE StatementList CLOSED_BRACE
+				;
+				
+ElseStatement ::= (YesElseStatement) ELSE Statement
+				| 
+				(NoElseStatement) /* epsilon */
+				;
+				
+DoWhileOption ::= (YesDoWhileOption) Condition DesignatorStatementList
+				|
+				(NoDoWhileOption) /* epsilon */
+				;
+				
+NumConstList ::= (NumConsts) COMMA NUMBER_CONST NumConstList
+				|
+				(NoNumConsts) /* epsilon */
+				;
+				
+DesignatorStatement ::= (OptionalDesignatorStatement) Designator DesignatorStatementTail
+				|
+				(FixedDesignatorStatement) Designator Assignop Designator Setop Designator
+				;
+DesignatorStatementTail ::= (AssignopExprDSTail) Assignop Expr
+				|
+				(ActParsDSTail) OPEN_PARENTHESIS ActParsInner CLOSED_PARENTHESIS
+				|
+				(IncrementDSTail) INCREMENT
+				|
+				(DecrementDSTail) DECREMENT
+				;
+DesignatorStatementList ::= (DesignatorStatements) COMMA DesignatorStatement DesignatorStatementList
+				|
+				(NoDesignatorStatements) /* epsilon */
+				;
+				
+ActPars ::= (ActParams) Expr ExprsExtended;
+ActParsOption ::= (ActParamsOption) OPEN_PARENTHESIS ActParsInner CLOSED_PARENTHESIS
+				|
+				(NoActParamsOption) /* epsilon */
+				;
+ActParsInner ::= (ActParamsInner) ActPars
+				|
+				(NoActParamsInner) /* epsilon */
+				;
+				
+Condition ::= (Condition) CondTerm CondTermList;
+CondTermList ::= (CondTerms) OR CondTerm CondTermList
+				|
+				(NoCondTerms) /* epsilon */
+				;
+CondTerm ::= (CondTerm) CondFact CondFactList;		
+CondFactList ::= (CondFacts) AND CondFact CondFactList
+				|
+				(NoCondFacts) /* epsilon */
+				;
+CondFact ::= (CondFact) Expr CondFactTail;
+CondFactTail ::= (RelopCondFactTail) Relop Expr
+				|
+				(NoCondFactTail) /* epsilon */
+				;
+
+ExprsExtended ::= (ExprsExtendedList) COMMA Expr ExprsExtended
+				|
+				(NoExprsExtendedList) /* epsilon */
+				;		
+Expr ::= (NoSignExpr) Term AddopTermList
+				|
+				(NegativeSignExpr) MINUS Term AddopTermList
+				|
+				(DesignatorExpr) Designator MAP Designator
+				;
+				
+AddopTermList ::= (AddopTerms) AddopTermList AddopTerm
+				|
+				(NoAddopTerms) /* epsilon */
+				;
+AddopTerm ::= (AddopTerm) Addop Term;
+
+Term ::= (Term) Factor MulopFactorList;
+
+MulopFactorList ::= (MulopFactors) MulopFactorList MulopFactor
+				|
+				(NoMulopFactors) /* epsilon */
+				;
+MulopFactor ::= (MulopFactor) Mulop Factor;
+
+Factor ::= (DesignatorFactor) Designator ActParsOption
+				|
+				(NumFactor) NUMBER_CONST
+				|
+				(CharFactor) CHAR_CONST
+				|
+				(BoolFactor) BOOL_CONST
+				|
+				(NewFactor) NEW Type NewFactorTail
+				|
+				(ExprFactor) OPEN_PARENTHESIS Expr CLOSED_PARENTHESIS
+				;
+NewFactorTail ::= (ExprFactorTail) OPEN_BRACKET Expr CLOSED_BRACKET
+				|
+				(ActParsFactorTail) OPEN_PARENTHESIS ActParsInner CLOSED_PARENTHESIS
+				;
+				
+Designator ::= (Designator) IDENT DesignatorTail;
+DesignatorTail ::= (DotDesignatorTail) DOT IDENT DesignatorTail
+				|
+				(ExprDesignatorTail) OPEN_BRACKET Expr CLOSED_BRACKET DesignatorTail
+				|
+				(NoDesignatorTail) /* epsilon */
+				;
+
+Label ::= (Label) IDENT;
 
 Assignop ::= (Assignop) ASSIGN;
 

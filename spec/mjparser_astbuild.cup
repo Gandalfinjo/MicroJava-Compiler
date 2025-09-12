@@ -61,6 +61,18 @@ nonterminal MethodDecl MethodDecl;
 nonterminal MethodSignature MethodSignature;
 nonterminal Type Type;
 nonterminal StatementList StatementList;
+nonterminal Statement Statement;
+nonterminal DesignatorStatement DesignatorStatement;
+nonterminal DesignatorStatementTail DesignatorStatementTail;
+nonterminal DesignatorStatementList DesignatorStatementList;
+nonterminal Designator Designator;
+nonterminal DesignatorTail DesignatorTail;
+nonterminal ElseStatement ElseStatement;
+nonterminal NumConstList NumConstList;
+nonterminal DoWhileOption DoWhileOption;
+nonterminal ActPars ActPars;
+nonterminal ActParsOption ActParsOption;
+nonterminal ActParsInner ActParsInner;
 nonterminal FormPars FormPars;
 nonterminal FormParamList FormParamList;
 nonterminal FormParamArray FormParamArray;
@@ -80,11 +92,29 @@ nonterminal InterfaceDeclList InterfaceDeclList;
 nonterminal InterfaceDecl InterfaceDecl;
 nonterminal InterfaceMemberList InterfaceMemberList;
 nonterminal InterfaceMember InterfaceMember;
+nonterminal CondFact CondFact;
+nonterminal CondFactTail CondFactTail;
+nonterminal CondTerm CondTerm;
+nonterminal CondFactList CondFactList;
+nonterminal Condition Condition;
+nonterminal CondTermList CondTermList;
+nonterminal Expr Expr;
+nonterminal ExprsExtended ExprsExtended;
+nonterminal Term Term;
+nonterminal Factor Factor;
+nonterminal NewFactorTail NewFactorTail;
+nonterminal MulopFactorList MulopFactorList;
+nonterminal MulopFactor MulopFactor;
+nonterminal AddopTermList AddopTermList;
+nonterminal AddopTerm AddopTerm;
+nonterminal Label Label;
 nonterminal Assignop Assignop;
 nonterminal Relop Relop;
 nonterminal Addop Addop;
 nonterminal Mulop Mulop;
 nonterminal Setop Setop;
+
+precedence left ELSE;
 
 Program ::= (Program) PROG IDENT:I1 ConstDeclList:C2 VarDeclList:V3 ClassDeclList:C4 InterfaceDeclList:I5 OPEN_BRACE MethodDeclList:M6 CLOSED_BRACE {: RESULT=new Program(I1, C2, V3, C4, I5, M6); RESULT.setLine(I1left); :};
 
@@ -141,17 +171,19 @@ InterfaceDeclList ::= (InterfaceDeclarations) InterfaceDeclList:I1 InterfaceDecl
 				;
 InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT:I1 OPEN_BRACE InterfaceMemberList:I2 CLOSED_BRACE {: RESULT=new InterfaceDeclaration(I1, I2); RESULT.setLine(I1left); :};
 InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList:I1 InterfaceMember:I2 {: RESULT=new InterfaceMembers(I1, I2); RESULT.setLine(I1left); :}
-				| (NoInterfaceMembers) {: RESULT=new NoInterfaceMembers(); :} /* epsilon */
+				|
+				(NoInterfaceMembers) {: RESULT=new NoInterfaceMembers(); :} /* epsilon */
 				;
 InterfaceMember ::= (InterfaceMethodDeclaration) MethodDecl:M1 {: RESULT=new InterfaceMethodDeclaration(M1); RESULT.setLine(M1left); :}
-	 			| (InterfaceMethodSignature) MethodSignature:M1 SEMICOLON {: RESULT=new InterfaceMethodSignature(M1); RESULT.setLine(M1left); :}
+	 			|
+	 			(InterfaceMethodSignature) MethodSignature:M1 SEMICOLON {: RESULT=new InterfaceMethodSignature(M1); RESULT.setLine(M1left); :}
 	 			;
 
 MethodDeclList ::= (MethodDeclarations) MethodDeclList:M1 MethodDecl:M2 {: RESULT=new MethodDeclarations(M1, M2); RESULT.setLine(M1left); :}
 				|
 				(NoMethodDeclarations) {: RESULT=new NoMethodDeclarations(); :} /* epsilon */
 				;
-MethodDecl ::= (MethodDeclaration) MethodSignature:M1 VarDeclList:V2 OPEN_BRACE CLOSED_BRACE {: RESULT=new MethodDeclaration(M1, V2); RESULT.setLine(M1left); :};
+MethodDecl ::= (MethodDeclaration) MethodSignature:M1 VarDeclList:V2 OPEN_BRACE StatementList:S3 CLOSED_BRACE {: RESULT=new MethodDeclaration(M1, V2, S3); RESULT.setLine(M1left); :};
 MethodSignature ::= (TypeMethodSignature) Type:T1 IDENT:I2 OPEN_PARENTHESIS FormPars:F3 CLOSED_PARENTHESIS {: RESULT=new TypeMethodSignature(T1, I2, F3); RESULT.setLine(T1left); :}
 				|
 				(VoidMethodSignature) VOID IDENT:I1 OPEN_PARENTHESIS FormPars:F2 CLOSED_PARENTHESIS {: RESULT=new VoidMethodSignature(I1, F2); RESULT.setLine(I1left); :}
@@ -176,6 +208,141 @@ FormParamExtended ::= (FormParamExtendedNormal) COMMA Type:T1 IDENT:I2 {: RESULT
 				;
 
 Type ::= (Type) IDENT:I1 {: RESULT=new Type(I1); RESULT.setLine(I1left); :};
+
+StatementList ::= (Statements) StatementList:S1 Statement:S2 {: RESULT=new Statements(S1, S2); RESULT.setLine(S1left); :}
+				|
+				(NoStatements) {: RESULT=new NoStatements(); :} /* epsilon */
+				;
+Statement ::= (DesignatorStmt) DesignatorStatement:D1 SEMICOLON {: RESULT=new DesignatorStmt(D1); RESULT.setLine(D1left); :}
+				|
+				(IfStatement) IF OPEN_PARENTHESIS Condition:C1 CLOSED_PARENTHESIS Statement:S2 ElseStatement:E3 {: RESULT=new IfStatement(C1, S2, E3); RESULT.setLine(C1left); :}
+				|
+				(BreakStatement) BREAK SEMICOLON {: RESULT=new BreakStatement(); :}
+				|
+				(ContinueStatement) CONTINUE SEMICOLON {: RESULT=new ContinueStatement(); :}
+				|
+				(ReturnStatement) RETURN SEMICOLON {: RESULT=new ReturnStatement(); :}
+				|
+				(ReturnExprStatement) RETURN Expr:E1 SEMICOLON {: RESULT=new ReturnExprStatement(E1); RESULT.setLine(E1left); :}
+				|
+				(ReadStatement) READ OPEN_PARENTHESIS Designator:D1 CLOSED_PARENTHESIS SEMICOLON {: RESULT=new ReadStatement(D1); RESULT.setLine(D1left); :}
+				|
+				(PrintStatement) PRINT OPEN_PARENTHESIS Expr:E1 NumConstList:N2 CLOSED_PARENTHESIS SEMICOLON {: RESULT=new PrintStatement(E1, N2); RESULT.setLine(E1left); :}
+				|
+				(DoWhileStatement) DO Statement:S1 WHILE OPEN_PARENTHESIS DoWhileOption:D2 CLOSED_PARENTHESIS SEMICOLON {: RESULT=new DoWhileStatement(S1, D2); RESULT.setLine(S1left); :}
+				|
+				(MultipleStatements) OPEN_BRACE StatementList:S1 CLOSED_BRACE {: RESULT=new MultipleStatements(S1); RESULT.setLine(S1left); :}
+				;
+				
+ElseStatement ::= (YesElseStatement) ELSE Statement:S1 {: RESULT=new YesElseStatement(S1); RESULT.setLine(S1left); :}
+				| 
+				(NoElseStatement) {: RESULT=new NoElseStatement(); :} /* epsilon */
+				;
+				
+DoWhileOption ::= (YesDoWhileOption) Condition:C1 DesignatorStatementList:D2 {: RESULT=new YesDoWhileOption(C1, D2); RESULT.setLine(C1left); :}
+				|
+				(NoDoWhileOption) {: RESULT=new NoDoWhileOption(); :} /* epsilon */
+				;
+				
+NumConstList ::= (NumConsts) COMMA NUMBER_CONST:N1 NumConstList:N2 {: RESULT=new NumConsts(N1, N2); RESULT.setLine(N1left); :}
+				|
+				(NoNumConsts) {: RESULT=new NoNumConsts(); :} /* epsilon */
+				;
+				
+DesignatorStatement ::= (OptionalDesignatorStatement) Designator:D1 DesignatorStatementTail:D2 {: RESULT=new OptionalDesignatorStatement(D1, D2); RESULT.setLine(D1left); :}
+				|
+				(FixedDesignatorStatement) Designator:D1 Assignop:A2 Designator:D3 Setop:S4 Designator:D5 {: RESULT=new FixedDesignatorStatement(D1, A2, D3, S4, D5); RESULT.setLine(D1left); :}
+				;
+DesignatorStatementTail ::= (AssignopExprDSTail) Assignop:A1 Expr:E2 {: RESULT=new AssignopExprDSTail(A1, E2); RESULT.setLine(A1left); :}
+				|
+				(ActParsDSTail) OPEN_PARENTHESIS ActParsInner:A1 CLOSED_PARENTHESIS {: RESULT=new ActParsDSTail(A1); RESULT.setLine(A1left); :}
+				|
+				(IncrementDSTail) INCREMENT {: RESULT=new IncrementDSTail(); :}
+				|
+				(DecrementDSTail) DECREMENT {: RESULT=new DecrementDSTail(); :}
+				;
+DesignatorStatementList ::= (DesignatorStatements) COMMA DesignatorStatement:D1 DesignatorStatementList:D2 {: RESULT=new DesignatorStatements(D1, D2); RESULT.setLine(D1left); :}
+				|
+				(NoDesignatorStatements) {: RESULT=new NoDesignatorStatements(); :} /* epsilon */
+				;
+				
+ActPars ::= (ActParams) Expr:E1 ExprsExtended:E2 {: RESULT=new ActParams(E1, E2); RESULT.setLine(E1left); :};
+ActParsOption ::= (ActParamsOption) OPEN_PARENTHESIS ActParsInner:A1 CLOSED_PARENTHESIS {: RESULT=new ActParamsOption(A1); RESULT.setLine(A1left); :}
+				|
+				(NoActParamsOption) {: RESULT=new NoActParamsOption(); :} /* epsilon */
+				;
+ActParsInner ::= (ActParamsInner) ActPars:A1 {: RESULT=new ActParamsInner(A1); RESULT.setLine(A1left); :}
+				|
+				(NoActParamsInner) {: RESULT=new NoActParamsInner(); :} /* epsilon */
+				;
+				
+Condition ::= (Condition) CondTerm:C1 CondTermList:C2 {: RESULT=new Condition(C1, C2); RESULT.setLine(C1left); :};
+CondTermList ::= (CondTerms) OR CondTerm:C1 CondTermList:C2 {: RESULT=new CondTerms(C1, C2); RESULT.setLine(C1left); :}
+				|
+				(NoCondTerms) {: RESULT=new NoCondTerms(); :} /* epsilon */
+				;
+CondTerm ::= (CondTerm) CondFact:C1 CondFactList:C2 {: RESULT=new CondTerm(C1, C2); RESULT.setLine(C1left); :};		
+CondFactList ::= (CondFacts) AND CondFact:C1 CondFactList:C2 {: RESULT=new CondFacts(C1, C2); RESULT.setLine(C1left); :}
+				|
+				(NoCondFacts) {: RESULT=new NoCondFacts(); :} /* epsilon */
+				;
+CondFact ::= (CondFact) Expr:E1 CondFactTail:C2 {: RESULT=new CondFact(E1, C2); RESULT.setLine(E1left); :};
+CondFactTail ::= (RelopCondFactTail) Relop:R1 Expr:E2 {: RESULT=new RelopCondFactTail(R1, E2); RESULT.setLine(R1left); :}
+				|
+				(NoCondFactTail) {: RESULT=new NoCondFactTail(); :} /* epsilon */
+				;
+
+ExprsExtended ::= (ExprsExtendedList) COMMA Expr:E1 ExprsExtended:E2 {: RESULT=new ExprsExtendedList(E1, E2); RESULT.setLine(E1left); :}
+				|
+				(NoExprsExtendedList) {: RESULT=new NoExprsExtendedList(); :} /* epsilon */
+				;		
+Expr ::= (NoSignExpr) Term:T1 AddopTermList:A2 {: RESULT=new NoSignExpr(T1, A2); RESULT.setLine(T1left); :}
+				|
+				(NegativeSignExpr) MINUS Term:T1 AddopTermList:A2 {: RESULT=new NegativeSignExpr(T1, A2); RESULT.setLine(T1left); :}
+				|
+				(DesignatorExpr) Designator:D1 MAP Designator:D2 {: RESULT=new DesignatorExpr(D1, D2); RESULT.setLine(D1left); :}
+				;
+				
+AddopTermList ::= (AddopTerms) AddopTermList:A1 AddopTerm:A2 {: RESULT=new AddopTerms(A1, A2); RESULT.setLine(A1left); :}
+				|
+				(NoAddopTerms) {: RESULT=new NoAddopTerms(); :} /* epsilon */
+				;
+AddopTerm ::= (AddopTerm) Addop:A1 Term:T2 {: RESULT=new AddopTerm(A1, T2); RESULT.setLine(A1left); :};
+
+Term ::= (Term) Factor:F1 MulopFactorList:M2 {: RESULT=new Term(F1, M2); RESULT.setLine(F1left); :};
+
+MulopFactorList ::= (MulopFactors) MulopFactorList:M1 MulopFactor:M2 {: RESULT=new MulopFactors(M1, M2); RESULT.setLine(M1left); :}
+				|
+				(NoMulopFactors) {: RESULT=new NoMulopFactors(); :} /* epsilon */
+				;
+MulopFactor ::= (MulopFactor) Mulop:M1 Factor:F2 {: RESULT=new MulopFactor(M1, F2); RESULT.setLine(M1left); :};
+
+Factor ::= (DesignatorFactor) Designator:D1 ActParsOption:A2 {: RESULT=new DesignatorFactor(D1, A2); RESULT.setLine(D1left); :}
+				|
+				(NumFactor) NUMBER_CONST:N1 {: RESULT=new NumFactor(N1); RESULT.setLine(N1left); :}
+				|
+				(CharFactor) CHAR_CONST {: RESULT=new CharFactor(); :}
+				|
+				(BoolFactor) BOOL_CONST {: RESULT=new BoolFactor(); :}
+				|
+				(NewFactor) NEW Type:T1 NewFactorTail:N2 {: RESULT=new NewFactor(T1, N2); RESULT.setLine(T1left); :}
+				|
+				(ExprFactor) OPEN_PARENTHESIS Expr:E1 CLOSED_PARENTHESIS {: RESULT=new ExprFactor(E1); RESULT.setLine(E1left); :}
+				;
+NewFactorTail ::= (ExprFactorTail) OPEN_BRACKET Expr:E1 CLOSED_BRACKET {: RESULT=new ExprFactorTail(E1); RESULT.setLine(E1left); :}
+				|
+				(ActParsFactorTail) OPEN_PARENTHESIS ActParsInner:A1 CLOSED_PARENTHESIS {: RESULT=new ActParsFactorTail(A1); RESULT.setLine(A1left); :}
+				;
+				
+Designator ::= (Designator) IDENT:I1 DesignatorTail:D2 {: RESULT=new Designator(I1, D2); RESULT.setLine(I1left); :};
+DesignatorTail ::= (DotDesignatorTail) DOT IDENT:I1 DesignatorTail:D2 {: RESULT=new DotDesignatorTail(I1, D2); RESULT.setLine(I1left); :}
+				|
+				(ExprDesignatorTail) OPEN_BRACKET Expr:E1 CLOSED_BRACKET DesignatorTail:D2 {: RESULT=new ExprDesignatorTail(E1, D2); RESULT.setLine(E1left); :}
+				|
+				(NoDesignatorTail) {: RESULT=new NoDesignatorTail(); :} /* epsilon */
+				;
+
+Label ::= (Label) IDENT:I1 {: RESULT=new Label(I1); RESULT.setLine(I1left); :};
 
 Assignop ::= (Assignop) ASSIGN {: RESULT=new Assignop(); :};
 
