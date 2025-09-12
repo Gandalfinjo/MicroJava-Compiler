@@ -58,9 +58,11 @@ nonterminal Type;
 nonterminal StatementList;
 nonterminal FormPars, FormParamList, FormParamArray, FormParamExtendedList, FormParamExtended;
 nonterminal ConstDeclList, ConstDecl, ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
+nonterminal ClassDeclList, ClassDecl, ClassMemberList, ClassMember;
+nonterminal ExtendsType;
 nonterminal InterfaceDeclList, InterfaceDecl, InterfaceMemberList, InterfaceMember;
 
-Program ::= (Program) PROG IDENT ConstDeclList VarDeclList InterfaceDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
+Program ::= (Program) PROG IDENT ConstDeclList VarDeclList ClassDeclList InterfaceDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
 
 ConstDeclList ::= (ConstDeclarations) ConstDeclList ConstDecl
 				|
@@ -79,18 +81,6 @@ ConstDeclExtendedList ::= (ConstDeclarationsExtended) ConstDeclExtendedList Cons
 				;
 ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT ASSIGN ConstDeclValue;
 
-InterfaceDeclList ::= (InterfaceDeclarations) InterfaceDeclList InterfaceDecl
-				|
-				(NoInterfaceDeclarations) /* epsilon */
-				;
-InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT OPEN_BRACE InterfaceMemberList CLOSED_BRACE;
-InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList InterfaceMember
-				| (NoInterfaceMembers) /* epsilon */
-				;
-InterfaceMember ::= (InterfaceMethodDeclaration) MethodDecl
-	 			| (InterfaceMethodSignature) MethodSignature SEMICOLON
-	 			;
-
 VarDeclList ::= (VarDeclarations) VarDeclList VarDecl
 				|
 				(NoVarDeclarations) /* epsilon */
@@ -107,6 +97,31 @@ VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT
 				|
 				(VarDeclarationExtendedArray) COMMA IDENT OPEN_BRACKET CLOSED_BRACKET
 				;
+				
+ClassDeclList ::= (ClassDeclarations) ClassDeclList ClassDecl
+				|
+				(NoClassDeclarations) /* epsilon */
+				;
+ClassDecl ::= (ClassDeclaration) CLASS IDENT ExtendsType OPEN_BRACE VarDeclList ClassMemberList CLOSED_BRACE;
+ClassMemberList ::= (ClassMembers) OPEN_BRACE MethodDeclList CLOSED_BRACE
+				| (NoClassMembers) /* epsilon */
+				;
+ExtendsType ::= (ClassExtension) EXTENDS Type
+				|
+				(NoClassExtension) /* epsilon */
+				;
+				
+InterfaceDeclList ::= (InterfaceDeclarations) InterfaceDeclList InterfaceDecl
+				|
+				(NoInterfaceDeclarations) /* epsilon */
+				;
+InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT OPEN_BRACE InterfaceMemberList CLOSED_BRACE;
+InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList InterfaceMember
+				| (NoInterfaceMembers) /* epsilon */
+				;
+InterfaceMember ::= (InterfaceMethodDeclaration) MethodDecl
+	 			| (InterfaceMethodSignature) MethodSignature SEMICOLON
+	 			;
 
 MethodDeclList ::= (MethodDeclarations) MethodDeclList MethodDecl
 				|

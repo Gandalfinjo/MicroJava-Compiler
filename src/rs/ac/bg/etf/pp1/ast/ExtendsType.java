@@ -5,7 +5,7 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public abstract class VarDecl implements SyntaxNode {
+public abstract class ExtendsType implements SyntaxNode {
 
     private SyntaxNode parent;
 

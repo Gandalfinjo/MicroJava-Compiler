@@ -5,15 +5,13 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class FormParamExtendedNormal extends FormParamExtended {
+public class ClassExtension extends ExtendsType {
 
     private Type Type;
-    private String I2;
 
-    public FormParamExtendedNormal (Type Type, String I2) {
+    public ClassExtension (Type Type) {
         this.Type=Type;
         if(Type!=null) Type.setParent(this);
-        this.I2=I2;
     }
 
     public Type getType() {
@@ -22,14 +20,6 @@ public class FormParamExtendedNormal extends FormParamExtended {
 
     public void setType(Type Type) {
         this.Type=Type;
-    }
-
-    public String getI2() {
-        return I2;
-    }
-
-    public void setI2(String I2) {
-        this.I2=I2;
     }
 
     public void accept(Visitor visitor) {
@@ -53,7 +43,7 @@ public class FormParamExtendedNormal extends FormParamExtended {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("FormParamExtendedNormal(\n");
+        buffer.append("ClassExtension(\n");
 
         if(Type!=null)
             buffer.append(Type.toString("  "+tab));
@@ -61,11 +51,8 @@ public class FormParamExtendedNormal extends FormParamExtended {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        buffer.append(" "+tab+I2);
-        buffer.append("\n");
-
         buffer.append(tab);
-        buffer.append(") [FormParamExtendedNormal]");
+        buffer.append(") [ClassExtension]");
         return buffer.toString();
     }
 }

@@ -5,20 +5,9 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class NumberConst extends ConstDeclValue {
+public class NoClassMembers extends ClassMemberList {
 
-    private Integer N1;
-
-    public NumberConst (Integer N1) {
-        this.N1=N1;
-    }
-
-    public Integer getN1() {
-        return N1;
-    }
-
-    public void setN1(Integer N1) {
-        this.N1=N1;
+    public NoClassMembers () {
     }
 
     public void accept(Visitor visitor) {
@@ -39,13 +28,10 @@ public class NumberConst extends ConstDeclValue {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("NumberConst(\n");
-
-        buffer.append(" "+tab+N1);
-        buffer.append("\n");
+        buffer.append("NoClassMembers(\n");
 
         buffer.append(tab);
-        buffer.append(") [NumberConst]");
+        buffer.append(") [NoClassMembers]");
         return buffer.toString();
     }
 }
