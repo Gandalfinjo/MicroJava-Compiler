@@ -61,6 +61,7 @@ nonterminal ConstDeclList, ConstDecl, ConstDeclValue, ConstDeclExtendedList, Con
 nonterminal ClassDeclList, ClassDecl, ClassMemberList, ClassMember;
 nonterminal ExtendsType;
 nonterminal InterfaceDeclList, InterfaceDecl, InterfaceMemberList, InterfaceMember;
+nonterminal Assignop, Relop, Addop, Mulop, Setop;
 
 Program ::= (Program) PROG IDENT ConstDeclList VarDeclList ClassDeclList InterfaceDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
 
@@ -152,3 +153,19 @@ FormParamExtended ::= (FormParamExtendedNormal) COMMA Type IDENT
 				;
 
 Type ::= (Type) IDENT;
+
+Assignop ::= (Assignop) ASSIGN;
+
+Relop ::= (Equals) EQUAL
+				| (NotEquals) NOT_EQUAL
+				| (Higher) HIGHER
+				| (HiglerEqual) HIGHER_EQUAL
+				| (Lower) LOWER
+				| (LowerEqual) LOWER_EQUAL
+				;
+				
+Addop ::= (Plus) PLUS | (Minus) MINUS;
+
+Mulop ::= (Multiplication) STAR | (Division) SLASH | (Modulo) PERCENTAGE;
+
+Setop ::= (Setop) UNION;

@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 12/8/2025 16:52:38
+// 12/8/2025 21:54:39
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,6 +8,7 @@ package rs.ac.bg.etf.pp1.ast;
 public interface Visitor { 
 
     public void visit(MethodDecl MethodDecl);
+    public void visit(Mulop Mulop);
     public void visit(InterfaceMember InterfaceMember);
     public void visit(ClassMember ClassMember);
     public void visit(ConstDeclValue ConstDeclValue);
@@ -25,14 +26,29 @@ public interface Visitor {
     public void visit(InterfaceDeclList InterfaceDeclList);
     public void visit(ConstDeclList ConstDeclList);
     public void visit(InterfaceDecl InterfaceDecl);
+    public void visit(Addop Addop);
     public void visit(FormParamExtended FormParamExtended);
     public void visit(MethodDeclList MethodDeclList);
     public void visit(VarDeclExtendedList VarDeclExtendedList);
+    public void visit(Relop Relop);
     public void visit(FormParamArray FormParamArray);
     public void visit(InterfaceMemberList InterfaceMemberList);
     public void visit(ExtendsType ExtendsType);
     public void visit(StatementList StatementList);
     public void visit(VarDeclExtended VarDeclExtended);
+    public void visit(Setop Setop);
+    public void visit(Modulo Modulo);
+    public void visit(Division Division);
+    public void visit(Multiplication Multiplication);
+    public void visit(Minus Minus);
+    public void visit(Plus Plus);
+    public void visit(LowerEqual LowerEqual);
+    public void visit(Lower Lower);
+    public void visit(HiglerEqual HiglerEqual);
+    public void visit(Higher Higher);
+    public void visit(NotEquals NotEquals);
+    public void visit(Equals Equals);
+    public void visit(Assignop Assignop);
     public void visit(Type Type);
     public void visit(FormParamExtendedArary FormParamExtendedArary);
     public void visit(FormParamExtendedNormal FormParamExtendedNormal);

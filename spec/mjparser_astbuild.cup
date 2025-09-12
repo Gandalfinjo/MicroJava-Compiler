@@ -80,6 +80,11 @@ nonterminal InterfaceDeclList InterfaceDeclList;
 nonterminal InterfaceDecl InterfaceDecl;
 nonterminal InterfaceMemberList InterfaceMemberList;
 nonterminal InterfaceMember InterfaceMember;
+nonterminal Assignop Assignop;
+nonterminal Relop Relop;
+nonterminal Addop Addop;
+nonterminal Mulop Mulop;
+nonterminal Setop Setop;
 
 Program ::= (Program) PROG IDENT:I1 ConstDeclList:C2 VarDeclList:V3 ClassDeclList:C4 InterfaceDeclList:I5 OPEN_BRACE MethodDeclList:M6 CLOSED_BRACE {: RESULT=new Program(I1, C2, V3, C4, I5, M6); RESULT.setLine(I1left); :};
 
@@ -171,3 +176,19 @@ FormParamExtended ::= (FormParamExtendedNormal) COMMA Type:T1 IDENT:I2 {: RESULT
 				;
 
 Type ::= (Type) IDENT:I1 {: RESULT=new Type(I1); RESULT.setLine(I1left); :};
+
+Assignop ::= (Assignop) ASSIGN {: RESULT=new Assignop(); :};
+
+Relop ::= (Equals) EQUAL {: RESULT=new Equals(); :}
+				| (NotEquals) NOT_EQUAL {: RESULT=new NotEquals(); :}
+				| (Higher) HIGHER {: RESULT=new Higher(); :}
+				| (HiglerEqual) HIGHER_EQUAL {: RESULT=new HiglerEqual(); :}
+				| (Lower) LOWER {: RESULT=new Lower(); :}
+				| (LowerEqual) LOWER_EQUAL {: RESULT=new LowerEqual(); :}
+				;
+				
+Addop ::= (Plus) PLUS {: RESULT=new Plus(); :} | (Minus) MINUS {: RESULT=new Minus(); :};
+
+Mulop ::= (Multiplication) STAR {: RESULT=new Multiplication(); :} | (Division) SLASH {: RESULT=new Division(); :} | (Modulo) PERCENTAGE {: RESULT=new Modulo(); :};
+
+Setop ::= (Setop) UNION {: RESULT=new Setop(); :};
