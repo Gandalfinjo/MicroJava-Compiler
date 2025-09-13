@@ -1,11 +1,11 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 0:32:44
+// 13/8/2025 11:7:26
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public abstract class InterfaceDeclList implements SyntaxNode {
+public abstract class DeclList implements SyntaxNode {
 
     private SyntaxNode parent;
 

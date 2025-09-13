@@ -52,6 +52,7 @@ terminal Integer NUMBER_CONST;
 terminal String IDENT;
 
 nonterminal Program;
+nonterminal DeclList, Decl;
 nonterminal VarDeclList, VarDecl, VarDeclExtendedList, VarDeclExtended;
 nonterminal MethodDeclList, MethodDecl, MethodSignature;
 nonterminal Type;
@@ -62,10 +63,10 @@ nonterminal NumConstList;
 nonterminal DoWhileOption;
 nonterminal ActPars, ActParsOption, ActParsInner;
 nonterminal FormPars, FormParamList, FormParamArray, FormParamExtendedList, FormParamExtended;
-nonterminal ConstDeclList, ConstDecl, ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
-nonterminal ClassDeclList, ClassDecl, ClassMemberList, ClassMember;
+nonterminal ConstDecl, ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
+nonterminal ClassDecl, ClassMemberList, ClassMember;
 nonterminal ExtendsType;
-nonterminal InterfaceDeclList, InterfaceDecl, InterfaceMemberList, InterfaceMember;
+nonterminal InterfaceDecl, InterfaceMemberList, InterfaceMember;
 nonterminal CondFact, CondFactTail, CondTerm, CondFactList, Condition, CondTermList;
 nonterminal Expr, ExprsExtended;
 nonterminal Term;
@@ -77,12 +78,21 @@ nonterminal Assignop, Relop, Addop, Mulop, Setop;
 
 precedence left ELSE;
 
-Program ::= (Program) PROG IDENT ConstDeclList VarDeclList ClassDeclList InterfaceDeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
+Program ::= (Program) PROG IDENT DeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
 
-ConstDeclList ::= (ConstDeclarations) ConstDeclList ConstDecl
+DeclList ::= (Declarations) DeclList Decl
 				|
-				(NoConstDeclarations) /* epsilon */
+				(NoDeclarations) /* epsilon */
 				;
+Decl ::= (ConstD) ConstDecl
+				|
+				(VarD) VarDecl
+				|
+				(ClassD) ClassDecl
+				|
+				(InterfaceD) InterfaceDecl
+				;
+
 ConstDecl ::= (ConstDeclaration) CONST Type IDENT ASSIGN ConstDeclValue ConstDeclExtendedList SEMICOLON;
 ConstDeclValue ::= (NumberConst) NUMBER_CONST
 				|
@@ -112,11 +122,7 @@ VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT
 				|
 				(VarDeclarationExtendedArray) COMMA IDENT OPEN_BRACKET CLOSED_BRACKET
 				;
-				
-ClassDeclList ::= (ClassDeclarations) ClassDeclList ClassDecl
-				|
-				(NoClassDeclarations) /* epsilon */
-				;
+
 ClassDecl ::= (ClassDeclaration) CLASS IDENT ExtendsType OPEN_BRACE VarDeclList ClassMemberList CLOSED_BRACE;
 ClassMemberList ::= (ClassMembers) OPEN_BRACE MethodDeclList CLOSED_BRACE
 				| (NoClassMembers) /* epsilon */
@@ -125,11 +131,7 @@ ExtendsType ::= (ClassExtension) EXTENDS Type
 				|
 				(NoClassExtension) /* epsilon */
 				;
-				
-InterfaceDeclList ::= (InterfaceDeclarations) InterfaceDeclList InterfaceDecl
-				|
-				(NoInterfaceDeclarations) /* epsilon */
-				;
+
 InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT OPEN_BRACE InterfaceMemberList CLOSED_BRACE;
 InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList InterfaceMember
 				|

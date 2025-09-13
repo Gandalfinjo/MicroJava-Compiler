@@ -1,28 +1,17 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 0:32:44
+// 13/8/2025 11:7:26
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ClassDeclarations extends ClassDeclList {
+public class ClassD extends Decl {
 
-    private ClassDeclList ClassDeclList;
     private ClassDecl ClassDecl;
 
-    public ClassDeclarations (ClassDeclList ClassDeclList, ClassDecl ClassDecl) {
-        this.ClassDeclList=ClassDeclList;
-        if(ClassDeclList!=null) ClassDeclList.setParent(this);
+    public ClassD (ClassDecl ClassDecl) {
         this.ClassDecl=ClassDecl;
         if(ClassDecl!=null) ClassDecl.setParent(this);
-    }
-
-    public ClassDeclList getClassDeclList() {
-        return ClassDeclList;
-    }
-
-    public void setClassDeclList(ClassDeclList ClassDeclList) {
-        this.ClassDeclList=ClassDeclList;
     }
 
     public ClassDecl getClassDecl() {
@@ -38,18 +27,15 @@ public class ClassDeclarations extends ClassDeclList {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(ClassDeclList!=null) ClassDeclList.accept(visitor);
         if(ClassDecl!=null) ClassDecl.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(ClassDeclList!=null) ClassDeclList.traverseTopDown(visitor);
         if(ClassDecl!=null) ClassDecl.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(ClassDeclList!=null) ClassDeclList.traverseBottomUp(visitor);
         if(ClassDecl!=null) ClassDecl.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -57,13 +43,7 @@ public class ClassDeclarations extends ClassDeclList {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ClassDeclarations(\n");
-
-        if(ClassDeclList!=null)
-            buffer.append(ClassDeclList.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
+        buffer.append("ClassD(\n");
 
         if(ClassDecl!=null)
             buffer.append(ClassDecl.toString("  "+tab));
@@ -72,7 +52,7 @@ public class ClassDeclarations extends ClassDeclList {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [ClassDeclarations]");
+        buffer.append(") [ClassD]");
         return buffer.toString();
     }
 }

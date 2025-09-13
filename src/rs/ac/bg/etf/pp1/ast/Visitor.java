@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 0:32:44
+// 13/8/2025 11:7:26
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -11,7 +11,6 @@ public interface Visitor {
     public void visit(MethodDecl MethodDecl);
     public void visit(VarDeclExtended VarDeclExtended);
     public void visit(InterfaceDecl InterfaceDecl);
-    public void visit(InterfaceDeclList InterfaceDeclList);
     public void visit(DesignatorStatementTail DesignatorStatementTail);
     public void visit(ExprsExtended ExprsExtended);
     public void visit(Relop Relop);
@@ -28,9 +27,9 @@ public interface Visitor {
     public void visit(Factor Factor);
     public void visit(InterfaceMemberList InterfaceMemberList);
     public void visit(CondFactList CondFactList);
+    public void visit(DeclList DeclList);
     public void visit(ConstDeclExtendedList ConstDeclExtendedList);
     public void visit(FormParamExtendedList FormParamExtendedList);
-    public void visit(ConstDeclList ConstDeclList);
     public void visit(DesignatorStatementList DesignatorStatementList);
     public void visit(ElseStatement ElseStatement);
     public void visit(VarDeclExtendedList VarDeclExtendedList);
@@ -43,7 +42,7 @@ public interface Visitor {
     public void visit(ActPars ActPars);
     public void visit(DesignatorStatement DesignatorStatement);
     public void visit(ConstDeclExtended ConstDeclExtended);
-    public void visit(ClassDeclList ClassDeclList);
+    public void visit(Decl Decl);
     public void visit(Statement Statement);
     public void visit(VarDecl VarDecl);
     public void visit(ClassDecl ClassDecl);
@@ -154,15 +153,11 @@ public interface Visitor {
     public void visit(NoInterfaceMembers NoInterfaceMembers);
     public void visit(InterfaceMembers InterfaceMembers);
     public void visit(InterfaceDeclaration InterfaceDeclaration);
-    public void visit(NoInterfaceDeclarations NoInterfaceDeclarations);
-    public void visit(InterfaceDeclarations InterfaceDeclarations);
     public void visit(NoClassExtension NoClassExtension);
     public void visit(ClassExtension ClassExtension);
     public void visit(NoClassMembers NoClassMembers);
     public void visit(ClassMembers ClassMembers);
     public void visit(ClassDeclaration ClassDeclaration);
-    public void visit(NoClassDeclarations NoClassDeclarations);
-    public void visit(ClassDeclarations ClassDeclarations);
     public void visit(VarDeclarationExtendedArray VarDeclarationExtendedArray);
     public void visit(VarDeclarationExtended VarDeclarationExtended);
     public void visit(NoVarDeclarationsExtended NoVarDeclarationsExtended);
@@ -178,8 +173,12 @@ public interface Visitor {
     public void visit(CharConst CharConst);
     public void visit(NumberConst NumberConst);
     public void visit(ConstDeclaration ConstDeclaration);
-    public void visit(NoConstDeclarations NoConstDeclarations);
-    public void visit(ConstDeclarations ConstDeclarations);
+    public void visit(InterfaceD InterfaceD);
+    public void visit(ClassD ClassD);
+    public void visit(VarD VarD);
+    public void visit(ConstD ConstD);
+    public void visit(NoDeclarations NoDeclarations);
+    public void visit(Declarations Declarations);
     public void visit(Program Program);
 
 }

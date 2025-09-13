@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 0:32:44
+// 13/8/2025 11:7:26
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class NoInterfaceDeclarations extends InterfaceDeclList {
+public class NoDeclarations extends DeclList {
 
-    public NoInterfaceDeclarations () {
+    public NoDeclarations () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class NoInterfaceDeclarations extends InterfaceDeclList {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("NoInterfaceDeclarations(\n");
+        buffer.append("NoDeclarations(\n");
 
         buffer.append(tab);
-        buffer.append(") [NoInterfaceDeclarations]");
+        buffer.append(") [NoDeclarations]");
         return buffer.toString();
     }
 }

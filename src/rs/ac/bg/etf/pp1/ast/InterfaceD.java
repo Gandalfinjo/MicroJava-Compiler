@@ -1,28 +1,17 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 0:32:44
+// 13/8/2025 11:7:26
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class InterfaceDeclarations extends InterfaceDeclList {
+public class InterfaceD extends Decl {
 
-    private InterfaceDeclList InterfaceDeclList;
     private InterfaceDecl InterfaceDecl;
 
-    public InterfaceDeclarations (InterfaceDeclList InterfaceDeclList, InterfaceDecl InterfaceDecl) {
-        this.InterfaceDeclList=InterfaceDeclList;
-        if(InterfaceDeclList!=null) InterfaceDeclList.setParent(this);
+    public InterfaceD (InterfaceDecl InterfaceDecl) {
         this.InterfaceDecl=InterfaceDecl;
         if(InterfaceDecl!=null) InterfaceDecl.setParent(this);
-    }
-
-    public InterfaceDeclList getInterfaceDeclList() {
-        return InterfaceDeclList;
-    }
-
-    public void setInterfaceDeclList(InterfaceDeclList InterfaceDeclList) {
-        this.InterfaceDeclList=InterfaceDeclList;
     }
 
     public InterfaceDecl getInterfaceDecl() {
@@ -38,18 +27,15 @@ public class InterfaceDeclarations extends InterfaceDeclList {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(InterfaceDeclList!=null) InterfaceDeclList.accept(visitor);
         if(InterfaceDecl!=null) InterfaceDecl.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(InterfaceDeclList!=null) InterfaceDeclList.traverseTopDown(visitor);
         if(InterfaceDecl!=null) InterfaceDecl.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(InterfaceDeclList!=null) InterfaceDeclList.traverseBottomUp(visitor);
         if(InterfaceDecl!=null) InterfaceDecl.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -57,13 +43,7 @@ public class InterfaceDeclarations extends InterfaceDeclList {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("InterfaceDeclarations(\n");
-
-        if(InterfaceDeclList!=null)
-            buffer.append(InterfaceDeclList.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
+        buffer.append("InterfaceD(\n");
 
         if(InterfaceDecl!=null)
             buffer.append(InterfaceDecl.toString("  "+tab));
@@ -72,7 +52,7 @@ public class InterfaceDeclarations extends InterfaceDeclList {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [InterfaceDeclarations]");
+        buffer.append(") [InterfaceD]");
         return buffer.toString();
     }
 }

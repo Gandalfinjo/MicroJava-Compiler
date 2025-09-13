@@ -52,6 +52,8 @@ terminal Integer NUMBER_CONST;
 terminal String IDENT;
 
 nonterminal Program Program;
+nonterminal DeclList DeclList;
+nonterminal Decl Decl;
 nonterminal VarDeclList VarDeclList;
 nonterminal VarDecl VarDecl;
 nonterminal VarDeclExtendedList VarDeclExtendedList;
@@ -78,17 +80,14 @@ nonterminal FormParamList FormParamList;
 nonterminal FormParamArray FormParamArray;
 nonterminal FormParamExtendedList FormParamExtendedList;
 nonterminal FormParamExtended FormParamExtended;
-nonterminal ConstDeclList ConstDeclList;
 nonterminal ConstDecl ConstDecl;
 nonterminal ConstDeclValue ConstDeclValue;
 nonterminal ConstDeclExtendedList ConstDeclExtendedList;
 nonterminal ConstDeclExtended ConstDeclExtended;
-nonterminal ClassDeclList ClassDeclList;
 nonterminal ClassDecl ClassDecl;
 nonterminal ClassMemberList ClassMemberList;
 nonterminal ClassMember ClassMember;
 nonterminal ExtendsType ExtendsType;
-nonterminal InterfaceDeclList InterfaceDeclList;
 nonterminal InterfaceDecl InterfaceDecl;
 nonterminal InterfaceMemberList InterfaceMemberList;
 nonterminal InterfaceMember InterfaceMember;
@@ -116,12 +115,21 @@ nonterminal Setop Setop;
 
 precedence left ELSE;
 
-Program ::= (Program) PROG IDENT:I1 ConstDeclList:C2 VarDeclList:V3 ClassDeclList:C4 InterfaceDeclList:I5 OPEN_BRACE MethodDeclList:M6 CLOSED_BRACE {: RESULT=new Program(I1, C2, V3, C4, I5, M6); RESULT.setLine(I1left); :};
+Program ::= (Program) PROG IDENT:I1 DeclList:D2 OPEN_BRACE MethodDeclList:M3 CLOSED_BRACE {: RESULT=new Program(I1, D2, M3); RESULT.setLine(I1left); :};
 
-ConstDeclList ::= (ConstDeclarations) ConstDeclList:C1 ConstDecl:C2 {: RESULT=new ConstDeclarations(C1, C2); RESULT.setLine(C1left); :}
+DeclList ::= (Declarations) DeclList:D1 Decl:D2 {: RESULT=new Declarations(D1, D2); RESULT.setLine(D1left); :}
 				|
-				(NoConstDeclarations) {: RESULT=new NoConstDeclarations(); :} /* epsilon */
+				(NoDeclarations) {: RESULT=new NoDeclarations(); :} /* epsilon */
 				;
+Decl ::= (ConstD) ConstDecl:C1 {: RESULT=new ConstD(C1); RESULT.setLine(C1left); :}
+				|
+				(VarD) VarDecl:V1 {: RESULT=new VarD(V1); RESULT.setLine(V1left); :}
+				|
+				(ClassD) ClassDecl:C1 {: RESULT=new ClassD(C1); RESULT.setLine(C1left); :}
+				|
+				(InterfaceD) InterfaceDecl:I1 {: RESULT=new InterfaceD(I1); RESULT.setLine(I1left); :}
+				;
+
 ConstDecl ::= (ConstDeclaration) CONST Type:T1 IDENT:I2 ASSIGN ConstDeclValue:C3 ConstDeclExtendedList:C4 SEMICOLON {: RESULT=new ConstDeclaration(T1, I2, C3, C4); RESULT.setLine(T1left); :};
 ConstDeclValue ::= (NumberConst) NUMBER_CONST:N1 {: RESULT=new NumberConst(N1); RESULT.setLine(N1left); :}
 				|
@@ -151,11 +159,7 @@ VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT:I1 {: RESULT=new VarDec
 				|
 				(VarDeclarationExtendedArray) COMMA IDENT:I1 OPEN_BRACKET CLOSED_BRACKET {: RESULT=new VarDeclarationExtendedArray(I1); RESULT.setLine(I1left); :}
 				;
-				
-ClassDeclList ::= (ClassDeclarations) ClassDeclList:C1 ClassDecl:C2 {: RESULT=new ClassDeclarations(C1, C2); RESULT.setLine(C1left); :}
-				|
-				(NoClassDeclarations) {: RESULT=new NoClassDeclarations(); :} /* epsilon */
-				;
+
 ClassDecl ::= (ClassDeclaration) CLASS IDENT:I1 ExtendsType:E2 OPEN_BRACE VarDeclList:V3 ClassMemberList:C4 CLOSED_BRACE {: RESULT=new ClassDeclaration(I1, E2, V3, C4); RESULT.setLine(I1left); :};
 ClassMemberList ::= (ClassMembers) OPEN_BRACE MethodDeclList:M1 CLOSED_BRACE {: RESULT=new ClassMembers(M1); RESULT.setLine(M1left); :}
 				| (NoClassMembers) {: RESULT=new NoClassMembers(); :} /* epsilon */
@@ -164,11 +168,7 @@ ExtendsType ::= (ClassExtension) EXTENDS Type:T1 {: RESULT=new ClassExtension(T1
 				|
 				(NoClassExtension) {: RESULT=new NoClassExtension(); :} /* epsilon */
 				;
-				
-InterfaceDeclList ::= (InterfaceDeclarations) InterfaceDeclList:I1 InterfaceDecl:I2 {: RESULT=new InterfaceDeclarations(I1, I2); RESULT.setLine(I1left); :}
-				|
-				(NoInterfaceDeclarations) {: RESULT=new NoInterfaceDeclarations(); :} /* epsilon */
-				;
+
 InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT:I1 OPEN_BRACE InterfaceMemberList:I2 CLOSED_BRACE {: RESULT=new InterfaceDeclaration(I1, I2); RESULT.setLine(I1left); :};
 InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList:I1 InterfaceMember:I2 {: RESULT=new InterfaceMembers(I1, I2); RESULT.setLine(I1left); :}
 				|
