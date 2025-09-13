@@ -1,19 +1,19 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 12:25:14
+// 13/8/2025 19:10:57
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class ClassDeclaration extends ClassDecl {
 
-    private String I1;
+    private String name;
     private ExtendsType ExtendsType;
     private VarDeclList VarDeclList;
     private ClassMemberList ClassMemberList;
 
-    public ClassDeclaration (String I1, ExtendsType ExtendsType, VarDeclList VarDeclList, ClassMemberList ClassMemberList) {
-        this.I1=I1;
+    public ClassDeclaration (String name, ExtendsType ExtendsType, VarDeclList VarDeclList, ClassMemberList ClassMemberList) {
+        this.name=name;
         this.ExtendsType=ExtendsType;
         if(ExtendsType!=null) ExtendsType.setParent(this);
         this.VarDeclList=VarDeclList;
@@ -22,12 +22,12 @@ public class ClassDeclaration extends ClassDecl {
         if(ClassMemberList!=null) ClassMemberList.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public String getName() {
+        return name;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setName(String name) {
+        this.name=name;
     }
 
     public ExtendsType getExtendsType() {
@@ -83,7 +83,7 @@ public class ClassDeclaration extends ClassDecl {
         buffer.append(tab);
         buffer.append("ClassDeclaration(\n");
 
-        buffer.append(" "+tab+I1);
+        buffer.append(" "+tab+name);
         buffer.append("\n");
 
         if(ExtendsType!=null)

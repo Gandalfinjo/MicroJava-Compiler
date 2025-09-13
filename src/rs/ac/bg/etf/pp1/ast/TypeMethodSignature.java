@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 12:25:14
+// 13/8/2025 19:10:57
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,13 +8,13 @@ package rs.ac.bg.etf.pp1.ast;
 public class TypeMethodSignature extends MethodSignature {
 
     private Type Type;
-    private String I2;
+    private String name;
     private FormPars FormPars;
 
-    public TypeMethodSignature (Type Type, String I2, FormPars FormPars) {
+    public TypeMethodSignature (Type Type, String name, FormPars FormPars) {
         this.Type=Type;
         if(Type!=null) Type.setParent(this);
-        this.I2=I2;
+        this.name=name;
         this.FormPars=FormPars;
         if(FormPars!=null) FormPars.setParent(this);
     }
@@ -27,12 +27,12 @@ public class TypeMethodSignature extends MethodSignature {
         this.Type=Type;
     }
 
-    public String getI2() {
-        return I2;
+    public String getName() {
+        return name;
     }
 
-    public void setI2(String I2) {
-        this.I2=I2;
+    public void setName(String name) {
+        this.name=name;
     }
 
     public FormPars getFormPars() {
@@ -75,7 +75,7 @@ public class TypeMethodSignature extends MethodSignature {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        buffer.append(" "+tab+I2);
+        buffer.append(" "+tab+name);
         buffer.append("\n");
 
         if(FormPars!=null)

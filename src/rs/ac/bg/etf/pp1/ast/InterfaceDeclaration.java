@@ -1,27 +1,27 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 12:25:14
+// 13/8/2025 19:10:57
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class InterfaceDeclaration extends InterfaceDecl {
 
-    private String I1;
+    private String name;
     private InterfaceMemberList InterfaceMemberList;
 
-    public InterfaceDeclaration (String I1, InterfaceMemberList InterfaceMemberList) {
-        this.I1=I1;
+    public InterfaceDeclaration (String name, InterfaceMemberList InterfaceMemberList) {
+        this.name=name;
         this.InterfaceMemberList=InterfaceMemberList;
         if(InterfaceMemberList!=null) InterfaceMemberList.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public String getName() {
+        return name;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setName(String name) {
+        this.name=name;
     }
 
     public InterfaceMemberList getInterfaceMemberList() {
@@ -55,7 +55,7 @@ public class InterfaceDeclaration extends InterfaceDecl {
         buffer.append(tab);
         buffer.append("InterfaceDeclaration(\n");
 
-        buffer.append(" "+tab+I1);
+        buffer.append(" "+tab+name);
         buffer.append("\n");
 
         if(InterfaceMemberList!=null)

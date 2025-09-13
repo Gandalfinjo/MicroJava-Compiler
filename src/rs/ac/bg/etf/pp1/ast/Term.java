@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 12:25:14
+// 13/8/2025 19:10:57
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -9,6 +9,8 @@ public class Term implements SyntaxNode {
 
     private SyntaxNode parent;
     private int line;
+    public rs.etf.pp1.symboltable.concepts.Struct struct = null;
+
     private Factor Factor;
     private MulopFactorList MulopFactorList;
 

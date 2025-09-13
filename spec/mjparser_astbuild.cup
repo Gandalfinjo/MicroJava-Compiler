@@ -47,7 +47,8 @@ terminal SEMICOLON, COLON, COMMA, DOT;
 terminal OPEN_PARENTHESIS, CLOSED_PARENTHESIS;
 terminal OPEN_BRACKET, CLOSED_BRACKET;
 terminal OPEN_BRACE, CLOSED_BRACE;
-terminal BOOL_CONST, CHAR_CONST;
+terminal Boolean BOOL_CONST;
+terminal Character CHAR_CONST;
 terminal Integer NUMBER_CONST;
 terminal String IDENT;
 
@@ -55,19 +56,14 @@ nonterminal Program Program;
 nonterminal DeclList DeclList;
 nonterminal Decl Decl;
 nonterminal VarDeclList VarDeclList;
-nonterminal VarDecl VarDecl;
 nonterminal VarDeclExtendedList VarDeclExtendedList;
 nonterminal VarDeclExtended VarDeclExtended;
 nonterminal MethodDeclList MethodDeclList;
-nonterminal MethodDecl MethodDecl;
-nonterminal MethodSignature MethodSignature;
-nonterminal Type Type;
 nonterminal StatementList StatementList;
 nonterminal Statement Statement;
 nonterminal DesignatorStatement DesignatorStatement;
 nonterminal DesignatorStatementTail DesignatorStatementTail;
 nonterminal DesignatorStatementList DesignatorStatementList;
-nonterminal Designator Designator;
 nonterminal DesignatorTail DesignatorTail;
 nonterminal ElseStatement ElseStatement;
 nonterminal NumConstList NumConstList;
@@ -80,15 +76,12 @@ nonterminal FormParamList FormParamList;
 nonterminal FormParamArray FormParamArray;
 nonterminal FormParamExtendedList FormParamExtendedList;
 nonterminal FormParamExtended FormParamExtended;
-nonterminal ConstDecl ConstDecl;
 nonterminal ConstDeclValue ConstDeclValue;
 nonterminal ConstDeclExtendedList ConstDeclExtendedList;
 nonterminal ConstDeclExtended ConstDeclExtended;
-nonterminal ClassDecl ClassDecl;
 nonterminal ClassMemberList ClassMemberList;
 nonterminal ClassMember ClassMember;
 nonterminal ExtendsType ExtendsType;
-nonterminal InterfaceDecl InterfaceDecl;
 nonterminal InterfaceMemberList InterfaceMemberList;
 nonterminal InterfaceMember InterfaceMember;
 nonterminal CondFact CondFact;
@@ -97,11 +90,7 @@ nonterminal CondTerm CondTerm;
 nonterminal CondFactList CondFactList;
 nonterminal Condition Condition;
 nonterminal CondTermList CondTermList;
-nonterminal Expr Expr;
 nonterminal ExprsExtended ExprsExtended;
-nonterminal Term Term;
-nonterminal Factor Factor;
-nonterminal NewFactorTail NewFactorTail;
 nonterminal MulopFactorList MulopFactorList;
 nonterminal MulopFactor MulopFactor;
 nonterminal AddopTermList AddopTermList;
@@ -113,9 +102,14 @@ nonterminal Addop Addop;
 nonterminal Mulop Mulop;
 nonterminal Setop Setop;
 
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Designator, MethodDecl, MethodSignature, ConstDecl, VarDecl, ClassDecl, InterfaceDecl;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Factor, Expr, NewFactorTail;
+
 precedence left ELSE;
 
-Program ::= (Program) PROG IDENT:I1 DeclList:D2 OPEN_BRACE MethodDeclList:M3 CLOSED_BRACE {: RESULT=new Program(I1, D2, M3); RESULT.setLine(I1left); :};
+Program ::= (Program) PROG ProgName:P1 DeclList:D2 OPEN_BRACE MethodDeclList:M3 CLOSED_BRACE {: RESULT=new Program(P1, D2, M3); RESULT.setLine(P1left); :};
+
+ProgName ::= (ProgName) IDENT:progName {: RESULT=new ProgName(progName); RESULT.setLine(progNameleft); :};
 
 DeclList ::= (Declarations) DeclList:D1 Decl:D2 {: RESULT=new Declarations(D1, D2); RESULT.setLine(D1left); :}
 				|
@@ -130,26 +124,26 @@ Decl ::= (ConstD) ConstDecl:C1 {: RESULT=new ConstD(C1); RESULT.setLine(C1left);
 				(InterfaceD) InterfaceDecl:I1 {: RESULT=new InterfaceD(I1); RESULT.setLine(I1left); :}
 				;
 
-ConstDecl ::= (ConstDeclaration) CONST Type:T1 IDENT:I2 ASSIGN ConstDeclValue:C3 ConstDeclExtendedList:C4 SEMICOLON {: RESULT=new ConstDeclaration(T1, I2, C3, C4); RESULT.setLine(T1left); :};
+ConstDecl ::= (ConstDeclaration) CONST Type:type IDENT:name ASSIGN ConstDeclValue:value ConstDeclExtendedList:list SEMICOLON {: RESULT=new ConstDeclaration(type, name, value, list); RESULT.setLine(typeleft); :};
 ConstDeclValue ::= (NumberConst) NUMBER_CONST:N1 {: RESULT=new NumberConst(N1); RESULT.setLine(N1left); :}
 				|
-				(CharConst) CHAR_CONST {: RESULT=new CharConst(); :}
+				(CharConst) CHAR_CONST:C1 {: RESULT=new CharConst(C1); RESULT.setLine(C1left); :}
 				|
-				(BoolConst) BOOL_CONST {: RESULT=new BoolConst(); :}
+				(BoolConst) BOOL_CONST:B1 {: RESULT=new BoolConst(B1); RESULT.setLine(B1left); :}
 				;
 ConstDeclExtendedList ::= (ConstDeclarationsExtended) ConstDeclExtendedList:C1 ConstDeclExtended:C2 {: RESULT=new ConstDeclarationsExtended(C1, C2); RESULT.setLine(C1left); :}
 				|
 				(NoConstDeclarationsExtended) {: RESULT=new NoConstDeclarationsExtended(); :} /* epsilon */
 				;
-ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT:I1 ASSIGN ConstDeclValue:C2 {: RESULT=new ConstDeclarationExtended(I1, C2); RESULT.setLine(I1left); :};
+ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT:name ASSIGN ConstDeclValue:C1 {: RESULT=new ConstDeclarationExtended(name, C1); RESULT.setLine(nameleft); :};
 
 VarDeclList ::= (VarDeclarations) VarDeclList:V1 VarDecl:V2 {: RESULT=new VarDeclarations(V1, V2); RESULT.setLine(V1left); :}
 				|
 				(NoVarDeclarations) {: RESULT=new NoVarDeclarations(); :} /* epsilon */
 				;
-VarDecl ::= (VarDeclaration) Type:T1 IDENT:I2 VarDeclExtendedList:V3 SEMICOLON {: RESULT=new VarDeclaration(T1, I2, V3); RESULT.setLine(T1left); :}
+VarDecl ::= (VarDeclaration) Type:type IDENT:name VarDeclExtendedList:list SEMICOLON {: RESULT=new VarDeclaration(type, name, list); RESULT.setLine(typeleft); :}
 				|
-				(VarDeclarationArray) Type:T1 IDENT:I2 OPEN_BRACKET CLOSED_BRACKET VarDeclExtendedList:V3 SEMICOLON {: RESULT=new VarDeclarationArray(T1, I2, V3); RESULT.setLine(T1left); :}
+				(VarDeclarationArray) Type:type IDENT:name OPEN_BRACKET CLOSED_BRACKET VarDeclExtendedList:list SEMICOLON {: RESULT=new VarDeclarationArray(type, name, list); RESULT.setLine(typeleft); :}
 				|
 				(VarDeclError) error SEMICOLON:l {: parser.report_error("Error in variable declaration. Recovery until ';' on the line " + lleft, null); :} {: RESULT=new VarDeclError(); :}
 				|
@@ -161,12 +155,12 @@ VarDeclExtendedList ::= (VarDeclarationsExtended) VarDeclExtendedList:V1 VarDecl
 				|
 				(NoVarDeclarationsExtended) {: RESULT=new NoVarDeclarationsExtended(); :} /* epsilon */
 				;
-VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT:I1 {: RESULT=new VarDeclarationExtended(I1); RESULT.setLine(I1left); :}
+VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT:name {: RESULT=new VarDeclarationExtended(name); RESULT.setLine(nameleft); :}
 				|
-				(VarDeclarationExtendedArray) COMMA IDENT:I1 OPEN_BRACKET CLOSED_BRACKET {: RESULT=new VarDeclarationExtendedArray(I1); RESULT.setLine(I1left); :}
+				(VarDeclarationExtendedArray) COMMA IDENT:name OPEN_BRACKET CLOSED_BRACKET {: RESULT=new VarDeclarationExtendedArray(name); RESULT.setLine(nameleft); :}
 				;
 
-ClassDecl ::= (ClassDeclaration) CLASS IDENT:I1 ExtendsType:E2 OPEN_BRACE VarDeclList:V3 ClassMemberList:C4 CLOSED_BRACE {: RESULT=new ClassDeclaration(I1, E2, V3, C4); RESULT.setLine(I1left); :};
+ClassDecl ::= (ClassDeclaration) CLASS IDENT:name ExtendsType:ext OPEN_BRACE VarDeclList:vlist ClassMemberList:mlist CLOSED_BRACE {: RESULT=new ClassDeclaration(name, ext, vlist, mlist); RESULT.setLine(nameleft); :};
 ClassMemberList ::= (ClassMembers) OPEN_BRACE MethodDeclList:M1 CLOSED_BRACE {: RESULT=new ClassMembers(M1); RESULT.setLine(M1left); :}
 				| (NoClassMembers) {: RESULT=new NoClassMembers(); :} /* epsilon */
 				;
@@ -177,7 +171,7 @@ ExtendsType ::= (ClassExtension) EXTENDS Type:T1 {: RESULT=new ClassExtension(T1
 				(ExtendsTypeError) error OPEN_BRACE:l {: parser.report_error("Error in extending a class. Recovery until '{' on the line " + lleft, null); :} {: RESULT=new ExtendsTypeError(); :}
 				;
 
-InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT:I1 OPEN_BRACE InterfaceMemberList:I2 CLOSED_BRACE {: RESULT=new InterfaceDeclaration(I1, I2); RESULT.setLine(I1left); :};
+InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT:name OPEN_BRACE InterfaceMemberList:mlist CLOSED_BRACE {: RESULT=new InterfaceDeclaration(name, mlist); RESULT.setLine(nameleft); :};
 InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList:I1 InterfaceMember:I2 {: RESULT=new InterfaceMembers(I1, I2); RESULT.setLine(I1left); :}
 				|
 				(NoInterfaceMembers) {: RESULT=new NoInterfaceMembers(); :} /* epsilon */
@@ -192,16 +186,16 @@ MethodDeclList ::= (MethodDeclarations) MethodDeclList:M1 MethodDecl:M2 {: RESUL
 				(NoMethodDeclarations) {: RESULT=new NoMethodDeclarations(); :} /* epsilon */
 				;
 MethodDecl ::= (MethodDeclaration) MethodSignature:M1 VarDeclList:V2 OPEN_BRACE StatementList:S3 CLOSED_BRACE {: RESULT=new MethodDeclaration(M1, V2, S3); RESULT.setLine(M1left); :};
-MethodSignature ::= (TypeMethodSignature) Type:T1 IDENT:I2 OPEN_PARENTHESIS FormPars:F3 CLOSED_PARENTHESIS {: RESULT=new TypeMethodSignature(T1, I2, F3); RESULT.setLine(T1left); :}
+MethodSignature ::= (TypeMethodSignature) Type:type IDENT:name OPEN_PARENTHESIS FormPars:pars CLOSED_PARENTHESIS {: RESULT=new TypeMethodSignature(type, name, pars); RESULT.setLine(typeleft); :}
 				|
-				(VoidMethodSignature) VOID IDENT:I1 OPEN_PARENTHESIS FormPars:F2 CLOSED_PARENTHESIS {: RESULT=new VoidMethodSignature(I1, F2); RESULT.setLine(I1left); :}
+				(VoidMethodSignature) VOID IDENT:name OPEN_PARENTHESIS FormPars:pars CLOSED_PARENTHESIS {: RESULT=new VoidMethodSignature(name, pars); RESULT.setLine(nameleft); :}
 				;
 				
 FormPars ::= (FormParams) FormParamList:F1 {: RESULT=new FormParams(F1); RESULT.setLine(F1left); :}
 				|
 				(NoFormParams) {: RESULT=new NoFormParams(); :} /* epsilon */
 				;
-FormParamList ::= (FormParamList) Type:T1 IDENT:I2 FormParamArray:F3 FormParamExtendedList:F4 {: RESULT=new FormParamList(T1, I2, F3, F4); RESULT.setLine(T1left); :};
+FormParamList ::= (FormParamList) Type:type IDENT:name FormParamArray:arr FormParamExtendedList:elist {: RESULT=new FormParamList(type, name, arr, elist); RESULT.setLine(typeleft); :};
 FormParamArray ::= (FormArrayBrackets) OPEN_BRACKET CLOSED_BRACKET {: RESULT=new FormArrayBrackets(); :}
 				|
 				(NoFormArrayBrackets) {: RESULT=new NoFormArrayBrackets(); :} /* epsilon */
@@ -210,16 +204,16 @@ FormParamExtendedList ::= (ExtendedFormParamList) FormParamExtendedList:F1 FormP
 				|
 				(NoExtendedFormParamList) {: RESULT=new NoExtendedFormParamList(); :} /* epsilon */
 				;
-FormParamExtended ::= (FormParamExtendedNormal) COMMA Type:T1 IDENT:I2 {: RESULT=new FormParamExtendedNormal(T1, I2); RESULT.setLine(T1left); :}
+FormParamExtended ::= (FormParamExtendedNormal) COMMA Type:type IDENT:name {: RESULT=new FormParamExtendedNormal(type, name); RESULT.setLine(typeleft); :}
 				|
-				(FormParamExtendedArary) COMMA Type:T1 IDENT:I2 OPEN_BRACKET CLOSED_BRACKET {: RESULT=new FormParamExtendedArary(T1, I2); RESULT.setLine(T1left); :}
+				(FormParamExtendedArary) COMMA Type:type IDENT:name OPEN_BRACKET CLOSED_BRACKET {: RESULT=new FormParamExtendedArary(type, name); RESULT.setLine(typeleft); :}
 				|
 				(FormParamExtendedErrorComma) error COMMA:l {: parser.report_error("Error in formal parameter. Recovery until ',' on the line " + lleft, null); :} {: RESULT=new FormParamExtendedErrorComma(); :}
 				|
 				(FormParamExtendedErrorParen) error CLOSED_PARENTHESIS:l {: parser.report_error("Error in formal parameter. Recovery until ')' on the line " + lleft, null); :} {: RESULT=new FormParamExtendedErrorParen(); :}
 				;
 
-Type ::= (Type) IDENT:I1 {: RESULT=new Type(I1); RESULT.setLine(I1left); :};
+Type ::= (Type) IDENT:typeName {: RESULT=new Type(typeName); RESULT.setLine(typeNameleft); :};
 
 StatementList ::= (Statements) StatementList:S1 Statement:S2 {: RESULT=new Statements(S1, S2); RESULT.setLine(S1left); :}
 				|
@@ -310,9 +304,9 @@ ExprsExtended ::= (ExprsExtendedList) COMMA Expr:E1 ExprsExtended:E2 {: RESULT=n
 				|
 				(NoExprsExtendedList) {: RESULT=new NoExprsExtendedList(); :} /* epsilon */
 				;		
-Expr ::= (NoSignExpr) Term:T1 AddopTermList:A2 {: RESULT=new NoSignExpr(T1, A2); RESULT.setLine(T1left); :}
+Expr ::= (NoSignExpr) Term:term AddopTermList:alist {: RESULT=new NoSignExpr(term, alist); RESULT.setLine(termleft); :}
 				|
-				(NegativeSignExpr) MINUS Term:T1 AddopTermList:A2 {: RESULT=new NegativeSignExpr(T1, A2); RESULT.setLine(T1left); :}
+				(NegativeSignExpr) MINUS Term:term AddopTermList:alist {: RESULT=new NegativeSignExpr(term, alist); RESULT.setLine(termleft); :}
 				|
 				(DesignatorExpr) Designator:D1 MAP Designator:D2 {: RESULT=new DesignatorExpr(D1, D2); RESULT.setLine(D1left); :}
 				;
@@ -331,27 +325,27 @@ MulopFactorList ::= (MulopFactors) MulopFactorList:M1 MulopFactor:M2 {: RESULT=n
 				;
 MulopFactor ::= (MulopFactor) Mulop:M1 Factor:F2 {: RESULT=new MulopFactor(M1, F2); RESULT.setLine(M1left); :};
 
-Factor ::= (DesignatorFactor) Designator:D1 ActParsOption:A2 {: RESULT=new DesignatorFactor(D1, A2); RESULT.setLine(D1left); :}
+Factor ::= (DesignatorFactor) Designator:des ActParsOption:pars {: RESULT=new DesignatorFactor(des, pars); RESULT.setLine(desleft); :}
 				|
-				(NumFactor) NUMBER_CONST:N1 {: RESULT=new NumFactor(N1); RESULT.setLine(N1left); :}
+				(NumFactor) NUMBER_CONST:num {: RESULT=new NumFactor(num); RESULT.setLine(numleft); :}
 				|
-				(CharFactor) CHAR_CONST {: RESULT=new CharFactor(); :}
+				(CharFactor) CHAR_CONST:ch {: RESULT=new CharFactor(ch); RESULT.setLine(chleft); :}
 				|
-				(BoolFactor) BOOL_CONST {: RESULT=new BoolFactor(); :}
+				(BoolFactor) BOOL_CONST:bool {: RESULT=new BoolFactor(bool); RESULT.setLine(boolleft); :}
 				|
-				(NewFactor) NEW Type:T1 NewFactorTail:N2 {: RESULT=new NewFactor(T1, N2); RESULT.setLine(T1left); :}
+				(NewFactor) NEW Type:type NewFactorTail:tail {: RESULT=new NewFactor(type, tail); RESULT.setLine(typeleft); :}
 				|
-				(ExprFactor) OPEN_PARENTHESIS Expr:E1 CLOSED_PARENTHESIS {: RESULT=new ExprFactor(E1); RESULT.setLine(E1left); :}
+				(ExprFactor) OPEN_PARENTHESIS Expr:expr CLOSED_PARENTHESIS {: RESULT=new ExprFactor(expr); RESULT.setLine(exprleft); :}
 				;
 NewFactorTail ::= (ExprFactorTail) OPEN_BRACKET Expr:E1 CLOSED_BRACKET {: RESULT=new ExprFactorTail(E1); RESULT.setLine(E1left); :}
 				|
 				(ActParsFactorTail) OPEN_PARENTHESIS ActParsInner:A1 CLOSED_PARENTHESIS {: RESULT=new ActParsFactorTail(A1); RESULT.setLine(A1left); :}
 				;
 				
-Designator ::= (Designator) IDENT:I1 DesignatorTail:D2 {: RESULT=new Designator(I1, D2); RESULT.setLine(I1left); :};
-DesignatorTail ::= (DotDesignatorTail) DOT IDENT:I1 DesignatorTail:D2 {: RESULT=new DotDesignatorTail(I1, D2); RESULT.setLine(I1left); :}
+Designator ::= (Designator) IDENT:name DesignatorTail:D1 {: RESULT=new Designator(name, D1); RESULT.setLine(nameleft); :};
+DesignatorTail ::= (DotDesignatorTail) DOT IDENT:field DesignatorTail:tail {: RESULT=new DotDesignatorTail(field, tail); RESULT.setLine(fieldleft); :}
 				|
-				(ExprDesignatorTail) OPEN_BRACKET Expr:E1 CLOSED_BRACKET DesignatorTail:D2 {: RESULT=new ExprDesignatorTail(E1, D2); RESULT.setLine(E1left); :}
+				(ExprDesignatorTail) OPEN_BRACKET Expr:index CLOSED_BRACKET DesignatorTail:tail {: RESULT=new ExprDesignatorTail(index, tail); RESULT.setLine(indexleft); :}
 				|
 				(NoDesignatorTail) {: RESULT=new NoDesignatorTail(); :} /* epsilon */
 				;

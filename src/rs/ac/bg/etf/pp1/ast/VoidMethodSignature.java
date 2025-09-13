@@ -1,27 +1,27 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 12:25:14
+// 13/8/2025 19:10:57
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class VoidMethodSignature extends MethodSignature {
 
-    private String I1;
+    private String name;
     private FormPars FormPars;
 
-    public VoidMethodSignature (String I1, FormPars FormPars) {
-        this.I1=I1;
+    public VoidMethodSignature (String name, FormPars FormPars) {
+        this.name=name;
         this.FormPars=FormPars;
         if(FormPars!=null) FormPars.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public String getName() {
+        return name;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setName(String name) {
+        this.name=name;
     }
 
     public FormPars getFormPars() {
@@ -55,7 +55,7 @@ public class VoidMethodSignature extends MethodSignature {
         buffer.append(tab);
         buffer.append("VoidMethodSignature(\n");
 
-        buffer.append(" "+tab+I1);
+        buffer.append(" "+tab+name);
         buffer.append("\n");
 
         if(FormPars!=null)

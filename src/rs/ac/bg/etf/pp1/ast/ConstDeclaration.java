@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 12:25:14
+// 13/8/2025 19:10:57
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,14 +8,14 @@ package rs.ac.bg.etf.pp1.ast;
 public class ConstDeclaration extends ConstDecl {
 
     private Type Type;
-    private String I2;
+    private String name;
     private ConstDeclValue ConstDeclValue;
     private ConstDeclExtendedList ConstDeclExtendedList;
 
-    public ConstDeclaration (Type Type, String I2, ConstDeclValue ConstDeclValue, ConstDeclExtendedList ConstDeclExtendedList) {
+    public ConstDeclaration (Type Type, String name, ConstDeclValue ConstDeclValue, ConstDeclExtendedList ConstDeclExtendedList) {
         this.Type=Type;
         if(Type!=null) Type.setParent(this);
-        this.I2=I2;
+        this.name=name;
         this.ConstDeclValue=ConstDeclValue;
         if(ConstDeclValue!=null) ConstDeclValue.setParent(this);
         this.ConstDeclExtendedList=ConstDeclExtendedList;
@@ -30,12 +30,12 @@ public class ConstDeclaration extends ConstDecl {
         this.Type=Type;
     }
 
-    public String getI2() {
-        return I2;
+    public String getName() {
+        return name;
     }
 
-    public void setI2(String I2) {
-        this.I2=I2;
+    public void setName(String name) {
+        this.name=name;
     }
 
     public ConstDeclValue getConstDeclValue() {
@@ -89,7 +89,7 @@ public class ConstDeclaration extends ConstDecl {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        buffer.append(" "+tab+I2);
+        buffer.append(" "+tab+name);
         buffer.append("\n");
 
         if(ConstDeclValue!=null)

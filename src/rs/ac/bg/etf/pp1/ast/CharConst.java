@@ -1,13 +1,24 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 12:25:14
+// 13/8/2025 19:10:57
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class CharConst extends ConstDeclValue {
 
-    public CharConst () {
+    private Character C1;
+
+    public CharConst (Character C1) {
+        this.C1=C1;
+    }
+
+    public Character getC1() {
+        return C1;
+    }
+
+    public void setC1(Character C1) {
+        this.C1=C1;
     }
 
     public void accept(Visitor visitor) {
@@ -29,6 +40,9 @@ public class CharConst extends ConstDeclValue {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("CharConst(\n");
+
+        buffer.append(" "+tab+C1);
+        buffer.append("\n");
 
         buffer.append(tab);
         buffer.append(") [CharConst]");

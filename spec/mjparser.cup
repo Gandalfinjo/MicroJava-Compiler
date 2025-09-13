@@ -47,38 +47,41 @@ terminal SEMICOLON, COLON, COMMA, DOT;
 terminal OPEN_PARENTHESIS, CLOSED_PARENTHESIS;
 terminal OPEN_BRACKET, CLOSED_BRACKET;
 terminal OPEN_BRACE, CLOSED_BRACE;
-terminal BOOL_CONST, CHAR_CONST;
+terminal Boolean BOOL_CONST;
+terminal Character CHAR_CONST;
 terminal Integer NUMBER_CONST;
 terminal String IDENT;
 
 nonterminal Program;
 nonterminal DeclList, Decl;
-nonterminal VarDeclList, VarDecl, VarDeclExtendedList, VarDeclExtended;
-nonterminal MethodDeclList, MethodDecl, MethodSignature;
-nonterminal Type;
+nonterminal VarDeclList, VarDeclExtendedList, VarDeclExtended;
+nonterminal MethodDeclList;
 nonterminal StatementList, Statement;
-nonterminal DesignatorStatement, DesignatorStatementTail, DesignatorStatementList, Designator, DesignatorTail;
+nonterminal DesignatorStatement, DesignatorStatementTail, DesignatorStatementList, DesignatorTail;
 nonterminal ElseStatement;
 nonterminal NumConstList;
 nonterminal DoWhileOption;
 nonterminal ActPars, ActParsOption, ActParsInner;
 nonterminal FormPars, FormParamList, FormParamArray, FormParamExtendedList, FormParamExtended;
-nonterminal ConstDecl, ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
-nonterminal ClassDecl, ClassMemberList, ClassMember;
+nonterminal ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
+nonterminal ClassMemberList, ClassMember;
 nonterminal ExtendsType;
-nonterminal InterfaceDecl, InterfaceMemberList, InterfaceMember;
+nonterminal InterfaceMemberList, InterfaceMember;
 nonterminal CondFact, CondFactTail, CondTerm, CondFactList, Condition, CondTermList;
-nonterminal Expr, ExprsExtended;
-nonterminal Term;
-nonterminal Factor, NewFactorTail;
+nonterminal ExprsExtended;
 nonterminal MulopFactorList, MulopFactor;
 nonterminal AddopTermList, AddopTerm;
 nonterminal Label;
 nonterminal Assignop, Relop, Addop, Mulop, Setop;
 
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Designator, MethodDecl, MethodSignature, ConstDecl, VarDecl, ClassDecl, InterfaceDecl;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Factor, Expr, NewFactorTail;
+
 precedence left ELSE;
 
-Program ::= (Program) PROG IDENT DeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
+Program ::= (Program) PROG ProgName DeclList OPEN_BRACE MethodDeclList CLOSED_BRACE;
+
+ProgName ::= (ProgName) IDENT:progName;
 
 DeclList ::= (Declarations) DeclList Decl
 				|
@@ -93,7 +96,7 @@ Decl ::= (ConstD) ConstDecl
 				(InterfaceD) InterfaceDecl
 				;
 
-ConstDecl ::= (ConstDeclaration) CONST Type IDENT ASSIGN ConstDeclValue ConstDeclExtendedList SEMICOLON;
+ConstDecl ::= (ConstDeclaration) CONST Type:type IDENT:name ASSIGN ConstDeclValue:value ConstDeclExtendedList:list SEMICOLON;
 ConstDeclValue ::= (NumberConst) NUMBER_CONST
 				|
 				(CharConst) CHAR_CONST
@@ -104,15 +107,15 @@ ConstDeclExtendedList ::= (ConstDeclarationsExtended) ConstDeclExtendedList Cons
 				|
 				(NoConstDeclarationsExtended) /* epsilon */
 				;
-ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT ASSIGN ConstDeclValue;
+ConstDeclExtended ::= (ConstDeclarationExtended) COMMA IDENT:name ASSIGN ConstDeclValue;
 
 VarDeclList ::= (VarDeclarations) VarDeclList VarDecl
 				|
 				(NoVarDeclarations) /* epsilon */
 				;
-VarDecl ::= (VarDeclaration) Type IDENT VarDeclExtendedList SEMICOLON
+VarDecl ::= (VarDeclaration) Type:type IDENT:name VarDeclExtendedList:list SEMICOLON
 				|
-				(VarDeclarationArray) Type IDENT OPEN_BRACKET CLOSED_BRACKET VarDeclExtendedList SEMICOLON
+				(VarDeclarationArray) Type:type IDENT:name OPEN_BRACKET CLOSED_BRACKET VarDeclExtendedList:list SEMICOLON
 				|
 				(VarDeclError) error SEMICOLON:l {: parser.report_error("Error in variable declaration. Recovery until ';' on the line " + lleft, null); :}
 				|
@@ -124,12 +127,12 @@ VarDeclExtendedList ::= (VarDeclarationsExtended) VarDeclExtendedList VarDeclExt
 				|
 				(NoVarDeclarationsExtended) /* epsilon */
 				;
-VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT
+VarDeclExtended ::= (VarDeclarationExtended) COMMA IDENT:name
 				|
-				(VarDeclarationExtendedArray) COMMA IDENT OPEN_BRACKET CLOSED_BRACKET
+				(VarDeclarationExtendedArray) COMMA IDENT:name OPEN_BRACKET CLOSED_BRACKET
 				;
 
-ClassDecl ::= (ClassDeclaration) CLASS IDENT ExtendsType OPEN_BRACE VarDeclList ClassMemberList CLOSED_BRACE;
+ClassDecl ::= (ClassDeclaration) CLASS IDENT:name ExtendsType:ext OPEN_BRACE VarDeclList:vlist ClassMemberList:mlist CLOSED_BRACE;
 ClassMemberList ::= (ClassMembers) OPEN_BRACE MethodDeclList CLOSED_BRACE
 				| (NoClassMembers) /* epsilon */
 				;
@@ -140,7 +143,7 @@ ExtendsType ::= (ClassExtension) EXTENDS Type
 				(ExtendsTypeError) error OPEN_BRACE:l {: parser.report_error("Error in extending a class. Recovery until '{' on the line " + lleft, null); :}
 				;
 
-InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT OPEN_BRACE InterfaceMemberList CLOSED_BRACE;
+InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT:name OPEN_BRACE InterfaceMemberList:mlist CLOSED_BRACE;
 InterfaceMemberList ::= (InterfaceMembers) InterfaceMemberList InterfaceMember
 				|
 				(NoInterfaceMembers) /* epsilon */
@@ -155,16 +158,16 @@ MethodDeclList ::= (MethodDeclarations) MethodDeclList MethodDecl
 				(NoMethodDeclarations) /* epsilon */
 				;
 MethodDecl ::= (MethodDeclaration) MethodSignature VarDeclList OPEN_BRACE StatementList CLOSED_BRACE;
-MethodSignature ::= (TypeMethodSignature) Type IDENT OPEN_PARENTHESIS FormPars CLOSED_PARENTHESIS
+MethodSignature ::= (TypeMethodSignature) Type:type IDENT:name OPEN_PARENTHESIS FormPars:pars CLOSED_PARENTHESIS
 				|
-				(VoidMethodSignature) VOID IDENT OPEN_PARENTHESIS FormPars CLOSED_PARENTHESIS
+				(VoidMethodSignature) VOID IDENT:name OPEN_PARENTHESIS FormPars:pars CLOSED_PARENTHESIS
 				;
 				
 FormPars ::= (FormParams) FormParamList
 				|
 				(NoFormParams) /* epsilon */
 				;
-FormParamList ::= (FormParamList) Type IDENT FormParamArray FormParamExtendedList;
+FormParamList ::= (FormParamList) Type:type IDENT:name FormParamArray:arr FormParamExtendedList:elist;
 FormParamArray ::= (FormArrayBrackets) OPEN_BRACKET CLOSED_BRACKET
 				|
 				(NoFormArrayBrackets) /* epsilon */
@@ -173,16 +176,16 @@ FormParamExtendedList ::= (ExtendedFormParamList) FormParamExtendedList FormPara
 				|
 				(NoExtendedFormParamList) /* epsilon */
 				;
-FormParamExtended ::= (FormParamExtendedNormal) COMMA Type IDENT
+FormParamExtended ::= (FormParamExtendedNormal) COMMA Type:type IDENT:name
 				|
-				(FormParamExtendedArary) COMMA Type IDENT OPEN_BRACKET CLOSED_BRACKET
+				(FormParamExtendedArary) COMMA Type:type IDENT:name OPEN_BRACKET CLOSED_BRACKET
 				|
 				(FormParamExtendedErrorComma) error COMMA:l {: parser.report_error("Error in formal parameter. Recovery until ',' on the line " + lleft, null); :}
 				|
 				(FormParamExtendedErrorParen) error CLOSED_PARENTHESIS:l {: parser.report_error("Error in formal parameter. Recovery until ')' on the line " + lleft, null); :}
 				;
 
-Type ::= (Type) IDENT;
+Type ::= (Type) IDENT:typeName;
 
 StatementList ::= (Statements) StatementList Statement
 				|
@@ -273,9 +276,9 @@ ExprsExtended ::= (ExprsExtendedList) COMMA Expr ExprsExtended
 				|
 				(NoExprsExtendedList) /* epsilon */
 				;		
-Expr ::= (NoSignExpr) Term AddopTermList
+Expr ::= (NoSignExpr) Term:term AddopTermList:alist
 				|
-				(NegativeSignExpr) MINUS Term AddopTermList
+				(NegativeSignExpr) MINUS Term:term AddopTermList:alist
 				|
 				(DesignatorExpr) Designator MAP Designator
 				;
@@ -294,27 +297,27 @@ MulopFactorList ::= (MulopFactors) MulopFactorList MulopFactor
 				;
 MulopFactor ::= (MulopFactor) Mulop Factor;
 
-Factor ::= (DesignatorFactor) Designator ActParsOption
+Factor ::= (DesignatorFactor) Designator:des ActParsOption:pars
 				|
-				(NumFactor) NUMBER_CONST
+				(NumFactor) NUMBER_CONST:num
 				|
-				(CharFactor) CHAR_CONST
+				(CharFactor) CHAR_CONST:ch
 				|
-				(BoolFactor) BOOL_CONST
+				(BoolFactor) BOOL_CONST:bool
 				|
-				(NewFactor) NEW Type NewFactorTail
+				(NewFactor) NEW Type:type NewFactorTail:tail
 				|
-				(ExprFactor) OPEN_PARENTHESIS Expr CLOSED_PARENTHESIS
+				(ExprFactor) OPEN_PARENTHESIS Expr:expr CLOSED_PARENTHESIS
 				;
 NewFactorTail ::= (ExprFactorTail) OPEN_BRACKET Expr CLOSED_BRACKET
 				|
 				(ActParsFactorTail) OPEN_PARENTHESIS ActParsInner CLOSED_PARENTHESIS
 				;
 				
-Designator ::= (Designator) IDENT DesignatorTail;
-DesignatorTail ::= (DotDesignatorTail) DOT IDENT DesignatorTail
+Designator ::= (Designator) IDENT:name DesignatorTail;
+DesignatorTail ::= (DotDesignatorTail) DOT IDENT:field DesignatorTail:tail
 				|
-				(ExprDesignatorTail) OPEN_BRACKET Expr CLOSED_BRACKET DesignatorTail
+				(ExprDesignatorTail) OPEN_BRACKET Expr:index CLOSED_BRACKET DesignatorTail:tail
 				|
 				(NoDesignatorTail) /* epsilon */
 				;

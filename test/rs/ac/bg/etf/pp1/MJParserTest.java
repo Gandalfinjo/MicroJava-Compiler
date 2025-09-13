@@ -8,6 +8,7 @@ import java.io.Reader;
 
 import java_cup.runtime.Symbol;
 import rs.ac.bg.etf.pp1.ast.Program;
+import rs.etf.pp1.symboltable.Tab;
 
 public class MJParserTest {
 
@@ -27,6 +28,8 @@ public class MJParserTest {
 			
 			System.out.println(prog.toString(""));
 			System.out.println("===================================");
+			
+			Tab.init();
 			
 			RuleVisitor v = new RuleVisitor();
 			prog.traverseBottomUp(v);

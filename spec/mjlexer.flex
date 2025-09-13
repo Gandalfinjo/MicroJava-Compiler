@@ -82,9 +82,10 @@ import java_cup.runtime.Symbol;
 <COMMENT> .							{ yybegin(COMMENT); }
 <COMMENT> "\r\n"					{ yybegin(YYINITIAL); }
 
+'.'									{ return new_symbol(sym.CHAR_CONST, yytext().charAt(1)); }
+"true"								{ return new_symbol(sym.BOOL_CONST, true); }
+"false"								{ return new_symbol(sym.BOOL_CONST, false); }
 [0-9]+								{ return new_symbol(sym.NUMBER_CONST, Integer.parseInt(yytext())); }
-"true"|"false"						{ return new_symbol(sym.BOOL_CONST, yytext()); }
-"'"[ -~]"'"							{ return new_symbol(sym.CHAR_CONST, yytext()); }
 ([a-z]|[A-Z])[a-zA-Z0-9_]*			{ return new_symbol(sym.IDENT, yytext()); }
 
-.									{ System.err.println("Leksicka greska (" + yytext() + "), linija: " + (yyline + 1) + ", kolona: " + yycolumn); }
+.									{ System.err.println("Lexical error (" + yytext() + "), line: " + (yyline + 1) + ", column: " + yycolumn); }

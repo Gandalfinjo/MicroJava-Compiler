@@ -1,27 +1,27 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 12:25:14
+// 13/8/2025 19:10:57
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class DotDesignatorTail extends DesignatorTail {
 
-    private String I1;
+    private String field;
     private DesignatorTail DesignatorTail;
 
-    public DotDesignatorTail (String I1, DesignatorTail DesignatorTail) {
-        this.I1=I1;
+    public DotDesignatorTail (String field, DesignatorTail DesignatorTail) {
+        this.field=field;
         this.DesignatorTail=DesignatorTail;
         if(DesignatorTail!=null) DesignatorTail.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public String getField() {
+        return field;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setField(String field) {
+        this.field=field;
     }
 
     public DesignatorTail getDesignatorTail() {
@@ -55,7 +55,7 @@ public class DotDesignatorTail extends DesignatorTail {
         buffer.append(tab);
         buffer.append("DotDesignatorTail(\n");
 
-        buffer.append(" "+tab+I1);
+        buffer.append(" "+tab+field);
         buffer.append("\n");
 
         if(DesignatorTail!=null)
