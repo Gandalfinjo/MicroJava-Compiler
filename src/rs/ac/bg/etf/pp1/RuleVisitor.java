@@ -6,11 +6,11 @@ public class RuleVisitor extends VisitorAdaptor {
 	int printCallCount = 0;
 	int varDeclCount = 0;
 	
-//	public void visit(VarDecl varDecl) {
-//		varDeclCount++;
-//	}
-//	
-//	public void visit(PrintStmt printStmt) {
-//		printCallCount++;
-//	}
+	public void visit(VarDeclaration varDeclaration) {
+		varDeclCount++;
+	}
+	
+	public void visit(PrintStatement printStatement) {
+		printCallCount++;
+	}
 }

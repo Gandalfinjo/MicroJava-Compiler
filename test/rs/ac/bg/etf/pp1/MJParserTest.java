@@ -30,6 +30,9 @@ public class MJParserTest {
 			
 			RuleVisitor v = new RuleVisitor();
 			prog.traverseBottomUp(v);
+			
+			System.out.println("Print count calls = " + v.printCallCount);
+			System.out.println("Variable declarations = " + v.varDeclCount);
 		}
 		finally {
 			if (br != null) try { br.close(); } catch (IOException e1) { System.err.println((e1.getMessage())); }
