@@ -1,0 +1,38 @@
+program TestProgram
+	const int g = 10;
+	const bool f = false;
+	const char h = 'h', i = 'i', j = 'j';
+
+	int x;
+	int y[];
+	int z, zz;
+	
+	x = ;
+		
+	class MiniTest {
+		int m, n;
+		bool o;
+		
+		{
+			void mini_test(int q, int r) {
+			
+			}
+		}
+	}
+	
+	class Test extends MiniTest {
+		int p;
+		
+		{
+			void test(int s, bool t) {
+			
+			}
+		}
+	}
+{
+	void main(int c, int d[])
+		int a, b;
+	{
+	
+	}
+}

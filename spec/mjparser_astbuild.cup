@@ -10,18 +10,18 @@ parser code {:
 	}
 	
 	public void syntax_error(Symbol cur_token) {
-		report_error("\nSintaksna greska", cur_token);
+		report_error("\nSyntax error", cur_token);
 	}
 	
 	public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
-		report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+		report_fatal_error("Fatal error, parsing cannot continue.", cur_token);
 	}
 	
 	public void report_error(String message, Object info) {
 		StringBuilder msg = new StringBuilder(message);
 		
 		if (info instanceof Symbol)
-			msg.append(" na liniji ").append(((Symbol)info).left);
+			msg.append(" on the line ").append(((Symbol)info).left);
 		
 		System.err.println(msg.toString());
 	}
@@ -150,6 +150,12 @@ VarDeclList ::= (VarDeclarations) VarDeclList:V1 VarDecl:V2 {: RESULT=new VarDec
 VarDecl ::= (VarDeclaration) Type:T1 IDENT:I2 VarDeclExtendedList:V3 SEMICOLON {: RESULT=new VarDeclaration(T1, I2, V3); RESULT.setLine(T1left); :}
 				|
 				(VarDeclarationArray) Type:T1 IDENT:I2 OPEN_BRACKET CLOSED_BRACKET VarDeclExtendedList:V3 SEMICOLON {: RESULT=new VarDeclarationArray(T1, I2, V3); RESULT.setLine(T1left); :}
+				|
+				(VarDeclError) error SEMICOLON:l {: parser.report_error("Error in variable declaration. Recovery until ';' on the line " + lleft, null); :} {: RESULT=new VarDeclError(); :}
+				|
+				(VarDeclErrorComma) error COMMA:l {: parser.report_error("Error in variable declaration. Recovery until ',' on the line " + lleft, null); :} {: RESULT=new VarDeclErrorComma(); :}
+				|
+				(VarDeclErrorBrace) error OPEN_BRACE:l {: parser.report_error("Error in variable declaration inside a class. Recovery until '{' on the line " + lleft, null); :} {: RESULT=new VarDeclErrorBrace(); :}
 				;
 VarDeclExtendedList ::= (VarDeclarationsExtended) VarDeclExtendedList:V1 VarDeclExtended:V2 {: RESULT=new VarDeclarationsExtended(V1, V2); RESULT.setLine(V1left); :}
 				|
@@ -167,6 +173,8 @@ ClassMemberList ::= (ClassMembers) OPEN_BRACE MethodDeclList:M1 CLOSED_BRACE {: 
 ExtendsType ::= (ClassExtension) EXTENDS Type:T1 {: RESULT=new ClassExtension(T1); RESULT.setLine(T1left); :}
 				|
 				(NoClassExtension) {: RESULT=new NoClassExtension(); :} /* epsilon */
+				|
+				(ExtendsTypeError) error OPEN_BRACE:l {: parser.report_error("Error in extending a class. Recovery until '{' on the line " + lleft, null); :} {: RESULT=new ExtendsTypeError(); :}
 				;
 
 InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT:I1 OPEN_BRACE InterfaceMemberList:I2 CLOSED_BRACE {: RESULT=new InterfaceDeclaration(I1, I2); RESULT.setLine(I1left); :};
@@ -205,6 +213,10 @@ FormParamExtendedList ::= (ExtendedFormParamList) FormParamExtendedList:F1 FormP
 FormParamExtended ::= (FormParamExtendedNormal) COMMA Type:T1 IDENT:I2 {: RESULT=new FormParamExtendedNormal(T1, I2); RESULT.setLine(T1left); :}
 				|
 				(FormParamExtendedArary) COMMA Type:T1 IDENT:I2 OPEN_BRACKET CLOSED_BRACKET {: RESULT=new FormParamExtendedArary(T1, I2); RESULT.setLine(T1left); :}
+				|
+				(FormParamExtendedErrorComma) error COMMA:l {: parser.report_error("Error in formal parameter. Recovery until ',' on the line " + lleft, null); :} {: RESULT=new FormParamExtendedErrorComma(); :}
+				|
+				(FormParamExtendedErrorParen) error CLOSED_PARENTHESIS:l {: parser.report_error("Error in formal parameter. Recovery until ')' on the line " + lleft, null); :} {: RESULT=new FormParamExtendedErrorParen(); :}
 				;
 
 Type ::= (Type) IDENT:I1 {: RESULT=new Type(I1); RESULT.setLine(I1left); :};
@@ -252,6 +264,8 @@ NumConstList ::= (NumConsts) COMMA NUMBER_CONST:N1 NumConstList:N2 {: RESULT=new
 DesignatorStatement ::= (OptionalDesignatorStatement) Designator:D1 DesignatorStatementTail:D2 {: RESULT=new OptionalDesignatorStatement(D1, D2); RESULT.setLine(D1left); :}
 				|
 				(FixedDesignatorStatement) Designator:D1 Assignop:A2 Designator:D3 Setop:S4 Designator:D5 {: RESULT=new FixedDesignatorStatement(D1, A2, D3, S4, D5); RESULT.setLine(D1left); :}
+				|
+				(DesignatorStatementError) error SEMICOLON:l {: parser.report_error("Error in assign statement. Recovery until ';' on the line " + lleft, null); :} {: RESULT=new DesignatorStatementError(); :}
 				;
 DesignatorStatementTail ::= (AssignopExprDSTail) Assignop:A1 Expr:E2 {: RESULT=new AssignopExprDSTail(A1, E2); RESULT.setLine(A1left); :}
 				|
@@ -281,7 +295,7 @@ CondTermList ::= (CondTerms) OR CondTerm:C1 CondTermList:C2 {: RESULT=new CondTe
 				|
 				(NoCondTerms) {: RESULT=new NoCondTerms(); :} /* epsilon */
 				;
-CondTerm ::= (CondTerm) CondFact:C1 CondFactList:C2 {: RESULT=new CondTerm(C1, C2); RESULT.setLine(C1left); :};		
+CondTerm ::= (CondTerm) CondFact:C1 CondFactList:C2 {: RESULT=new CondTerm(C1, C2); RESULT.setLine(C1left); :};
 CondFactList ::= (CondFacts) AND CondFact:C1 CondFactList:C2 {: RESULT=new CondFacts(C1, C2); RESULT.setLine(C1left); :}
 				|
 				(NoCondFacts) {: RESULT=new NoCondFacts(); :} /* epsilon */

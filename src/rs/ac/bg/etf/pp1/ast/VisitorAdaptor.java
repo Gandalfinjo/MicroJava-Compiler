@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 11:7:26
+// 13/8/2025 12:25:14
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -113,6 +113,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(IncrementDSTail IncrementDSTail) { visit(); }
     public void visit(ActParsDSTail ActParsDSTail) { visit(); }
     public void visit(AssignopExprDSTail AssignopExprDSTail) { visit(); }
+    public void visit(DesignatorStatementError DesignatorStatementError) { visit(); }
     public void visit(FixedDesignatorStatement FixedDesignatorStatement) { visit(); }
     public void visit(OptionalDesignatorStatement OptionalDesignatorStatement) { visit(); }
     public void visit(NoNumConsts NoNumConsts) { visit(); }
@@ -134,6 +135,8 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(NoStatements NoStatements) { visit(); }
     public void visit(Statements Statements) { visit(); }
     public void visit(Type Type) { visit(); }
+    public void visit(FormParamExtendedErrorParen FormParamExtendedErrorParen) { visit(); }
+    public void visit(FormParamExtendedErrorComma FormParamExtendedErrorComma) { visit(); }
     public void visit(FormParamExtendedArary FormParamExtendedArary) { visit(); }
     public void visit(FormParamExtendedNormal FormParamExtendedNormal) { visit(); }
     public void visit(NoExtendedFormParamList NoExtendedFormParamList) { visit(); }
@@ -153,6 +156,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(NoInterfaceMembers NoInterfaceMembers) { visit(); }
     public void visit(InterfaceMembers InterfaceMembers) { visit(); }
     public void visit(InterfaceDeclaration InterfaceDeclaration) { visit(); }
+    public void visit(ExtendsTypeError ExtendsTypeError) { visit(); }
     public void visit(NoClassExtension NoClassExtension) { visit(); }
     public void visit(ClassExtension ClassExtension) { visit(); }
     public void visit(NoClassMembers NoClassMembers) { visit(); }
@@ -162,6 +166,9 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(VarDeclarationExtended VarDeclarationExtended) { visit(); }
     public void visit(NoVarDeclarationsExtended NoVarDeclarationsExtended) { visit(); }
     public void visit(VarDeclarationsExtended VarDeclarationsExtended) { visit(); }
+    public void visit(VarDeclErrorBrace VarDeclErrorBrace) { visit(); }
+    public void visit(VarDeclErrorComma VarDeclErrorComma) { visit(); }
+    public void visit(VarDeclError VarDeclError) { visit(); }
     public void visit(VarDeclarationArray VarDeclarationArray) { visit(); }
     public void visit(VarDeclaration VarDeclaration) { visit(); }
     public void visit(NoVarDeclarations NoVarDeclarations) { visit(); }

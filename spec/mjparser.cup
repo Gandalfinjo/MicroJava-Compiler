@@ -10,18 +10,18 @@ parser code {:
 	}
 	
 	public void syntax_error(Symbol cur_token) {
-		report_error("\nSintaksna greska", cur_token);
+		report_error("\nSyntax error", cur_token);
 	}
 	
 	public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
-		report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+		report_fatal_error("Fatal error, parsing cannot continue.", cur_token);
 	}
 	
 	public void report_error(String message, Object info) {
 		StringBuilder msg = new StringBuilder(message);
 		
 		if (info instanceof Symbol)
-			msg.append(" na liniji ").append(((Symbol)info).left);
+			msg.append(" on the line ").append(((Symbol)info).left);
 		
 		System.err.println(msg.toString());
 	}
@@ -113,6 +113,12 @@ VarDeclList ::= (VarDeclarations) VarDeclList VarDecl
 VarDecl ::= (VarDeclaration) Type IDENT VarDeclExtendedList SEMICOLON
 				|
 				(VarDeclarationArray) Type IDENT OPEN_BRACKET CLOSED_BRACKET VarDeclExtendedList SEMICOLON
+				|
+				(VarDeclError) error SEMICOLON:l {: parser.report_error("Error in variable declaration. Recovery until ';' on the line " + lleft, null); :}
+				|
+				(VarDeclErrorComma) error COMMA:l {: parser.report_error("Error in variable declaration. Recovery until ',' on the line " + lleft, null); :}
+				|
+				(VarDeclErrorBrace) error OPEN_BRACE:l {: parser.report_error("Error in variable declaration inside a class. Recovery until '{' on the line " + lleft, null); :}
 				;
 VarDeclExtendedList ::= (VarDeclarationsExtended) VarDeclExtendedList VarDeclExtended
 				|
@@ -130,6 +136,8 @@ ClassMemberList ::= (ClassMembers) OPEN_BRACE MethodDeclList CLOSED_BRACE
 ExtendsType ::= (ClassExtension) EXTENDS Type
 				|
 				(NoClassExtension) /* epsilon */
+				|
+				(ExtendsTypeError) error OPEN_BRACE:l {: parser.report_error("Error in extending a class. Recovery until '{' on the line " + lleft, null); :}
 				;
 
 InterfaceDecl ::= (InterfaceDeclaration) INTERFACE IDENT OPEN_BRACE InterfaceMemberList CLOSED_BRACE;
@@ -168,6 +176,10 @@ FormParamExtendedList ::= (ExtendedFormParamList) FormParamExtendedList FormPara
 FormParamExtended ::= (FormParamExtendedNormal) COMMA Type IDENT
 				|
 				(FormParamExtendedArary) COMMA Type IDENT OPEN_BRACKET CLOSED_BRACKET
+				|
+				(FormParamExtendedErrorComma) error COMMA:l {: parser.report_error("Error in formal parameter. Recovery until ',' on the line " + lleft, null); :}
+				|
+				(FormParamExtendedErrorParen) error CLOSED_PARENTHESIS:l {: parser.report_error("Error in formal parameter. Recovery until ')' on the line " + lleft, null); :}
 				;
 
 Type ::= (Type) IDENT;
@@ -215,6 +227,8 @@ NumConstList ::= (NumConsts) COMMA NUMBER_CONST NumConstList
 DesignatorStatement ::= (OptionalDesignatorStatement) Designator DesignatorStatementTail
 				|
 				(FixedDesignatorStatement) Designator Assignop Designator Setop Designator
+				|
+				(DesignatorStatementError) error SEMICOLON:l {: parser.report_error("Error in assign statement. Recovery until ';' on the line " + lleft, null); :}
 				;
 DesignatorStatementTail ::= (AssignopExprDSTail) Assignop Expr
 				|
@@ -244,7 +258,7 @@ CondTermList ::= (CondTerms) OR CondTerm CondTermList
 				|
 				(NoCondTerms) /* epsilon */
 				;
-CondTerm ::= (CondTerm) CondFact CondFactList;		
+CondTerm ::= (CondTerm) CondFact CondFactList;
 CondFactList ::= (CondFacts) AND CondFact CondFactList
 				|
 				(NoCondFacts) /* epsilon */

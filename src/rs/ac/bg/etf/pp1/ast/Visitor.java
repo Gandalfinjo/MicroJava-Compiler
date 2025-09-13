@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/8/2025 11:7:26
+// 13/8/2025 12:25:14
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -113,6 +113,7 @@ public interface Visitor {
     public void visit(IncrementDSTail IncrementDSTail);
     public void visit(ActParsDSTail ActParsDSTail);
     public void visit(AssignopExprDSTail AssignopExprDSTail);
+    public void visit(DesignatorStatementError DesignatorStatementError);
     public void visit(FixedDesignatorStatement FixedDesignatorStatement);
     public void visit(OptionalDesignatorStatement OptionalDesignatorStatement);
     public void visit(NoNumConsts NoNumConsts);
@@ -134,6 +135,8 @@ public interface Visitor {
     public void visit(NoStatements NoStatements);
     public void visit(Statements Statements);
     public void visit(Type Type);
+    public void visit(FormParamExtendedErrorParen FormParamExtendedErrorParen);
+    public void visit(FormParamExtendedErrorComma FormParamExtendedErrorComma);
     public void visit(FormParamExtendedArary FormParamExtendedArary);
     public void visit(FormParamExtendedNormal FormParamExtendedNormal);
     public void visit(NoExtendedFormParamList NoExtendedFormParamList);
@@ -153,6 +156,7 @@ public interface Visitor {
     public void visit(NoInterfaceMembers NoInterfaceMembers);
     public void visit(InterfaceMembers InterfaceMembers);
     public void visit(InterfaceDeclaration InterfaceDeclaration);
+    public void visit(ExtendsTypeError ExtendsTypeError);
     public void visit(NoClassExtension NoClassExtension);
     public void visit(ClassExtension ClassExtension);
     public void visit(NoClassMembers NoClassMembers);
@@ -162,6 +166,9 @@ public interface Visitor {
     public void visit(VarDeclarationExtended VarDeclarationExtended);
     public void visit(NoVarDeclarationsExtended NoVarDeclarationsExtended);
     public void visit(VarDeclarationsExtended VarDeclarationsExtended);
+    public void visit(VarDeclErrorBrace VarDeclErrorBrace);
+    public void visit(VarDeclErrorComma VarDeclErrorComma);
+    public void visit(VarDeclError VarDeclError);
     public void visit(VarDeclarationArray VarDeclarationArray);
     public void visit(VarDeclaration VarDeclaration);
     public void visit(NoVarDeclarations NoVarDeclarations);
