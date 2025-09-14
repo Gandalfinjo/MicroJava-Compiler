@@ -276,6 +276,73 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	reportSymbolFound(interfaceObj, interfaceName, interfaceDeclaration);
     }
     
+    @Override
+    public void visit(TypeMethodSignature typeMethodSignature) {
+    	String typeMethodName = typeMethodSignature.getName();
+    	
+    	if (typeMethodName == null) {
+    		report_error("Method signature without name", typeMethodSignature);
+    		return;
+    	}
+    	
+    	
+    	if (Tab.currentScope.findSymbol(typeMethodName) != null) {
+    		report_error("Method " + typeMethodName + " already declared in this scope", typeMethodSignature);
+    		return;
+    	}
+    	
+    	Struct methodReturnType = typeMethodSignature.getType().struct;
+    	Obj methodObj = Tab.insert(Obj.Meth, typeMethodName, methodReturnType);
+    	
+    	typeMethodSignature.obj = methodObj;
+    	currentMethod = methodObj;
+    	inMethod = true;
+    	currentMethodFormalCount = 0;
+    	
+    	Tab.openScope();
+    	
+    	report_info("Entered method " + typeMethodName + " with return type " + methodReturnType, typeMethodSignature);
+    	reportSymbolFound(methodObj, typeMethodName, typeMethodSignature);
+    }
     
+    @Override
+    public void visit(VoidMethodSignature voidMethodSignature) {
+    	String voidMethodName = voidMethodSignature.getName();
+    	
+    	if (voidMethodName == null) {
+    		report_error("Method signature without name", voidMethodSignature);
+    		return;
+    	}
+    	
+    	if (Tab.currentScope.findSymbol(voidMethodName) != null) {
+    		report_error("Method " + voidMethodName + " already declared in this scope", voidMethodSignature);
+    		return;
+    	}
+    	
+    	Struct methodReturnType = Tab.noType;
+    	Obj methodObj = Tab.insert(Obj.Meth, voidMethodName, methodReturnType);
+    	
+    	voidMethodSignature.obj = methodObj;
+    	currentMethod = methodObj;
+    	inMethod = true;
+    	currentMethodFormalCount = 0;
+    	
+    	Tab.openScope();
+    	
+    	report_info("Entered method " + voidMethodName + " with return type " + methodReturnType, voidMethodSignature);
+    	reportSymbolFound(methodObj, voidMethodName, voidMethodSignature);
+    }
+    
+    @Override
+    public void visit(MethodDeclaration methodDeclaration) {
+    	if (currentMethod != null) {
+    		Tab.chainLocalSymbols(currentMethod);
+    		Tab.closeScope();
+    		report_info("Exited method " + currentMethod.getName() + " with " + currentMethodFormalCount + " formal params", methodDeclaration);
+    	}
+    	
+    	currentMethod = null;
+    	inMethod = false;
+    }
     
 }
