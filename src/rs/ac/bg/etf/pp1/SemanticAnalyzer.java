@@ -253,7 +253,29 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	
     	Tab.openScope();
     	
-    	Tab.closeScope();
+    	// Tab.closeScope();
     }
+    
+    @Override
+    public void visit(InterfaceDeclaration interfaceDeclaration) {
+    	String interfaceName = interfaceDeclaration.getName();
+    	
+    	if (interfaceName == null) {
+    		report_error("Interface declaration without name", interfaceDeclaration);
+    		return;
+    	}
+    	
+    	if (Tab.currentScope.findSymbol(interfaceName) != null) {
+    		report_error("Interface " + interfaceName + " already declared in this scope", interfaceDeclaration);
+    		return;
+    	}
+    	
+    	Obj interfaceObj = Tab.insert(Obj.Type, interfaceName, new Struct(Struct.Interface));
+    	
+    	report_info("Declared interface " + interfaceName, interfaceDeclaration);
+    	reportSymbolFound(interfaceObj, interfaceName, interfaceDeclaration);
+    }
+    
+    
     
 }
