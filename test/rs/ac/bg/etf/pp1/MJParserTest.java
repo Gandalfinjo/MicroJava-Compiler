@@ -24,18 +24,30 @@ public class MJParserTest {
 			MJParser p = new MJParser(lexer);
 			Symbol s = p.parse();
 			
-			Program prog = (Program)(s.value);
+			Program prog = (Program)(s.value);		
+			
+			Tab.init();
 			
 			System.out.println(prog.toString(""));
 			System.out.println("===================================");
 			
-			Tab.init();
-			
-			RuleVisitor v = new RuleVisitor();
+			SemanticAnalyzer v = new SemanticAnalyzer();
 			prog.traverseBottomUp(v);
 			
-			System.out.println("Print count calls = " + v.printCallCount);
-			System.out.println("Variable declarations = " + v.varDeclCount);
+			Tab.dump();
+			
+//			RuleVisitor v = new RuleVisitor();
+//			prog.traverseBottomUp(v);
+			
+//			System.out.println("Print count calls = " + v.printCallCount);
+//			System.out.println("Variable declarations = " + v.varDeclCount);
+			
+			if(!p.errorDetected && v.passed()){
+				System.out.println("Parsing done successfully!");
+			}
+			else{
+				System.err.println("Parsing not done successfully");
+			}
 		}
 		finally {
 			if (br != null) try { br.close(); } catch (IOException e1) { System.err.println((e1.getMessage())); }

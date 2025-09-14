@@ -6,6 +6,7 @@
 				<exclude name="sym_old.java" />
 				<exclude name="Yylex.java" />
 				<exclude name="RuleVisitor.java" />
+				<exclude name="SemanticAnalyzer.java" />
 			</fileset>
 		</delete>
 		<delete>

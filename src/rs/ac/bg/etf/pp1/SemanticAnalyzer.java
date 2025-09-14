@@ -232,4 +232,28 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	reportSymbolFound(arrObj, arrName, varDeclArray);
     }
     
+    @Override
+    public void visit(ClassDeclaration classDeclaration) {
+    	String className = classDeclaration.getName();
+    	
+    	if (className == null) {
+    		report_error("Class declaration without name", classDeclaration);
+    		return;
+    	}
+    	
+    	if (Tab.currentScope.findSymbol(className) != null) {
+    		report_error("Class " + className + " already declared in this scope", classDeclaration);
+    		return;
+    	}
+    	
+    	Obj classObj = Tab.insert(Obj.Type, className, new Struct(Struct.Class));
+    	
+    	report_info("Declared class type " + className, classDeclaration);
+    	reportSymbolFound(classObj, className, classDeclaration);
+    	
+    	Tab.openScope();
+    	
+    	Tab.closeScope();
+    }
+    
 }
