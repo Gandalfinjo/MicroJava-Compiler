@@ -65,7 +65,6 @@ nonterminal DeclList DeclList;
 nonterminal Decl Decl;
 nonterminal VarDeclList VarDeclList;
 nonterminal VarDeclExtendedList VarDeclExtendedList;
-nonterminal VarDeclExtended VarDeclExtended;
 nonterminal MethodDeclList MethodDeclList;
 nonterminal StatementList StatementList;
 nonterminal Statement Statement;
@@ -80,10 +79,8 @@ nonterminal ActPars ActPars;
 nonterminal ActParsOption ActParsOption;
 nonterminal ActParsInner ActParsInner;
 nonterminal FormPars FormPars;
-nonterminal FormParamList FormParamList;
 nonterminal FormParamArray FormParamArray;
 nonterminal FormParamExtendedList FormParamExtendedList;
-nonterminal FormParamExtended FormParamExtended;
 nonterminal ConstDeclValue ConstDeclValue;
 nonterminal ConstDeclExtendedList ConstDeclExtendedList;
 nonterminal ConstDeclExtended ConstDeclExtended;
@@ -110,7 +107,7 @@ nonterminal Addop Addop;
 nonterminal Mulop Mulop;
 nonterminal Setop Setop;
 
-nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Designator, MethodDecl, MethodSignature, ConstDecl, VarDecl, ClassDecl, InterfaceDecl;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Designator, MethodDecl, MethodSignature, ConstDecl, VarDecl, VarDeclExtended, ClassDecl, InterfaceDecl, FormParamList, FormParamExtended;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Factor, Expr, NewFactorTail;
 
 precedence left ELSE;

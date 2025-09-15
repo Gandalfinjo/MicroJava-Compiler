@@ -15,7 +15,7 @@ public class MJParserTest {
 	public static void main(String[] args) throws Exception {
 		Reader br = null;
 		try {
-			File sourceCode = new File("test/test303.mj");
+			File sourceCode = new File("test/test301.mj");
 			System.out.println("Compiling source file: " + sourceCode.getAbsolutePath());
 			
 			br = new BufferedReader(new FileReader(sourceCode));
@@ -32,6 +32,7 @@ public class MJParserTest {
 			System.out.println("===================================");
 			
 			SemanticAnalyzer v = new SemanticAnalyzer();
+			v.initPredeclaredSymbols();
 			prog.traverseBottomUp(v);
 			
 			Tab.dump();

@@ -5,16 +5,61 @@ import rs.etf.pp1.symboltable.*;
 import rs.etf.pp1.symboltable.concepts.*;
 
 public class SemanticAnalyzer extends VisitorAdaptor {
-	private boolean errorDetected = false;
-	private int nVars;
 	
+	private boolean errorDetected = false;
 	private Struct currentType = Tab.noType;
 	
-	private Obj currentMethod = null;
-	private int currentMethodFormalCount = 0;
+	// flag za proveru da li smo u globalnom scope-u
+	private boolean inProgramScope = false;
 	
-	private boolean inMethod = false;
+	private static final Struct setType = new Struct(Struct.Class);
 	
+	public void initPredeclaredSymbols() {
+        // Dodavanje bool tipa
+        Struct boolType = new Struct(Struct.Bool);
+        Tab.insert(Obj.Type, "bool", boolType);
+
+        // Dodavanje set tipa
+        Tab.insert(Obj.Type, "set", setType);
+
+        // null konstanta
+        Tab.insert(Obj.Con, "null", Tab.nullType);
+
+        // eol konstanta (char '\n')
+        Obj eolObj = Tab.insert(Obj.Con, "eol", Tab.charType);
+        eolObj.setAdr('\n');
+
+        // chr(i:int) : char
+        Obj chrMeth = Tab.insert(Obj.Meth, "chr", Tab.charType);
+        Tab.openScope();
+        Tab.insert(Obj.Var, "i", Tab.intType);
+        Tab.closeScope();
+        chrMeth.setLevel(1);
+
+        // ord(ch:char) : int
+        Obj ordMeth = Tab.insert(Obj.Meth, "ord", Tab.intType);
+        Tab.openScope();
+        Tab.insert(Obj.Var, "ch", Tab.charType);
+        Tab.closeScope();
+        ordMeth.setLevel(1);
+
+        // add(a:set, b:int) : void
+        Obj addMeth = Tab.insert(Obj.Meth, "add", Tab.noType);
+        Tab.openScope();
+        Tab.insert(Obj.Var, "a", setType);
+        Tab.insert(Obj.Var, "b", Tab.intType);
+        Tab.closeScope();
+        addMeth.setLevel(2);
+
+        // addAll(a:set, b:int[]) : void
+        Obj addAllMeth = Tab.insert(Obj.Meth, "addAll", Tab.noType);
+        Tab.openScope();
+        Tab.insert(Obj.Var, "a", setType);
+        Tab.insert(Obj.Var, "b", new Struct(Struct.Array, Tab.intType));
+        Tab.closeScope();
+        addAllMeth.setLevel(2);
+    }
+
 	public void report_error(String message, SyntaxNode info) {
 		errorDetected = true;
 		
@@ -38,40 +83,35 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     public boolean passed() {
         return !errorDetected;
     }
-
-    public int getnVars() {
-        return nVars;
-    }
     
     /**
-     * For every detected symbol print
-     * - line
-     * - symbol name
-     * - string representation of Obj node from the table of symbols (obj.toString())
-     * @param obj
-     * @param symName
-     * @param node
+     * Štampanje detektovanog simbola:
+     * - linija izvornog koda
+     * - naziv simbola
+     * - objekat iz tabele simbola (obj.toString())
      */
     private void reportSymbolFound(Obj obj, String symName, SyntaxNode node) {
     	if (node != null && node.getLine() != 0) {
-    		System.out.print("Symbol detected at line " + node.getLine() + " : name = " + symName + " ; obj = " + (obj != null ? obj.toString() : "null"));
+    		System.out.println("Symbol detected at line " + node.getLine() +
+    			" : name = " + symName +
+    			" ; obj = " + (obj != null ? obj.toString() : "null"));
     	}
     	else {
-    		System.out.println("Symbol detected : name = " + symName + " ; obj = " + (obj != null ? obj.toString() : "null"));
+    		System.out.println("Symbol detected : name = " + symName +
+    			" ; obj = " + (obj != null ? obj.toString() : "null"));
     	}
     }
     
+    // --- Program ---
+
     @Override
     public void visit(ProgName progName) {
     	String name = progName.getProgName();
     	Obj progObj = Tab.insert(Obj.Prog, name, Tab.noType);
-    	
     	progName.obj = progObj;
     	
-    	Tab.openScope();
-    	
-    	report_info("Opened program scope for " + name, progName);
-    	reportSymbolFound(progObj, name, progName);
+    	Tab.openScope(); // globalni scope
+    	inProgramScope = true;
     }
     
     @Override
@@ -79,12 +119,12 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	if (program.getProgName() != null && program.getProgName().obj != null) {
     		Tab.chainLocalSymbols(program.getProgName().obj);
     	}
-    	
-    	nVars = Tab.currentScope.getnVars();
     	Tab.closeScope();
-    	report_info("Closed program scope. Globals = " + nVars, program);
+    	inProgramScope = false;
     }
     
+    // --- Tipovi ---
+
     @Override
     public void visit(Type type) {
     	String typeName = type.getTypeName();
@@ -92,257 +132,118 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	
     	if (typeObj == Tab.noObj) {
     		report_error("Type " + typeName + " not found", type);
-    		
     		type.struct = Tab.noType;
     		currentType = Tab.noType;
-    		
-    		return;
     	}
     	else if (typeObj.getKind() != Obj.Type) {
     		report_error("Name " + typeName + " is not a type", type);
-    		
-            type.struct = Tab.noType;
-            currentType = Tab.noType;
-            
-            return;
+    		type.struct = Tab.noType;
+    		currentType = Tab.noType;
     	}
-    	
-    	type.struct = typeObj.getType();
-    	currentType = type.struct;
+    	else {
+    		type.struct = typeObj.getType();
+    		currentType = type.struct;
+    	}
     }
     
+    // --- Deklaracije ---
+
     @Override
-    public void visit(ConstDeclaration constDeclaration) {
-    	String constName = constDeclaration.getName();
-    	
-    	if (constName == null) {
-    		report_error("Const declaration without name", constDeclaration);
-    		return;
-    	}
+    public void visit(ConstDeclaration constDecl) {
+    	String constName = constDecl.getName();
     	
     	if (Tab.currentScope.findSymbol(constName) != null) {
-    		report_error("Constant " + constName + " already declared in this scope", constDeclaration);
+    		report_error("Constant " + constName + " already declared", constDecl);
     		return;
     	}
     	
-		Struct constType = currentType != null ? currentType : Tab.noType;
-		
-		if (constType == Tab.noType) {
-			report_error("Invalid type for constant " + constName, constDeclaration);
-			return;
-		}
-		
-		Obj constObj = Tab.insert(Obj.Con, constName, constType);
-		
-		int value = 0;
-		boolean ok = false;
-		ConstDeclValue valNode = constDeclaration.getConstDeclValue();
-		
-		if (valNode == null) {
-			report_error("Constant " + constName + " has no value", constDeclaration);
-			return;
-		}
-		
-		if (valNode instanceof NumberConst) {
-			NumberConst numberConst = (NumberConst) valNode;
-			value = numberConst.getN1();
-			ok = true;
-		}
-		else if (valNode instanceof CharConst) {
-			CharConst charConst = (CharConst) valNode;
-			char ch = charConst.getC1();
-			value = (int) ch;
-			ok = true;
-		}
-		else if (valNode instanceof BoolConst) {
-			BoolConst boolConst = (BoolConst) valNode;
-			boolean b = boolConst.getB1();
-			value = b ? 1 : 0;
-			ok = true;
-		}
-		else {
-			try {
-				String token = valNode.toString();
-				value = Integer.parseInt(token);
-				ok = true;
-			}
-			catch (Exception e) {
-				ok = false;
-			}
-		}
-		
-		if (ok) {
-			constObj.setAdr(value);
-			
-			report_info("Declared constant" + constName + " = " + value, constDeclaration);
-			reportSymbolFound(constObj, constName, constDeclaration);
-		}
-		else {
-			report_error("Couldn't determine constant value for " + constName, constDeclaration);
-		}
+    	Obj con = Tab.insert(Obj.Con, constName, currentType);
+    	// Ovde bi mogao da se doda i kod za vrednost konstante
+    	
+    	reportSymbolFound(con, constName, constDecl);
     }
     
     @Override
-    public void visit(VarDeclaration varDeclaration) {
-    	String varName = varDeclaration.getName();
-    	
-    	if (varName == null) {
-    		report_error("Variable declaration without name", varDeclaration);
-    		return;
-    	}
-    	
-    	if (currentType == Tab.noType) {
-    		report_error("Invalid type for variable " + varName, varDeclaration);
-    		return;
-    	}
+    public void visit(VarDeclaration varDecl) {
+    	String varName = varDecl.getName();
     	
     	if (Tab.currentScope.findSymbol(varName) != null) {
-    		report_error("Variable " + varName + " already declared in this scope", varDeclaration);
+    		report_error("Variable " + varName + " already declared", varDecl);
     		return;
     	}
     	
-		Obj varObj = Tab.insert(Obj.Var, varName, currentType);
-		report_info("Declared variable " + varName + " of type " + currentType, varDeclaration);
-		reportSymbolFound(varObj, varName, varDeclaration);
+    	Obj var = Tab.insert(Obj.Var, varName, currentType);
+    	reportSymbolFound(var, varName, varDecl);
     }
     
     @Override
     public void visit(VarDeclarationArray varDeclArray) {
-    	String arrName = varDeclArray.getName();
-    	
-    	if (arrName == null) {
-    		report_error("Array variable declaration without name", varDeclArray);
-    		return;
-    	}
-    	
-    	if (currentType == Tab.noType) {
-    		report_error("Invalid base type of array " + arrName, varDeclArray);
-    		return;
-    	}
-    	
-    	if (Tab.currentScope.findSymbol(arrName) != null) {
-    		report_error("Array " + arrName + " already declared in this scope", varDeclArray);
-    		return;
-    	}
-    	
-    	Struct arrType = new Struct(Struct.Array, currentType);
-    	Obj arrObj = Tab.insert(Obj.Var, arrName, arrType);
-    	
-    	report_info("Declared array " + arrName + " of base type " + currentType, varDeclArray);
-    	reportSymbolFound(arrObj, arrName, varDeclArray);
+        String name = varDeclArray.getName();
+        Struct type = varDeclArray.getType().struct;
+
+        // pravi se tip niza
+        Struct arrayType = new Struct(Struct.Array, type);
+
+        if (Tab.currentScope.findSymbol(name) != null) {
+            report_error("Variable " + name + " already declared in this scope", varDeclArray);
+        } else {
+            Obj obj = Tab.insert(Obj.Var, name, arrayType);
+            varDeclArray.obj = obj;
+            report_info("Declared array " + name + " of type " + type, varDeclArray);
+        }
     }
     
     @Override
-    public void visit(ClassDeclaration classDeclaration) {
-    	String className = classDeclaration.getName();
-    	
-    	if (className == null) {
-    		report_error("Class declaration without name", classDeclaration);
-    		return;
-    	}
-    	
-    	if (Tab.currentScope.findSymbol(className) != null) {
-    		report_error("Class " + className + " already declared in this scope", classDeclaration);
-    		return;
-    	}
-    	
-    	Obj classObj = Tab.insert(Obj.Type, className, new Struct(Struct.Class));
-    	
-    	report_info("Declared class type " + className, classDeclaration);
-    	reportSymbolFound(classObj, className, classDeclaration);
-    	
-    	Tab.openScope();
-    	
-    	// Tab.closeScope();
+    public void visit(VarDeclarationExtended varDeclExt) {
+        String name = varDeclExt.getName();
+
+        if (Tab.currentScope.findSymbol(name) != null) {
+            report_error("Variable " + name + " already declared in this scope", varDeclExt);
+        } else {
+            Obj obj = Tab.insert(Obj.Var, name, currentType);
+            varDeclExt.obj = obj;
+            reportSymbolFound(obj, name, varDeclExt);
+        }
     }
     
     @Override
-    public void visit(InterfaceDeclaration interfaceDeclaration) {
-    	String interfaceName = interfaceDeclaration.getName();
-    	
-    	if (interfaceName == null) {
-    		report_error("Interface declaration without name", interfaceDeclaration);
-    		return;
-    	}
-    	
-    	if (Tab.currentScope.findSymbol(interfaceName) != null) {
-    		report_error("Interface " + interfaceName + " already declared in this scope", interfaceDeclaration);
-    		return;
-    	}
-    	
-    	Obj interfaceObj = Tab.insert(Obj.Type, interfaceName, new Struct(Struct.Interface));
-    	
-    	report_info("Declared interface " + interfaceName, interfaceDeclaration);
-    	reportSymbolFound(interfaceObj, interfaceName, interfaceDeclaration);
+    public void visit(VarDeclarationExtendedArray varDeclExtArr) {
+        String name = varDeclExtArr.getName();
+        Struct arrayType = new Struct(Struct.Array, currentType);
+
+        if (Tab.currentScope.findSymbol(name) != null) {
+            report_error("Variable " + name + " already declared in this scope", varDeclExtArr);
+        } else {
+            Obj obj = Tab.insert(Obj.Var, name, arrayType);
+            varDeclExtArr.obj = obj;
+            reportSymbolFound(obj, name, varDeclExtArr);
+        }
     }
     
+    // --- Upotreba simbola ---
+
     @Override
-    public void visit(TypeMethodSignature typeMethodSignature) {
-    	String typeMethodName = typeMethodSignature.getName();
-    	
-    	if (typeMethodName == null) {
-    		report_error("Method signature without name", typeMethodSignature);
-    		return;
-    	}
-    	
-    	
-    	if (Tab.currentScope.findSymbol(typeMethodName) != null) {
-    		report_error("Method " + typeMethodName + " already declared in this scope", typeMethodSignature);
-    		return;
-    	}
-    	
-    	Struct methodReturnType = typeMethodSignature.getType().struct;
-    	Obj methodObj = Tab.insert(Obj.Meth, typeMethodName, methodReturnType);
-    	
-    	typeMethodSignature.obj = methodObj;
-    	currentMethod = methodObj;
-    	inMethod = true;
-    	currentMethodFormalCount = 0;
-    	
-    	Tab.openScope();
-    	
-    	report_info("Entered method " + typeMethodName + " with return type " + methodReturnType, typeMethodSignature);
-    	reportSymbolFound(methodObj, typeMethodName, typeMethodSignature);
+    public void visit(Designator designator) {
+        String name = designator.getName();
+        Obj obj = Tab.find(name);
+
+        if (obj == Tab.noObj) {
+            report_error("Undeclared identifier " + name, designator);
+            designator.obj = Tab.noObj;
+            return;
+        }
+
+        designator.obj = obj;
+
+        // Dozvoljeno: Const, Var, Meth, Type
+        if (obj.getKind() != Obj.Con &&
+            obj.getKind() != Obj.Var &&
+            obj.getKind() != Obj.Meth &&
+            obj.getKind() != Obj.Type) 
+        {
+            report_error("Identifier " + name + " is not a variable, constant, method or type", designator);
+        }
+
+        reportSymbolFound(obj, name, designator);
     }
-    
-    @Override
-    public void visit(VoidMethodSignature voidMethodSignature) {
-    	String voidMethodName = voidMethodSignature.getName();
-    	
-    	if (voidMethodName == null) {
-    		report_error("Method signature without name", voidMethodSignature);
-    		return;
-    	}
-    	
-    	if (Tab.currentScope.findSymbol(voidMethodName) != null) {
-    		report_error("Method " + voidMethodName + " already declared in this scope", voidMethodSignature);
-    		return;
-    	}
-    	
-    	Struct methodReturnType = Tab.noType;
-    	Obj methodObj = Tab.insert(Obj.Meth, voidMethodName, methodReturnType);
-    	
-    	voidMethodSignature.obj = methodObj;
-    	currentMethod = methodObj;
-    	inMethod = true;
-    	currentMethodFormalCount = 0;
-    	
-    	Tab.openScope();
-    	
-    	report_info("Entered method " + voidMethodName + " with return type " + methodReturnType, voidMethodSignature);
-    	reportSymbolFound(methodObj, voidMethodName, voidMethodSignature);
-    }
-    
-    @Override
-    public void visit(MethodDeclaration methodDeclaration) {
-    	if (currentMethod != null) {
-    		Tab.chainLocalSymbols(currentMethod);
-    		Tab.closeScope();
-    		report_info("Exited method " + currentMethod.getName() + " with " + currentMethodFormalCount + " formal params", methodDeclaration);
-    	}
-    	
-    	currentMethod = null;
-    	inMethod = false;
-    }
-    
 }

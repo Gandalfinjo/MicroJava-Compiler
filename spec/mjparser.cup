@@ -62,7 +62,7 @@ terminal String IDENT;
 
 nonterminal Program;
 nonterminal DeclList, Decl;
-nonterminal VarDeclList, VarDeclExtendedList, VarDeclExtended;
+nonterminal VarDeclList, VarDeclExtendedList;
 nonterminal MethodDeclList;
 nonterminal StatementList, Statement;
 nonterminal DesignatorStatement, DesignatorStatementTail, DesignatorStatementList, DesignatorTail;
@@ -70,7 +70,7 @@ nonterminal ElseStatement;
 nonterminal NumConstList;
 nonterminal DoWhileOption;
 nonterminal ActPars, ActParsOption, ActParsInner;
-nonterminal FormPars, FormParamList, FormParamArray, FormParamExtendedList, FormParamExtended;
+nonterminal FormPars, FormParamArray, FormParamExtendedList;
 nonterminal ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
 nonterminal ClassMemberList, ClassMember;
 nonterminal ExtendsType;
@@ -82,7 +82,7 @@ nonterminal AddopTermList, AddopTerm;
 nonterminal Label;
 nonterminal Assignop, Relop, Addop, Mulop, Setop;
 
-nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Designator, MethodDecl, MethodSignature, ConstDecl, VarDecl, ClassDecl, InterfaceDecl;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Designator, MethodDecl, MethodSignature, ConstDecl, VarDecl, VarDeclExtended, ClassDecl, InterfaceDecl, FormParamList, FormParamExtended;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Factor, Expr, NewFactorTail;
 
 precedence left ELSE;
