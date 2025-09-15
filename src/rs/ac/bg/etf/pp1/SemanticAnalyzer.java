@@ -14,18 +14,20 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	
 	private static final Struct setType = new Struct(Struct.Class);
 	
+	private Obj currentMethod = null;
+	
 	public void initPredeclaredSymbols() {
-        // Dodavanje bool tipa
+        // Bool type
         Struct boolType = new Struct(Struct.Bool);
         Tab.insert(Obj.Type, "bool", boolType);
 
-        // Dodavanje set tipa
+        // Set type
         Tab.insert(Obj.Type, "set", setType);
 
-        // null konstanta
+        // null constant
         Tab.insert(Obj.Con, "null", Tab.nullType);
 
-        // eol konstanta (char '\n')
+        // eol constant (char '\n')
         Obj eolObj = Tab.insert(Obj.Con, "eol", Tab.charType);
         eolObj.setAdr('\n');
 
@@ -101,8 +103,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     			" ; obj = " + (obj != null ? obj.toString() : "null"));
     	}
     }
-    
-    // --- Program ---
 
     @Override
     public void visit(ProgName progName) {
@@ -110,7 +110,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	Obj progObj = Tab.insert(Obj.Prog, name, Tab.noType);
     	progName.obj = progObj;
     	
-    	Tab.openScope(); // globalni scope
+    	Tab.openScope();
     	inProgramScope = true;
     }
     
@@ -122,8 +122,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	Tab.closeScope();
     	inProgramScope = false;
     }
-    
-    // --- Tipovi ---
 
     @Override
     public void visit(Type type) {
@@ -145,8 +143,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     		currentType = type.struct;
     	}
     }
-    
-    // --- Deklaracije ---
 
     @Override
     public void visit(ConstDeclaration constDecl) {
@@ -158,7 +154,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	}
     	
     	Obj con = Tab.insert(Obj.Con, constName, currentType);
-    	// Ovde bi mogao da se doda i kod za vrednost konstante
     	
     	reportSymbolFound(con, constName, constDecl);
     }
@@ -181,7 +176,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         String name = varDeclArray.getName();
         Struct type = varDeclArray.getType().struct;
 
-        // pravi se tip niza
         Struct arrayType = new Struct(Struct.Array, type);
 
         if (Tab.currentScope.findSymbol(name) != null) {
@@ -220,7 +214,74 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         }
     }
     
-    // --- Upotreba simbola ---
+    @Override
+    public void visit(TypeMethodSignature methodSig) {
+        String name = methodSig.getName();
+        Obj methodObj = Tab.insert(Obj.Meth, name, methodSig.getType().struct);
+        methodSig.obj = methodObj;
+        currentMethod = methodObj;
+
+        Tab.openScope();
+    }
+
+    @Override
+    public void visit(VoidMethodSignature methodSig) {
+        String name = methodSig.getName();
+        Obj methodObj = Tab.insert(Obj.Meth, name, Tab.noType);
+        methodSig.obj = methodObj;
+        currentMethod = methodObj;
+
+        Tab.openScope();
+    }
+    
+    @Override
+    public void visit(MethodDeclaration methodDecl) {
+        Tab.closeScope();
+        currentMethod = null;
+    }
+    
+    @Override
+    public void visit(FormParamExtendedNormal param) {
+        String name = param.getName();
+        if (Tab.currentScope.findSymbol(name) != null) {
+            report_error("Formal parameter " + name + " already declared in this scope", param);
+        } else {
+            Obj obj = Tab.insert(Obj.Var, name, param.getType().struct);
+            param.obj = obj;
+            reportSymbolFound(obj, name, param);
+        }
+    }
+
+    @Override
+    public void visit(FormParamExtendedArary param) {
+        String name = param.getName();
+        if (Tab.currentScope.findSymbol(name) != null) {
+            report_error("Formal parameter " + name + " already declared in this scope", param);
+        } else {
+            Struct arrayType = new Struct(Struct.Array, param.getType().struct);
+            Obj obj = Tab.insert(Obj.Var, name, arrayType);
+            param.obj = obj;
+            reportSymbolFound(obj, name, param);
+        }
+    }
+    
+    @Override
+    public void visit(FormParamList paramList) {
+        Type type = paramList.getType();
+        String name = paramList.getName();
+        
+        if (Tab.currentScope.findSymbol(name) != null) {
+            report_error("Formal parameter " + name + " already declared in this scope", paramList);
+        } else {
+            Struct paramType = type.struct;
+            if (paramList.getFormParamArray() instanceof FormArrayBrackets) {
+                paramType = new Struct(Struct.Array, type.struct);
+            }
+            Obj obj = Tab.insert(Obj.Var, name, paramType);
+            paramList.obj = obj;
+            reportSymbolFound(obj, name, paramList);
+        }
+    }
 
     @Override
     public void visit(Designator designator) {
@@ -235,7 +296,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
         designator.obj = obj;
 
-        // Dozvoljeno: Const, Var, Meth, Type
         if (obj.getKind() != Obj.Con &&
             obj.getKind() != Obj.Var &&
             obj.getKind() != Obj.Meth &&
@@ -246,4 +306,5 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
         reportSymbolFound(obj, name, designator);
     }
+  
 }
