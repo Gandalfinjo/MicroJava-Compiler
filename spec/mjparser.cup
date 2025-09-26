@@ -65,7 +65,7 @@ nonterminal DeclList, Decl;
 nonterminal VarDeclList, VarDeclExtendedList;
 nonterminal MethodDeclList;
 nonterminal StatementList, Statement;
-nonterminal DesignatorStatement, DesignatorStatementTail, DesignatorStatementList, DesignatorTail;
+nonterminal DesignatorStatement, DesignatorStatementTail, DesignatorStatementList;
 nonterminal ElseStatement;
 nonterminal NumConstList;
 nonterminal DoWhileOption;
@@ -75,15 +75,15 @@ nonterminal ConstDeclValue, ConstDeclExtendedList, ConstDeclExtended;
 nonterminal ClassMemberList, ClassMember;
 nonterminal ExtendsType;
 nonterminal InterfaceMemberList, InterfaceMember;
-nonterminal CondFact, CondFactTail, CondTerm, CondFactList, Condition, CondTermList;
+nonterminal CondFact, CondFactTail, CondTerm, CondFactList, CondTermList;
 nonterminal ExprsExtended;
 nonterminal MulopFactorList, MulopFactor;
 nonterminal AddopTermList, AddopTerm;
 nonterminal Label;
 nonterminal Assignop, Relop, Addop, Mulop, Setop;
 
-nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Designator, MethodDecl, MethodSignature, ConstDecl, VarDecl, VarDeclExtended, ClassDecl, InterfaceDecl, FormParamList, FormParamExtended;
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Factor, Expr, NewFactorTail;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Designator, MethodDecl, MethodSignature, ConstDecl, VarDecl, VarDeclExtended, ClassDecl, InterfaceDecl, FormParamList, FormParamExtended, DesignatorTail;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Factor, Expr, NewFactorTail, Condition;
 
 precedence left ELSE;
 
