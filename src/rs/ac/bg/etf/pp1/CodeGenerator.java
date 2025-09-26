@@ -54,19 +54,42 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	@Override
-    public void visit(OptionalDesignatorStatement stmt) { 
+	public void visit(OptionalDesignatorStatement stmt) { 
 	    Obj obj = stmt.getDesignator().obj;
-	    Code.store(obj);
+
+	    if (stmt.getDesignatorStatementTail() instanceof AssignopExprDSTail) {
+	        Code.store(obj);
+	    }
+	    else if (stmt.getDesignatorStatementTail() instanceof ActParsDSTail) {
+	        Code.put(Code.call);
+	        Code.put2(obj.getAdr());
+	    }
+	    else if (stmt.getDesignatorStatementTail() instanceof IncrementDSTail) {
+	        Code.load(obj);
+	        Code.loadConst(1);
+	        Code.put(Code.add);
+	        Code.store(obj);
+	    }
+	    else if (stmt.getDesignatorStatementTail() instanceof DecrementDSTail) {
+	        Code.load(obj);
+	        Code.loadConst(1);
+	        Code.put(Code.sub);
+	        Code.store(obj);
+	    }
 	}
 	
 	@Override
     public void visit(FixedDesignatorStatement stmt) { }
+	
 	@Override
     public void visit(AssignopExprDSTail stmt) { }
+	
 	@Override
     public void visit(ActParsDSTail stmt) { }
+	
 	@Override
     public void visit(IncrementDSTail stmt) { }
+	
 	@Override
     public void visit(DecrementDSTail stmt) { }
     
