@@ -98,14 +98,58 @@ public class CodeGenerator extends VisitorAdaptor {
     
 	@Override
     public void visit(NoSignExpr expr) { }
+	
 	@Override
     public void visit(NegativeSignExpr expr) { }
+	
 	@Override
-    public void visit(AddopTerm expr) { }
+    public void visit(AddopTerm addopTerm) { 
+	    if (addopTerm.getAddop() instanceof Plus) {
+	        Code.put(Code.add);
+	    }
+	    else if (addopTerm.getAddop() instanceof Minus) {
+	        Code.put(Code.sub);
+	    }
+	}
+	
+	@Override
+    public void visit(MulopFactor mulopFactor) {
+	    if (mulopFactor.getMulop() instanceof Multiplication) {
+	        Code.put(Code.mul);
+	    }
+	    else if (mulopFactor.getMulop() instanceof Division) {
+	        Code.put(Code.div);
+	    }
+	    else if (mulopFactor.getMulop() instanceof Modulo) {
+	        Code.put(Code.rem);
+	    }
+	}
+	
+	@Override
+	public void visit(RelopCondFactTail tail) {
+	    if (tail.getRelop() instanceof Equals) {
+	        Code.put(Code.eq);
+	    }
+	    else if (tail.getRelop() instanceof NotEquals) {
+	        Code.put(Code.ne);
+	    }
+	    else if (tail.getRelop() instanceof Higher) {
+	        Code.put(Code.gt);
+	    }
+	    else if (tail.getRelop() instanceof HiglerEqual) {
+	        Code.put(Code.ge);
+	    }
+	    else if (tail.getRelop() instanceof Lower) {
+	        Code.put(Code.lt);
+	    }
+	    else if (tail.getRelop() instanceof LowerEqual) {
+	        Code.put(Code.le);
+	    }
+	}
+	
 	@Override
     public void visit(Term term) { }
-	@Override
-    public void visit(MulopFactor mulopFactor) { }
+	
     
 	@Override
     public void visit(NumFactor factor) {
