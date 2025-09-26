@@ -54,7 +54,11 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	@Override
-    public void visit(OptionalDesignatorStatement stmt) { }
+    public void visit(OptionalDesignatorStatement stmt) { 
+	    Obj obj = stmt.getDesignator().obj;
+	    Code.store(obj);
+	}
+	
 	@Override
     public void visit(FixedDesignatorStatement stmt) { }
 	@Override
@@ -67,7 +71,18 @@ public class CodeGenerator extends VisitorAdaptor {
     public void visit(DecrementDSTail stmt) { }
     
 	@Override
-    public void visit(ReadStatement stmt) { }
+    public void visit(ReadStatement stmt) {
+		Obj obj = stmt.getDesignator().obj;
+		
+	    if (obj.getType() == Tab.charType) {
+	        Code.put(Code.bread);
+	    }
+	    else {
+	        Code.put(Code.read);
+	    }
+	    
+	    Code.store(obj);
+	}
     
 	@Override
     public void visit(PrintStatement stmt) {
@@ -109,7 +124,13 @@ public class CodeGenerator extends VisitorAdaptor {
         
 	
 	@Override
-    public void visit(DesignatorFactor factor) { }
+    public void visit(DesignatorFactor factor) { 
+	    Obj obj = factor.getDesignator().obj;
+	    if (obj.getKind() == Obj.Var || obj.getKind() == Obj.Elem) {
+	        Code.load(obj);
+	    }
+	}
+	
 	@Override
     public void visit(NewFactor factor) { }
 	@Override

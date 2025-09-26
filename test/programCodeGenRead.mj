@@ -1,0 +1,15 @@
+program TestProgram {
+    void main()
+        int a;
+        char c;
+        bool b;
+    {
+        a = 42;
+        c = 'X';
+        b = true;
+        
+        print(a);
+        print(c);
+        print(b);
+    }
+}
