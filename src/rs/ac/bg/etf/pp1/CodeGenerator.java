@@ -10,147 +10,115 @@ import rs.etf.pp1.mj.runtime.Code;
 public class CodeGenerator extends VisitorAdaptor {
 	public int mainPc;
 	
-	@Override
-	public void visit(NumFactor num) {
-		Code.loadConst(num.getNum());
+	private void loadConst(int value) {
+		Code.loadConst(value);
 	}
 	
 	@Override
-	public void visit(CharFactor ch) {
-		Code.loadConst(ch.getCh());
+	public void visit(ProgName progName) {
+		
 	}
 	
 	@Override
-	public void visit(BoolFactor b) {
-		Code.loadConst(b.getBool() ? 1 : 0);
+	public void visit(MethodDeclaration methodDeclaration) {
+        Code.put(Code.exit);
+        Code.put(Code.return_);
 	}
 	
 	@Override
-	public void visit(Designator designator) {
-	    boolean isLeftSideOfAssign = false;
+	public void visit(TypeMethodSignature typeMethodSig) {      
+		if ("main".equalsIgnoreCase(typeMethodSig.getName())) {
+			mainPc = Code.pc;
+		}
+		
+        int nFormPars = 0;
+        int nLocalVals = 0;
 
-	    if (designator.getParent() instanceof OptionalDesignatorStatement) {
-	        OptionalDesignatorStatement ods = (OptionalDesignatorStatement) designator.getParent();
-	        if (ods.getDesignator() == designator) {
-	            isLeftSideOfAssign = ods.getDesignatorStatementTail() instanceof AssignopExprDSTail;
-	        }
-	    }
+        Code.put(Code.enter);
+        Code.put(nFormPars);
+        Code.put(nLocalVals);
+	}
+	
+	@Override
+	public void visit(VoidMethodSignature voidMethodSig) {      
+		if ("main".equalsIgnoreCase(voidMethodSig.getName())) {
+			mainPc = Code.pc;
+		}
+		
+        int nFormPars = 0;
+        int nLocalVals = 0;
 
-	    if (!isLeftSideOfAssign) {
-	        Code.load(designator.obj);
-	    }
+        Code.put(Code.enter);
+        Code.put(nFormPars);
+        Code.put(nLocalVals);
 	}
 	
 	@Override
-	public void visit(AssignopExprDSTail assign) {
-		Obj des = ((OptionalDesignatorStatement) assign.getParent()).getDesignator().obj;
-		Code.store(des);
-	}
-	
+    public void visit(OptionalDesignatorStatement stmt) { }
 	@Override
-	public void visit(IncrementDSTail inc) {
-		Obj des = ((OptionalDesignatorStatement) inc.getParent()).getDesignator().obj;
-		Code.load(des);
-		Code.loadConst(1);
-		Code.put(Code.add);
-		Code.store(des);
-	}
-	
-    @Override
-    public void visit(DecrementDSTail dec) {
-        Obj des = ((OptionalDesignatorStatement) dec.getParent()).getDesignator().obj;
-        Code.load(des);
-        Code.loadConst(1);
-        Code.put(Code.sub);
-        Code.store(des);
-    }
+    public void visit(FixedDesignatorStatement stmt) { }
+	@Override
+    public void visit(AssignopExprDSTail stmt) { }
+	@Override
+    public void visit(ActParsDSTail stmt) { }
+	@Override
+    public void visit(IncrementDSTail stmt) { }
+	@Override
+    public void visit(DecrementDSTail stmt) { }
     
-    @Override
-    public void visit(Plus plus) { Code.put(Code.add); }
-
-    @Override
-    public void visit(Minus minus) { Code.put(Code.sub); }
-
-    @Override
-    public void visit(Multiplication mul) {Code.put(Code.mul); }
-
-    @Override
-    public void visit(Division div) { Code.put(Code.div); }
-
-    @Override
-    public void visit(Modulo mod) { Code.put(Code.rem); }
+	@Override
+    public void visit(ReadStatement stmt) { }
     
-    public void visit(NegativeSignExpr expr) { 
-    	expr.getTerm().accept(this);
-    	Code.put(Code.neg);
-    }
-    
-    @Override
+	@Override
     public void visit(PrintStatement stmt) {
-        Struct exprType = stmt.getExpr().struct;
-        
-        if (exprType == Tab.intType) {
-            Code.loadConst(5);
-            Code.put(Code.print);
-        }
-        else {
+        if (stmt.getExpr().struct == Tab.charType) {
             Code.loadConst(1);
             Code.put(Code.bprint);
         }
-    }
-
-    @Override
-    public void visit(ReadStatement stmt) {
-        Obj des = stmt.getDesignator().obj;
-        
-        if (des.getType() == Tab.intType) {
-            Code.put(Code.read);
-            Code.loadConst(5);
-        }
         else {
-            Code.put(Code.bread);
-            Code.loadConst(1);
+            Code.loadConst(5);
+            Code.put(Code.print);
         }
-        
-        Code.store(des);
     }
     
-    @Override
-    public void visit(NewFactor newArr) {
-    	newArr.getNewFactorTail().accept(this); 
-    	
-        Code.put(Code.newarray);
-        Code.put(newArr.getType().struct == Tab.charType ? 0 : 1);
-    }
+	@Override
+    public void visit(NoSignExpr expr) { }
+	@Override
+    public void visit(NegativeSignExpr expr) { }
+	@Override
+    public void visit(AddopTerm expr) { }
+	@Override
+    public void visit(Term term) { }
+	@Override
+    public void visit(MulopFactor mulopFactor) { }
     
-    @Override
-    public void visit(TypeMethodSignature method) {
-        if ("main".equalsIgnoreCase(method.getName())) {
-            Code.mainPc = Code.pc;
-        }
-        
-        method.obj.setAdr(Code.pc);
-        Code.put(Code.enter);
-        Code.put(method.obj.getLevel());
-        Code.put(method.obj.getLocalSymbols().size());
+	@Override
+    public void visit(NumFactor factor) {
+        loadConst(factor.getNum());
     }
 
-    @Override
-    public void visit(VoidMethodSignature method) {
-        if ("main".equalsIgnoreCase(method.getName())) {
-            Code.mainPc = Code.pc;
-        }
-        
-        method.obj.setAdr(Code.pc);
-        Code.put(Code.enter);
-        Code.put(method.obj.getLevel());
-        Code.put(method.obj.getLocalSymbols().size());
+	@Override
+    public void visit(CharFactor factor) {
+        loadConst(factor.getCh());
     }
 
-    @Override
-    public void visit(MethodDecl methodDecl) {
-        Code.put(Code.exit);
-        Code.put(Code.return_);
+	@Override
+    public void visit(BoolFactor factor) {
+        loadConst(factor.getBool() ? 1 : 0);
     }
         
+	
+	@Override
+    public void visit(DesignatorFactor factor) { }
+	@Override
+    public void visit(NewFactor factor) { }
+	@Override
+    public void visit(ExprFactor factor) { }
+    
+	@Override
+    public void visit(Designator designator) { }
+	@Override
+    public void visit(DotDesignatorTail tail) { }
+	@Override
+    public void visit(ExprDesignatorTail tail) { }
 }

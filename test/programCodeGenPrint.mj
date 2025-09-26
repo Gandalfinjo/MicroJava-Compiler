@@ -1,0 +1,7 @@
+program TestProgram {
+  void main() {
+    print(5);
+    print('A');
+    print(true);
+  }
+}
