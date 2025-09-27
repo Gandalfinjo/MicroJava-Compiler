@@ -13,9 +13,16 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	// flag za proveru da li smo u globalnom scope-u
 	private boolean inProgramScope = false;
 	
-	private static final Struct setType = new Struct(Struct.Class);
+	private static final Struct setType = new Struct(Struct.Array, Tab.intType);
 	
 	private Obj currentMethod = null;
+	
+	public static Obj addMeth;
+	public static Obj addAllMeth;
+	public static Obj addParamA;
+	public static Obj addParamB;
+	public static Obj addAllParamA;
+	public static Obj addAllParamB;
 	
 	public void initPredeclaredSymbols() {
         // Bool type
@@ -45,20 +52,27 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.insert(Obj.Var, "ch", Tab.charType);
         Tab.closeScope();
         ordMeth.setLevel(1);
+        
+        // len(obj:array) : int
+        Obj lenMeth = Tab.insert(Obj.Meth, "len", Tab.intType);
+        Tab.openScope();
+        Tab.insert(Obj.Var, "obj", new Struct(Struct.Array));
+        Tab.closeScope();
+        lenMeth.setLevel(1);
 
         // add(a:set, b:int) : void
-        Obj addMeth = Tab.insert(Obj.Meth, "add", Tab.noType);
+        addMeth = Tab.insert(Obj.Meth, "add", Tab.noType);
         Tab.openScope();
-        Tab.insert(Obj.Var, "a", setType);
-        Tab.insert(Obj.Var, "b", Tab.intType);
+        addParamA = Tab.insert(Obj.Var, "a", setType);
+        addParamB = Tab.insert(Obj.Var, "b", Tab.intType);
         Tab.closeScope();
         addMeth.setLevel(2);
 
         // addAll(a:set, b:int[]) : void
-        Obj addAllMeth = Tab.insert(Obj.Meth, "addAll", Tab.noType);
+        addAllMeth = Tab.insert(Obj.Meth, "addAll", Tab.noType);
         Tab.openScope();
-        Tab.insert(Obj.Var, "a", setType);
-        Tab.insert(Obj.Var, "b", new Struct(Struct.Array, Tab.intType));
+        addAllParamA = Tab.insert(Obj.Var, "a", setType);
+        addAllParamB = Tab.insert(Obj.Var, "b", new Struct(Struct.Array, Tab.intType));
         Tab.closeScope();
         addAllMeth.setLevel(2);
     }
@@ -339,6 +353,22 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             designator.obj = Tab.noObj;
             return;
         }
+        
+        if (designator.getDesignatorTail() instanceof ExprDesignatorTail) {
+            Expr index = ((ExprDesignatorTail) designator.getDesignatorTail()).getExpr();
+            if (obj.getType().getKind() != Struct.Array) {
+                report_error("Cannot index non-array variable " + name, designator);
+            }
+            else if (index.struct != Tab.intType) {
+                report_error("Array index must be of type int", designator);
+            }
+            else {
+                obj = new Obj(Obj.Elem, name + "[]", obj.getType().getElemType());
+            }
+        }
+        else if (designator.getDesignatorTail() instanceof DotDesignatorTail) {
+            
+        }
 
         designator.obj = obj;
 
@@ -354,7 +384,42 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     }
     
     @Override
+    public void visit(NumFactor factor) {
+        factor.struct = Tab.intType;
+    }
+
+    @Override
+    public void visit(CharFactor factor) {
+        factor.struct = Tab.charType;
+    }
+
+    @Override
+    public void visit(BoolFactor factor) {
+        factor.struct = Tab.find("bool").getType();
+    }
+
+    @Override
+    public void visit(NewFactor factor) {
+        if (factor.getNewFactorTail() instanceof ExprFactorTail) {
+            Expr e = ((ExprFactorTail) factor.getNewFactorTail()).getExpr();
+            if (e.struct != Tab.intType) {
+                report_error("Array size must be of type int", factor);
+            }
+            factor.struct = new Struct(Struct.Array, factor.getType().struct);
+        }
+        else {
+            factor.struct = Tab.noType;
+        }
+    }
+
+    @Override
+    public void visit(ExprFactor factor) {
+        factor.struct = factor.getExpr().struct;
+    }
+    
+    @Override
     public void visit(DesignatorFactor df) {
+    	df.struct = df.getDesignator().obj.getType();
         Obj obj = df.getDesignator().obj;
         if (obj.getKind() == Obj.Meth) {
             reportSymbolFound(obj, obj.getName(), df);

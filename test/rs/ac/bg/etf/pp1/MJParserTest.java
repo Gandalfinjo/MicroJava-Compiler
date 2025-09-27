@@ -17,7 +17,7 @@ public class MJParserTest {
 	public static void main(String[] args) throws Exception {
 		Reader br = null;
 		try {
-			File sourceCode = new File("test/programCodeGenIncDec.mj");
+			File sourceCode = new File("test/programCodeGenUnion.mj");
 			System.out.println("Compiling source file: " + sourceCode.getAbsolutePath());
 			
 			br = new BufferedReader(new FileReader(sourceCode));
@@ -39,23 +39,16 @@ public class MJParserTest {
 			
 			Tab.dump();
 			
-//			RuleVisitor v = new RuleVisitor();
-//			prog.traverseBottomUp(v);
-			
-//			System.out.println("Print count calls = " + v.printCallCount);
-//			System.out.println("Variable declarations = " + v.varDeclCount);
-			
 			if(!p.errorDetected && v.passed()){
 				File objFile = new File("test/program.obj");
 				
 				if (objFile.exists()) objFile.delete();
 				
 				CodeGenerator codeGenerator = new CodeGenerator();
+				codeGenerator.initPredefinedMethods();
 				prog.traverseBottomUp(codeGenerator);
 				Code.dataSize = v.nVars;
 				Code.mainPc = codeGenerator.mainPc;
-				
-				System.out.println("Code.pc = " + Code.pc + ", mainPc = " + codeGenerator.mainPc + ", dataSize = " + v.nVars);
 				
 				Code.write(new FileOutputStream(objFile));
 				
