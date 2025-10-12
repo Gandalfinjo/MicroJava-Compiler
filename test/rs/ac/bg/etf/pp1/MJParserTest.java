@@ -17,7 +17,7 @@ public class MJParserTest {
 	public static void main(String[] args) throws Exception {
 		Reader br = null;
 		try {
-			File sourceCode = new File("test/programCodeGenUnion.mj");
+			File sourceCode = new File("test/test304.mj");
 			System.out.println("Compiling source file: " + sourceCode.getAbsolutePath());
 			
 			br = new BufferedReader(new FileReader(sourceCode));
@@ -54,7 +54,7 @@ public class MJParserTest {
 				
 				System.out.println("Parsing done successfully!");
 			}
-			else{
+			else {
 				System.err.println("Parsing not done successfully");
 			}
 		}

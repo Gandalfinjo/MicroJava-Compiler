@@ -13,12 +13,19 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	// flag za proveru da li smo u globalnom scope-u
 	private boolean inProgramScope = false;
 	
-	private static final Struct setType = new Struct(Struct.Array, Tab.intType);
+	private int lastIntConstValue;
+	private int lastCharConstValue;
+	private int lastBoolConstValue;
+	private int lastConstKind = -1; // 0 = int, 1 = char, 2 = bool
+	
+	static final Struct setType = new Struct(Struct.Array, Tab.intType);
+	static final Struct boolType = new Struct(Struct.Bool);
 	
 	private Obj currentMethod = null;
 	
 	public static Obj addMeth;
 	public static Obj addAllMeth;
+	public static Obj printSetMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -26,10 +33,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	
 	public void initPredeclaredSymbols() {
         // Bool type
-        Struct boolType = new Struct(Struct.Bool);
         Tab.insert(Obj.Type, "bool", boolType);
 
         // Set type
+        // Tab.insert(Obj.Type, "set", new Struct(8));
         Tab.insert(Obj.Type, "set", setType);
 
         // null constant
@@ -61,20 +68,58 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         lenMeth.setLevel(1);
 
         // add(a:set, b:int) : void
-        addMeth = Tab.insert(Obj.Meth, "add", Tab.noType);
+        addMeth = new Obj(Obj.Meth, "add", Tab.noType, 0, 2);
+        Tab.currentScope.addToLocals(addMeth);
         Tab.openScope();
-        addParamA = Tab.insert(Obj.Var, "a", setType);
-        addParamB = Tab.insert(Obj.Var, "b", Tab.intType);
+
+        Obj formalA = new Obj(Obj.Var, "a", setType, 0, 1);
+        Obj formalB = new Obj(Obj.Var, "b", Tab.intType, 1, 1);
+
+        Obj setSize = new Obj(Obj.Var, "setSize", Tab.intType, 2, 1);
+        Obj currentIndex = new Obj(Obj.Var, "currentSetIndex", Tab.intType, 3, 1);
+
+        Tab.currentScope.addToLocals(formalA);
+        Tab.currentScope.addToLocals(formalB);
+        Tab.currentScope.addToLocals(setSize);
+        Tab.currentScope.addToLocals(currentIndex);
+
+        addMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
-        addMeth.setLevel(2);
 
         // addAll(a:set, b:int[]) : void
-        addAllMeth = Tab.insert(Obj.Meth, "addAll", Tab.noType);
+        addAllMeth = new Obj(Obj.Meth, "addAll", Tab.noType, 0, 2);
+        Tab.currentScope.addToLocals(addAllMeth);
         Tab.openScope();
-        addAllParamA = Tab.insert(Obj.Var, "a", setType);
-        addAllParamB = Tab.insert(Obj.Var, "b", new Struct(Struct.Array, Tab.intType));
+
+        Obj formalAA = new Obj(Obj.Var, "a", setType, 0, 1);
+        Obj formalBB = new Obj(Obj.Var, "b", new Struct(Struct.Array, Tab.intType), 1, 1);
+        Obj currentArrayIndex = new Obj(Obj.Var, "currentArrayIndex", Tab.intType, 2, 1);
+
+        Tab.currentScope.addToLocals(formalAA);
+        Tab.currentScope.addToLocals(formalBB);
+        Tab.currentScope.addToLocals(currentArrayIndex);
+
+        addAllMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
-        addAllMeth.setLevel(2);
+        
+        // printSet
+        printSetMeth = new Obj(Obj.Meth, "printSet", Tab.noType, 0, 2);
+        Tab.currentScope.addToLocals(printSetMeth);
+        Tab.openScope();
+
+        Obj formalSet = new Obj(Obj.Var, "s", setType, 0, 1);
+        Obj formalWidth = new Obj(Obj.Var, "w", Tab.intType, 1, 1);
+
+        Obj printSetSize = new Obj(Obj.Var, "setSize", Tab.intType, 2, 1);
+        Obj printCurrentIndex = new Obj(Obj.Var, "currentSetIndex", Tab.intType, 3, 1);
+
+        Tab.currentScope.addToLocals(formalSet);
+        Tab.currentScope.addToLocals(formalWidth);
+        Tab.currentScope.addToLocals(printSetSize);
+        Tab.currentScope.addToLocals(printCurrentIndex);
+
+        printSetMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
     }
 
 	public void report_error(String message, SyntaxNode info) {
@@ -173,6 +218,18 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	
     	Obj con = Tab.insert(Obj.Con, constName, currentType);
     	
+        if (lastConstKind == 0 && currentType.equals(Tab.intType)) {
+            con.setAdr(lastIntConstValue);
+        }
+        else if (lastConstKind == 1 && currentType.equals(Tab.charType)) {
+            con.setAdr(lastCharConstValue);
+        }
+        else if (lastConstKind == 2 && currentType.equals(Tab.find("bool").getType())) {
+            con.setAdr(lastBoolConstValue);
+        }
+        
+        lastConstKind = -1;
+    	
     	reportSymbolFound(con, constName, constDecl);
     }
     
@@ -186,6 +243,19 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         }
 
         Obj con = Tab.insert(Obj.Con, constName, currentType);
+        
+        if (lastConstKind == 0 && currentType.equals(Tab.intType)) {
+            con.setAdr(lastIntConstValue);
+        }
+        else if (lastConstKind == 1 && currentType.equals(Tab.charType)) {
+            con.setAdr(lastCharConstValue);
+        }
+        else if (lastConstKind == 2 && currentType.equals(Tab.find("bool").getType())) {
+            con.setAdr(lastBoolConstValue);
+        }
+        
+        lastConstKind = -1;
+        
         reportSymbolFound(con, constName, constDeclExt);
     }
     
@@ -194,6 +264,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (!currentType.equals(Tab.intType)) {
             report_error("Type mismatch: expected " + currentType + " but got int", numConst);
         }
+        
+        lastIntConstValue = numConst.getN1();
+        lastConstKind = 0;
     }
 
     @Override
@@ -201,6 +274,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (!currentType.equals(Tab.charType)) {
             report_error("Type mismatch: expected " + currentType + " but got char", charConst);
         }
+        
+        lastCharConstValue = (int) charConst.getC1();
+        lastConstKind = 1;
     }
 
     @Override
@@ -209,6 +285,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (!currentType.equals(boolType)) {
             report_error("Type mismatch: expected " + currentType + " but got bool", boolConst);
         }
+        
+        lastBoolConstValue = boolConst.getB1() ? 1 : 0;
+        lastConstKind = 2;
     }
 
     
@@ -293,6 +372,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     
     @Override
     public void visit(MethodDeclaration methodDecl) {
+    	Tab.chainLocalSymbols(currentMethod);
         Tab.closeScope();
         currentMethod = null;
     }
@@ -375,7 +455,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (obj.getKind() != Obj.Con &&
             obj.getKind() != Obj.Var &&
             obj.getKind() != Obj.Meth &&
-            obj.getKind() != Obj.Type) 
+            obj.getKind() != Obj.Type &&
+            obj.getKind() != Obj.Elem) 
         {
             report_error("Identifier " + name + " is not a variable, constant, method or type", designator);
         }
@@ -400,7 +481,13 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(NewFactor factor) {
-        if (factor.getNewFactorTail() instanceof ExprFactorTail) {
+    	if (factor.getType().struct == setType) {
+            if (((ExprFactorTail) factor.getNewFactorTail()).getExpr().struct != Tab.intType) {
+                report_error("Set size must be int", factor);
+            }
+            factor.struct = setType;
+    	}
+    	else if (factor.getNewFactorTail() instanceof ExprFactorTail) {
             Expr e = ((ExprFactorTail) factor.getNewFactorTail()).getExpr();
             if (e.struct != Tab.intType) {
                 report_error("Array size must be of type int", factor);
@@ -411,10 +498,35 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             factor.struct = Tab.noType;
         }
     }
+    
+    @Override
+    public void visit(Term term) {
+        if (term.getMulopFactorList() instanceof NoMulopFactors) {
+            term.struct = term.getFactor().struct;
+        }
+        else {
+            term.struct = Tab.intType;
+        }
+    }
 
     @Override
     public void visit(ExprFactor factor) {
         factor.struct = factor.getExpr().struct;
+    }
+    
+    @Override
+    public void visit(NoSignExpr expr) {
+        if (expr.getAddopTermList() instanceof NoAddopTerms) {
+            expr.struct = expr.getTerm().struct;
+        }
+        else {
+            expr.struct = Tab.intType;
+        }
+    }
+
+    @Override
+    public void visit(NegativeSignExpr expr) {
+        expr.struct = Tab.intType;
     }
     
     @Override
@@ -448,11 +560,27 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (printStmt.getExpr() != null) {
             printStmt.getExpr().struct = printStmt.getExpr().struct;
         }
+        
+        Struct exprType = printStmt.getExpr().struct;
+        if (exprType != Tab.intType && exprType != Tab.charType && !exprType.equals(boolType) && !exprType.equals(setType)) {
+            report_error("Semantic error on the line " + printStmt.getLine() + ": PRINT instruction operand must be int, char or set", null);
+        }
     }
     
-//    public void visit(PrintStatement print) {
-//    	if (print.getExpr().struct != Tab.intType && print.getExpr().struct != Tab.charType)
-//    		report_error("Semantic error on the line " + print.getLine() + ": PRINT instruction operand must be int or char", null);
-//	}
+    @Override
+    public void visit(FixedDesignatorStatement stmt) {
+        Obj dest = stmt.getDesignator().obj;   // s3
+        Obj left = stmt.getDesignator1().obj;  // s1
+        Obj right = stmt.getDesignator2().obj; // s2
+
+        if (dest == Tab.noObj || left == Tab.noObj || right == Tab.noObj) {
+            report_error("Undeclared set in union operation", stmt);
+            return;
+        }
+
+        if (!dest.getType().equals(setType) || !left.getType().equals(setType) || !right.getType().equals(setType)) {
+            report_error("All operands in set union must be of type set", stmt);
+        }
+    }
   
 }

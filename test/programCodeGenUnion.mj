@@ -2,11 +2,15 @@ program TestProgram {
     void main()
         int a;
         int b;
+        set s1;
     {
        	a = 3;
        	b = 3 - 4;
+       	// s1 = new set[3];
+       	// add(s1, 1);
        	
        	print(a);
        	print(b);
+       	// print(s1);
     }
 }

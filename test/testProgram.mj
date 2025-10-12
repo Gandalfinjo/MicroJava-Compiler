@@ -1,0 +1,25 @@
+program Test {
+    void main()
+    	int a, b, c;
+    	char x, z;
+    	int y;
+    {
+        a = 5;
+        b = 3;
+
+        // Arithmetika
+        c = a + b * 2;
+        print(c, 5);   // 11
+
+        c = c - 1;
+        print(c, 5);   // 10
+
+        // Provera chr/ord
+        x = 'A';
+        y = ord(x);
+        print(y, 5);   // 65
+        print(eol);
+        z = chr(y);
+        print(z, 1);   // A
+    }
+}
