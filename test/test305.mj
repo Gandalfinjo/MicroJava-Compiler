@@ -47,7 +47,7 @@ set s1, s2, s3;
 		print(ord(nizch[0])); //97
 			
 		a=1;
-		// read(bodovi);
+		read(bodovi);
 		bodovi = -bodovi + (pet * a / 2 - nula) * bodovi - (3 % 2 + 3 * 2 - 7); 
 		print(bodovi); //bodovi
 		

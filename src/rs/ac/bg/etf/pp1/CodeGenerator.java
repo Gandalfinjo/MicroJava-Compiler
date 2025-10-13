@@ -16,11 +16,12 @@ public class CodeGenerator extends VisitorAdaptor {
 	
 	private int getPredefinedMethodAddress(String methodName) {
 	    Obj meth = Tab.find(methodName);
+	    
 	    if (meth == null) {
 	    	Code.error("Predefined method " + methodName + " doesn't exist");
 	    	return 0;
 	    }
-	    System.out.println("Method: " + methodName + " , addr: " + meth.getAdr());
+	    
 	    return meth.getAdr();
 	}
 	
@@ -255,7 +256,6 @@ public class CodeGenerator extends VisitorAdaptor {
 	private void generateUnionMethod() {
 		SemanticAnalyzer.unionMeth.setAdr(Code.pc);
 
-		System.out.println(SemanticAnalyzer.unionMeth.getAdr());
 		Code.put(Code.enter);
         Code.put(SemanticAnalyzer.unionMeth.getLevel());
         Code.put(SemanticAnalyzer.unionMeth.getLocalSymbols().size());
@@ -496,7 +496,7 @@ public class CodeGenerator extends VisitorAdaptor {
 	@Override
     public void visit(ReadStatement stmt) {
 		Obj obj = stmt.getDesignator().obj;
-		stmt.getDesignator().accept(this);
+		// stmt.getDesignator().accept(this);
 		
 	    if (obj.getType() == Tab.charType) {
 	        Code.put(Code.bread);
