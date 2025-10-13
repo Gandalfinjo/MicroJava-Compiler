@@ -1,9 +1,6 @@
 package rs.ac.bg.etf.pp1;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
 
 import rs.ac.bg.etf.pp1.ast.*;
 import rs.etf.pp1.symboltable.*;
@@ -12,10 +9,6 @@ import rs.etf.pp1.mj.runtime.Code;
 
 public class CodeGenerator extends VisitorAdaptor {
 	public int mainPc;
-	
-	private boolean isDesignatorLeftSide = false;
-	
-    private static final int RESERVED_LOCALS = 20;
 	
 	private void loadConst(int value) {
 		Code.loadConst(value);
@@ -257,9 +250,7 @@ public class CodeGenerator extends VisitorAdaptor {
     }
 	
 	@Override
-	public void visit(ProgName progName) {
-		
-	}
+	public void visit(ProgName progName) { }
 	
 	@Override
 	public void visit(MethodDeclaration methodDeclaration) {
@@ -304,31 +295,14 @@ public class CodeGenerator extends VisitorAdaptor {
 	@Override
 	public void visit(OptionalDesignatorStatement stmt) { 
 	    Obj obj = stmt.getDesignator().obj;
-	    // stmt.getDesignator().accept(this);
 
-	    if (stmt.getDesignatorStatementTail() instanceof AssignopExprDSTail) {
-//	    	System.out.println("DEBUG: AssignopExprDSTail – visit OptionalDesignatorStatement");
-//	        AssignopExprDSTail tail = (AssignopExprDSTail) stmt.getDesignatorStatementTail();
-//	        tail.getExpr().accept(this);
-//	        System.out.println("DEBUG: after evaluating RHS expr");
-//
-//	        stmt.getDesignator().accept(this);
-//	        System.out.println("DEBUG: after evaluating Designator");
-//
-//	        Code.store(stmt.getDesignator().obj);
-//	        System.out.println("DEBUG: after Code.store");
-	    	
+	    if (stmt.getDesignatorStatementTail() instanceof AssignopExprDSTail) {	    	
 	    	 AssignopExprDSTail tail = (AssignopExprDSTail) stmt.getDesignatorStatementTail();
 	         tail.getExpr().accept(this);
-
-	         isDesignatorLeftSide = true;
-	         // stmt.getDesignator().accept(this);
-	         isDesignatorLeftSide = false;
 
 	         Code.store(obj);
 	    }
 	    else if (stmt.getDesignatorStatementTail() instanceof ActParsDSTail) {
-	    	// stmt.getDesignatorStatementTail().accept(this);
 	        Code.put(Code.call);
 	        Code.put2(obj.getAdr() - Code.pc + 1);
 	    }
@@ -459,10 +433,7 @@ public class CodeGenerator extends VisitorAdaptor {
     }
     
 	@Override
-    public void visit(NoSignExpr expr) { 
-//		expr.getTerm().accept(this);
-//		expr.getAddopTermList().accept(this);
-	}
+    public void visit(NoSignExpr expr) { }
 	
 	@Override
     public void visit(NegativeSignExpr expr) {
@@ -472,14 +443,10 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	@Override
-    public void visit(AddopTerms list) {
-//		list.getAddopTermList().accept(this);
-//		list.getAddopTerm().accept(this);
-	}
+    public void visit(AddopTerms list) { }
 	
 	@Override
     public void visit(AddopTerm addopTerm) {
-		// addopTerm.getTerm().accept(this);
 	    if (addopTerm.getAddop() instanceof Plus) {
 	        Code.put(Code.add);
 	    }
@@ -489,14 +456,10 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	@Override
-    public void visit(MulopFactors list) {
-//		list.getMulopFactorList().accept(this);
-//		list.getMulopFactor().accept(this);
-	}
+    public void visit(MulopFactors list) { }
 	
 	@Override
     public void visit(MulopFactor mulopFactor) {		
-		// mulopFactor.getFactor().accept(this);
 	    if (mulopFactor.getMulop() instanceof Multiplication) {
 	        Code.put(Code.mul);
 	    }
@@ -531,10 +494,7 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	@Override
-    public void visit(Term term) {		
-//		term.getFactor().accept(this);
-//		term.getMulopFactorList().accept(this);
-	}
+    public void visit(Term term) { }
 	
     
 	@Override
@@ -554,15 +514,12 @@ public class CodeGenerator extends VisitorAdaptor {
         
 	
 	@Override
-    public void visit(DesignatorFactor factor) { 		
-//		factor.getDesignator().accept(this);
-//		factor.getActParsOption().accept(this);
+    public void visit(DesignatorFactor factor) {
 	    Obj obj = factor.getDesignator().obj;
 	    
 	    if (obj.getKind() == Obj.Meth) {
 	        Code.put(Code.call);
 	        Code.put2(obj.getAdr() - Code.pc + 1);
-	        // Code.put2(obj.getAdr());
 	    }
 	    else if (obj.getKind() == Obj.Var || obj.getKind() == Obj.Elem || obj.getKind() == Obj.Con) {
 	        Code.load(obj);
@@ -570,32 +527,22 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	@Override
-	public void visit(ActParamsOption option) {
-		// option.getActParsInner().accept(this);
-	}
+	public void visit(ActParamsOption option) {	}
 	
 	@Override
 	public void visit(NoActParamsOption option) { }
 	
 	@Override
-	public void visit(ActParamsInner inner) {
-		// inner.getActPars().accept(this);
-	}
+	public void visit(ActParamsInner inner) { }
 	
 	@Override
 	public void visit(NoActParamsInner inner) { }
 	
 	@Override
-	public void visit(ActParams pars) {
-//		pars.getExpr().accept(this);
-//		pars.getExprsExtended().accept(this);
-	}
+	public void visit(ActParams pars) {	}
 	
 	@Override
-	public void visit(ExprsExtendedList extended) {
-//		extended.getExpr().accept(this);
-//		extended.getExprsExtended().accept(this);
-	}
+	public void visit(ExprsExtendedList extended) {	}
 	
 	@Override
 	public void visit(NoExprsExtendedList extended) { }
@@ -603,10 +550,6 @@ public class CodeGenerator extends VisitorAdaptor {
 	@Override
     public void visit(NewFactor factor) {		
 		Struct type = factor.getType().struct;
-		
-		if (factor.getNewFactorTail() instanceof ExprFactorTail) {
-			// ((ExprFactorTail) factor.getNewFactorTail()).getExpr().traverseBottomUp(this);
-		}
 		
 		if (type.equals(SemanticAnalyzer.setType)) {
 			Code.loadConst(1);
@@ -631,27 +574,18 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	@Override
-    public void visit(ExprFactor factor) {
-		// factor.getExpr().accept(this);
-	}
+    public void visit(ExprFactor factor) { }
     
 	@Override
     public void visit(Designator designator) { 
 		Obj obj = designator.obj;
-		
-//		if (!(designator.getDesignatorTail() instanceof NoDesignatorTail)) {
-//            Code.load(Tab.find(designator.getName()));
-//        }
-//		
+			
 		System.out.println("DEBUG: visit Designator for " + designator.getName()
         + ", tail = " + (designator.getDesignatorTail() == null ? "null" : designator.getDesignatorTail().getClass().getSimpleName()));
 		if (designator.getDesignatorTail() instanceof ExprDesignatorTail) {
-			ExprDesignatorTail tail = (ExprDesignatorTail) designator.getDesignatorTail();
-			System.out.println("DEBUG: ExprDesignatorTail – evaluating index");
-			// tail.getExpr().accept(this);
-			System.out.println("DEBUG: index expr done, now load obj " + obj.getName());
-			System.out.println("DEBUG: tail expr parent = " + tail.getExpr().getParent());
-			// Code.load(obj);
+//			System.out.println("DEBUG: ExprDesignatorTail – evaluating index");
+//			System.out.println("DEBUG: index expr done, now load obj " + obj.getName());
+//			System.out.println("DEBUG: tail expr parent = " + tail.getExpr().getParent());
 			if (obj.getLevel() == 0) {
 				 Code.put(Code.getstatic); 
 			     Code.put2(obj.getAdr());
@@ -663,22 +597,14 @@ public class CodeGenerator extends VisitorAdaptor {
 	        Code.put(Code.dup_x1);
 	        Code.put(Code.pop);
 			
-			// tail.getExpr().traverseBottomUp(this);
 			System.out.println("DEBUG: after Code.load(obj)");
 			System.out.println(obj.getLevel());
 		}
-		else {
-			
-		}
-		// designator.getDesignatorTail().accept(this);
 	}
 	
 	@Override
     public void visit(DotDesignatorTail tail) { }
 	
 	@Override
-    public void visit(ExprDesignatorTail tail) {
-		// tail.getExpr().accept(this);
-		// Code.put(Code.aload);
-	}
+    public void visit(ExprDesignatorTail tail) { }
 }
