@@ -322,7 +322,7 @@ public class CodeGenerator extends VisitorAdaptor {
 	         tail.getExpr().accept(this);
 
 	         isDesignatorLeftSide = true;
-	         stmt.getDesignator().accept(this);
+	         // stmt.getDesignator().accept(this);
 	         isDesignatorLeftSide = false;
 
 	         Code.store(obj);
@@ -648,7 +648,7 @@ public class CodeGenerator extends VisitorAdaptor {
 		if (designator.getDesignatorTail() instanceof ExprDesignatorTail) {
 			ExprDesignatorTail tail = (ExprDesignatorTail) designator.getDesignatorTail();
 			System.out.println("DEBUG: ExprDesignatorTail – evaluating index");
-			tail.getExpr().accept(this);
+			// tail.getExpr().accept(this);
 			System.out.println("DEBUG: index expr done, now load obj " + obj.getName());
 			System.out.println("DEBUG: tail expr parent = " + tail.getExpr().getParent());
 			// Code.load(obj);
@@ -659,6 +659,9 @@ public class CodeGenerator extends VisitorAdaptor {
 			else {
 				Code.load(obj);
 			}
+			
+	        Code.put(Code.dup_x1);
+	        Code.put(Code.pop);
 			
 			// tail.getExpr().traverseBottomUp(this);
 			System.out.println("DEBUG: after Code.load(obj)");
