@@ -96,7 +96,7 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.load(currentSetIndex);
         Code.put(Code.aload);
         Code.load(elementToAdd);
-        Code.putFalseJump(Code.le, 0);
+        Code.putFalseJump(Code.ne, 0);
         
         int exitLoopAndIgnoreAddingElementJumpAddressPlaceholder = Code.pc - 2;
         
@@ -153,7 +153,7 @@ public class CodeGenerator extends VisitorAdaptor {
         
         int methodOffsetFromPc = lenMeth.getAdr() - Code.pc;
         Code.put(Code.call);
-        Code.put2(methodOffsetFromPc + 1);
+        Code.put2(methodOffsetFromPc);
         
         Code.putFalseJump(Code.lt, 0);
         int loopExitJumpAddressPlaceholder = Code.pc - 2;
@@ -165,7 +165,7 @@ public class CodeGenerator extends VisitorAdaptor {
         
         methodOffsetFromPc = addMeth.getAdr() - Code.pc;
         Code.put(Code.call);
-        Code.put2(methodOffsetFromPc + 1);
+        Code.put2(methodOffsetFromPc);
 
         Code.load(currentArrayIndex);
         Code.loadConst(1);
