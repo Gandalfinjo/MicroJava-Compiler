@@ -20,6 +20,7 @@ public class CodeGenerator extends VisitorAdaptor {
 	    	Code.error("Predefined method " + methodName + " doesn't exist");
 	    	return 0;
 	    }
+	    System.out.println("Method: " + methodName + " , addr: " + meth.getAdr());
 	    return meth.getAdr();
 	}
 	
@@ -179,6 +180,8 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.put(Code.return_);
         
         generatePrintSetMethod();
+        
+        generateUnionMethod();
 	}
 	
 	private void generatePrintSetMethod() {
@@ -247,6 +250,99 @@ public class CodeGenerator extends VisitorAdaptor {
 
         Code.put(Code.exit);
         Code.put(Code.return_);
+    }
+	
+	private void generateUnionMethod() {
+		SemanticAnalyzer.unionMeth.setAdr(Code.pc);
+
+		System.out.println(SemanticAnalyzer.unionMeth.getAdr());
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.unionMeth.getLevel());
+        Code.put(SemanticAnalyzer.unionMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.unionMeth.getLocalSymbols().iterator();
+
+        Obj destinationSet = localSymbolsIterator.next();
+        Obj leftSet = localSymbolsIterator.next();
+        Obj rightSet = localSymbolsIterator.next();
+
+        Obj sourceSetSize = localSymbolsIterator.next();
+        Obj currentSourceSetIndex = localSymbolsIterator.next();
+
+        clearDestinationSetIfNotEqualToLeftAndRightSet(destinationSet, leftSet, rightSet);
+
+        Code.load(destinationSet);
+        Code.load(leftSet);
+        Code.putFalseJump(Code.ne, 0);
+        int destinationEqualToLeftJumpAddressPlaceholder = Code.pc - 2;
+
+        addSourceToDestinationSet(destinationSet, leftSet, sourceSetSize, currentSourceSetIndex);
+        Code.fixup(destinationEqualToLeftJumpAddressPlaceholder);
+
+        Code.load(destinationSet);
+        Code.load(rightSet);
+        Code.putFalseJump(Code.ne, 0);
+        int destinationEqualToRightJumpAddressPlaceholder = Code.pc - 2;
+
+        addSourceToDestinationSet(destinationSet, rightSet, sourceSetSize, currentSourceSetIndex);
+        Code.fixup(destinationEqualToRightJumpAddressPlaceholder);
+
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+    private void clearDestinationSetIfNotEqualToLeftAndRightSet(Obj destinationSet, Obj leftSet, Obj rightSet) {
+        Code.load(destinationSet);
+        Code.load(leftSet);
+        Code.putFalseJump(Code.ne, 0);
+        int destinationEqualToLeftJumpAddressPlaceholder = Code.pc - 2;
+
+        Code.load(destinationSet);
+        Code.load(rightSet);
+        Code.putFalseJump(Code.ne, 0);
+        int destinationEqualToRightJumpAddressPlaceholder = Code.pc - 2;
+
+        Code.load(destinationSet);
+        Code.loadConst(0);
+        Code.loadConst(0);
+        Code.put(Code.astore);
+
+        Code.fixup(destinationEqualToLeftJumpAddressPlaceholder);
+        Code.fixup(destinationEqualToRightJumpAddressPlaceholder);
+    }
+
+    private void addSourceToDestinationSet(Obj destinationSet, Obj sourceSet, Obj sourceSetSize, Obj currentSourceSetIndex) {
+        Code.load(sourceSet);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(sourceSetSize);
+
+        Code.loadConst(0);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(currentSourceSetIndex);
+
+        int loopIterationStartAddress = Code.pc;
+
+        Code.load(currentSourceSetIndex);
+        Code.load(sourceSetSize);
+        Code.putFalseJump(Code.le, 0);
+        int exitLoopJumpAddressPlaceholder = Code.pc - 2;
+
+        Code.load(destinationSet);
+        Code.load(sourceSet);
+        Code.load(currentSourceSetIndex);
+        Code.put(Code.aload);
+        Code.put(Code.call);
+        Code.put2(getPredefinedMethodAddress("add") - Code.pc + 1);
+
+        Code.load(currentSourceSetIndex);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(currentSourceSetIndex);
+
+        Code.putJump(loopIterationStartAddress);
+        Code.fixup(exitLoopJumpAddressPlaceholder);
     }
 	
 	@Override
@@ -325,32 +421,38 @@ public class CodeGenerator extends VisitorAdaptor {
         Obj dest = stmt.getDesignator().obj;   // s3
         Obj left = stmt.getDesignator1().obj;  // s1
         Obj right = stmt.getDesignator2().obj; // s2
-
-        Code.load(left);
-        Code.put(Code.arraylength);
-        Code.load(right);
-        Code.put(Code.arraylength);
-        Code.put(Code.add);
-        Code.loadConst(1);
-        Code.put(Code.add);
-        Code.put(Code.newarray);
-        Code.put(1);
-        Code.store(dest);
-
-        Code.load(dest);
-        Code.loadConst(0);
-        Code.loadConst(0);
-        Code.put(Code.astore);
-
+        
         Code.load(dest);
         Code.load(left);
-        Code.put(Code.call);
-        Code.put2(getPredefinedMethodAddress("addAll") - Code.pc + 1);
-
-        Code.load(dest);
         Code.load(right);
         Code.put(Code.call);
-        Code.put2(getPredefinedMethodAddress("addAll") - Code.pc + 1);
+        Code.put2(getPredefinedMethodAddress("union") - Code.pc + 1);
+
+//        Code.load(left);
+//        Code.put(Code.arraylength);
+//        Code.load(right);
+//        Code.put(Code.arraylength);
+//        Code.put(Code.add);
+//        Code.loadConst(1);
+//        Code.put(Code.add);
+//        Code.put(Code.newarray);
+//        Code.put(1);
+//        Code.store(dest);
+//
+//        Code.load(dest);
+//        Code.loadConst(0);
+//        Code.loadConst(0);
+//        Code.put(Code.astore);
+//
+//        Code.load(dest);
+//        Code.load(left);
+//        Code.put(Code.call);
+//        Code.put2(getPredefinedMethodAddress("addAll") - Code.pc + 1);
+//
+//        Code.load(dest);
+//        Code.load(right);
+//        Code.put(Code.call);
+//        Code.put2(getPredefinedMethodAddress("addAll") - Code.pc + 1);
     }
 	
 //	@Override
@@ -579,13 +681,8 @@ public class CodeGenerator extends VisitorAdaptor {
 	@Override
     public void visit(Designator designator) { 
 		Obj obj = designator.obj;
-			
-		System.out.println("DEBUG: visit Designator for " + designator.getName()
-        + ", tail = " + (designator.getDesignatorTail() == null ? "null" : designator.getDesignatorTail().getClass().getSimpleName()));
+
 		if (designator.getDesignatorTail() instanceof ExprDesignatorTail) {
-//			System.out.println("DEBUG: ExprDesignatorTail – evaluating index");
-//			System.out.println("DEBUG: index expr done, now load obj " + obj.getName());
-//			System.out.println("DEBUG: tail expr parent = " + tail.getExpr().getParent());
 			if (obj.getLevel() == 0) {
 				 Code.put(Code.getstatic); 
 			     Code.put2(obj.getAdr());
@@ -596,9 +693,6 @@ public class CodeGenerator extends VisitorAdaptor {
 			
 	        Code.put(Code.dup_x1);
 	        Code.put(Code.pop);
-			
-			System.out.println("DEBUG: after Code.load(obj)");
-			System.out.println(obj.getLevel());
 		}
 	}
 	

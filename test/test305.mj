@@ -45,10 +45,9 @@ set s1, s2, s3;
 		print(nizch[jedan * 2]); //c
 		print(eol);
 		print(ord(nizch[0])); //97
-		
-		a=2;
+			
+		a=1;
 		// read(bodovi);
-		print(eol);
 		bodovi = -bodovi + (pet * a / 2 - nula) * bodovi - (3 % 2 + 3 * 2 - 7); 
 		print(bodovi); //bodovi
 		
@@ -56,15 +55,21 @@ set s1, s2, s3;
 		s1 = new set[5]; s2 = new set[5]; s3 = new set[10];
 		addAll(s1, niz);
 		add(s2, 3); add(s2, 4); add(s2, 5);
-		print(eol);
-		print(s1);
-		print(eol);
-		print(s2);
 		s3 = s1 union s2;
-		print(eol);
 		print(s3); //1 2 3 4 5
 		print(eol);
+		
+		niz[0] = 5; niz[1] = 5; niz[2] = 10;
+		s1 = new set[5]; s2 = new set[5]; s3 = new set[10];
+		addAll(s1, niz);
+		// read(temp);
+		// read(temp);
+		// read(temp);
+		add(s2, 1);
+		add(s2, 2);
+		add(s2, 3);
+		s3 = s1 union s2;
+		print(s3); // 5 10 union {3 procitana broja}
+		
 	}
 }
-
-

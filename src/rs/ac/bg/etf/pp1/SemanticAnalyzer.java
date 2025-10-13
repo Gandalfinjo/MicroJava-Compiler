@@ -26,6 +26,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj addMeth;
 	public static Obj addAllMeth;
 	public static Obj printSetMeth;
+	public static Obj unionMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -119,6 +120,28 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(printCurrentIndex);
 
         printSetMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // union
+        unionMeth = new Obj(Obj.Meth, "union", Tab.noType, 0, 3);
+        Tab.currentScope.addToLocals(unionMeth);
+        Tab.openScope();
+        
+        Obj formalSymbol1 = new Obj(Obj.Var, "destinationSet", setType, 0, 1);
+        Obj formalSymbol2 = new Obj(Obj.Var, "leftSet", setType, 1, 1);
+        Obj formalSymbol3 = new Obj(Obj.Var, "rightSet", setType, 2, 1);
+        
+        Obj localSymbol1 = new Obj(Obj.Var, "sourceSetSize", Tab.intType, 3, 1);
+        Obj localSymbol2 = new Obj(Obj.Var, "currentSourceSetIndex", Tab.intType, 4, 1);
+        
+        
+        Tab.currentScope.addToLocals(formalSymbol1);
+        Tab.currentScope.addToLocals(formalSymbol2);
+        Tab.currentScope.addToLocals(formalSymbol3);
+        Tab.currentScope.addToLocals(localSymbol1);
+        Tab.currentScope.addToLocals(localSymbol2);
+        
+        unionMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 
