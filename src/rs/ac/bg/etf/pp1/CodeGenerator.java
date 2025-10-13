@@ -605,7 +605,7 @@ public class CodeGenerator extends VisitorAdaptor {
 		Struct type = factor.getType().struct;
 		
 		if (factor.getNewFactorTail() instanceof ExprFactorTail) {
-			// ((ExprFactorTail) factor.getNewFactorTail()).getExpr().accept(this);
+			// ((ExprFactorTail) factor.getNewFactorTail()).getExpr().traverseBottomUp(this);
 		}
 		
 		if (type.equals(SemanticAnalyzer.setType)) {
@@ -650,8 +650,19 @@ public class CodeGenerator extends VisitorAdaptor {
 			System.out.println("DEBUG: ExprDesignatorTail – evaluating index");
 			tail.getExpr().accept(this);
 			System.out.println("DEBUG: index expr done, now load obj " + obj.getName());
-			Code.load(obj);
+			System.out.println("DEBUG: tail expr parent = " + tail.getExpr().getParent());
+			// Code.load(obj);
+			if (obj.getLevel() == 0) {
+				 Code.put(Code.getstatic); 
+			     Code.put2(obj.getAdr());
+			}
+			else {
+				Code.load(obj);
+			}
+			
+			// tail.getExpr().traverseBottomUp(this);
 			System.out.println("DEBUG: after Code.load(obj)");
+			System.out.println(obj.getLevel());
 		}
 		else {
 			
@@ -665,6 +676,6 @@ public class CodeGenerator extends VisitorAdaptor {
 	@Override
     public void visit(ExprDesignatorTail tail) {
 		// tail.getExpr().accept(this);
-		Code.put(Code.aload);
+		// Code.put(Code.aload);
 	}
 }

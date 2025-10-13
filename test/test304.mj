@@ -1,43 +1,20 @@
-// Test301
+program TestArithmetic
 
-program test301
+const int constant = 42;
 
-const int nula = 0;
-const int jedan = 1;
-const int pet = 5;
+int global_x;
+int global_y;
+int result;
+int arr[];
 
-int niz[];
-char nizch[];
-
-int a;
-
-// set s1, s2, s3;
-	
 {
-	void main()	
-		int bodovi;
-		int temp;
+	void main()
 	{
-		bodovi = 0;
-		bodovi++;
-		bodovi = bodovi + jedan;
-		bodovi = bodovi * pet;
-		bodovi--;
-		print(bodovi); //9
-		print(eol);
-		
-		a=2;
-		bodovi = -bodovi + (pet * a / 2 - nula) * bodovi - (3 % 2 + 3 * 2 - 7); 
-		print(bodovi); //bodovi
-			
-		niz = new int[3];
-		niz[nula] = 2;
-		niz[jedan] = 3;
-		niz[niz[nula]] = niz[1] * 4;
-		bodovi = niz[2]/niz[0];
-		print(bodovi); //6
-		print(eol);
-		print(niz[2]); //12
-		print(eol);
+		// Test 8: Array allocation and access
+		arr = new int[5];
+		arr[0] = 100;
+		arr[1] = 200;
+		result = arr[0] + arr[1];
+		print(result);
 	}
 }

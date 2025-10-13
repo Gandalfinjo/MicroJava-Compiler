@@ -301,6 +301,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	}
     	
     	Obj var = Tab.insert(Obj.Var, varName, currentType);
+    	
+        if (currentMethod != null) var.setLevel(1);
+        else var.setLevel(0);
+        
     	reportSymbolFound(var, varName, varDecl);
     }
     
@@ -317,6 +321,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         else {
             Obj obj = Tab.insert(Obj.Var, name, arrayType);
             varDeclArray.obj = obj;
+            System.out.println("VarDeclarationArray: " + name + " inserted with adr=" + obj.getAdr());
             report_info("Declared array " + name + " of type " + type, varDeclArray);
         }
     }
@@ -368,12 +373,18 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         currentMethod = methodObj;
 
         Tab.openScope();
+        
+        System.out.println("=== Opened scope for method: " + name + " ===");
     }
     
     @Override
     public void visit(MethodDeclaration methodDecl) {
     	Tab.chainLocalSymbols(currentMethod);
         Tab.closeScope();
+        System.out.println("=== Closed scope for method, locals: " + currentMethod.getLocalSymbols().size() + " ===");
+        for (Obj local : currentMethod.getLocalSymbols()) {
+            System.out.println("  Local: " + local.getName() + " adr=" + local.getAdr());
+        }
         currentMethod = null;
     }
     
@@ -443,7 +454,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
                 report_error("Array index must be of type int", designator);
             }
             else {
-                obj = new Obj(Obj.Elem, name + "[]", obj.getType().getElemType());
+            	Obj arrayObj = obj;
+            	obj = new Obj(Obj.Elem, arrayObj.getName() + "[]", arrayObj.getType().getElemType());
+            	obj.setAdr(arrayObj.getAdr());
+            	obj.setLevel(arrayObj.getLevel());
             }
         }
         else if (designator.getDesignatorTail() instanceof DotDesignatorTail) {
@@ -581,6 +595,11 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (!dest.getType().equals(setType) || !left.getType().equals(setType) || !right.getType().equals(setType)) {
             report_error("All operands in set union must be of type set", stmt);
         }
+    }
+    
+    public static void semanticError(String message, SyntaxNode node) {
+        System.err.println("Semantic Error: " + message + 
+            (node != null && node.getLine() > 0 ? " (line " + node.getLine() + ")" : ""));
     }
   
 }
