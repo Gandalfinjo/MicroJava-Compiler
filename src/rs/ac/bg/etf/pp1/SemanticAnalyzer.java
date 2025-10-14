@@ -10,9 +10,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	private boolean errorDetected = false;
 	private Struct currentType = Tab.noType;
 	
-	// flag za proveru da li smo u globalnom scope-u
-	private boolean inProgramScope = false;
-	
 	private int lastIntConstValue;
 	private int lastCharConstValue;
 	private int lastBoolConstValue;
@@ -37,7 +34,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.insert(Obj.Type, "bool", boolType);
 
         // Set type
-        // Tab.insert(Obj.Type, "set", new Struct(8));
         Tab.insert(Obj.Type, "set", setType);
 
         // null constant
@@ -108,16 +104,16 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(printSetMeth);
         Tab.openScope();
 
-        Obj formalSet = new Obj(Obj.Var, "s", setType, 0, 1);
-        Obj formalWidth = new Obj(Obj.Var, "w", Tab.intType, 1, 1);
+        Obj formalSet = new Obj(Obj.Var, "setToPrint", setType, 0, 1);
+        Obj formalWidth = new Obj(Obj.Var, "elemPrintWidth", Tab.intType, 1, 1);
 
-        Obj printSetSize = new Obj(Obj.Var, "setSize", Tab.intType, 2, 1);
-        Obj printCurrentIndex = new Obj(Obj.Var, "currentSetIndex", Tab.intType, 3, 1);
+        Obj printSetLength = new Obj(Obj.Var, "setLength", Tab.intType, 2, 1);
+        Obj printSetElemIdx = new Obj(Obj.Var, "setElemIdx", Tab.intType, 3, 1);
 
         Tab.currentScope.addToLocals(formalSet);
         Tab.currentScope.addToLocals(formalWidth);
-        Tab.currentScope.addToLocals(printSetSize);
-        Tab.currentScope.addToLocals(printCurrentIndex);
+        Tab.currentScope.addToLocals(printSetLength);
+        Tab.currentScope.addToLocals(printSetElemIdx);
 
         printSetMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
@@ -131,10 +127,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Obj formalSymbol2 = new Obj(Obj.Var, "leftSet", setType, 1, 1);
         Obj formalSymbol3 = new Obj(Obj.Var, "rightSet", setType, 2, 1);
         
-        Obj localSymbol1 = new Obj(Obj.Var, "sourceSetSize", Tab.intType, 3, 1);
-        Obj localSymbol2 = new Obj(Obj.Var, "currentSourceSetIndex", Tab.intType, 4, 1);
-        
-        
+        Obj localSymbol1 = new Obj(Obj.Var, "sourceSetSizeVar", Tab.intType, 3, 1);
+        Obj localSymbol2 = new Obj(Obj.Var, "currentSrcSetIdx", Tab.intType, 4, 1);
+          
         Tab.currentScope.addToLocals(formalSymbol1);
         Tab.currentScope.addToLocals(formalSymbol2);
         Tab.currentScope.addToLocals(formalSymbol3);
@@ -194,7 +189,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	progName.obj = progObj;
     	
     	Tab.openScope();
-    	inProgramScope = true;
     }
     
     @Override
@@ -206,7 +200,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	nVars = Tab.currentScope.getnVars();
     	
     	Tab.closeScope();
-    	inProgramScope = false;
     }
 
     @Override

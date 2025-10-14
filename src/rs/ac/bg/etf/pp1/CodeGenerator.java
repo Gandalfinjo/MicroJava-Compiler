@@ -86,13 +86,13 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.put(Code.add);
         Code.store(currentSetIndex);
         
-        int loopIterationStartAddress = Code.pc;
+        int addSearchLoopStartAddr = Code.pc;
         
         Code.load(currentSetIndex);
         Code.load(setSize);
         Code.putFalseJump(Code.le, 0);
         
-        int exitLoopAndAddElementJumpAddressPlaceholder = Code.pc - 2;
+        int insertAfterLoopAddr = Code.pc - 2;
         
         Code.load(destinationSet);
         Code.load(currentSetIndex);
@@ -100,15 +100,15 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.load(elementToAdd);
         Code.putFalseJump(Code.ne, 0);
         
-        int exitLoopAndIgnoreAddingElementJumpAddressPlaceholder = Code.pc - 2;
+        int skipInsertAddr = Code.pc - 2;
         
         Code.load(currentSetIndex);
         Code.loadConst(1);
         Code.put(Code.add);
         Code.store(currentSetIndex);
         
-        Code.putJump(loopIterationStartAddress);
-        Code.fixup(exitLoopAndAddElementJumpAddressPlaceholder);
+        Code.putJump(addSearchLoopStartAddr);
+        Code.fixup(insertAfterLoopAddr);
         
         Code.load(setSize);
         Code.loadConst(1);
@@ -125,7 +125,7 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.load(setSize);
         Code.put(Code.astore);
         
-        Code.fixup(exitLoopAndIgnoreAddingElementJumpAddressPlaceholder);
+        Code.fixup(skipInsertAddr);
         
         Code.put(Code.exit);
         Code.put(Code.return_);
@@ -141,27 +141,29 @@ public class CodeGenerator extends VisitorAdaptor {
         Iterator<Obj> allLocalSymbolsIterator = addAllMeth.getLocalSymbols().iterator();
 
         Obj allDestinationSet = allLocalSymbolsIterator.next();
-        Obj arrayOfIntegersToAdd = allLocalSymbolsIterator.next();
+        Obj intArrayToAdd = allLocalSymbolsIterator.next();
 
         Obj currentArrayIndex = allLocalSymbolsIterator.next();
 
         Code.loadConst(0);
         Code.store(currentArrayIndex);
 
-        int allLoopIterationStartAddress = Code.pc;
+        int allInsertLoopStartAddr = Code.pc;
 
         Code.load(currentArrayIndex);
-        Code.load(arrayOfIntegersToAdd);
+        Code.load(intArrayToAdd);
         
         int methodOffsetFromPc = lenMeth.getAdr() - Code.pc;
+        
         Code.put(Code.call);
         Code.put2(methodOffsetFromPc);
         
         Code.putFalseJump(Code.lt, 0);
-        int loopExitJumpAddressPlaceholder = Code.pc - 2;
+        
+        int allInsertExitAddr = Code.pc - 2;
 
         Code.load(allDestinationSet);
-        Code.load(arrayOfIntegersToAdd);
+        Code.load(intArrayToAdd);
         Code.load(currentArrayIndex);
         Code.put(Code.aload);
         
@@ -174,18 +176,18 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.put(Code.add);
         Code.store(currentArrayIndex);
 
-        Code.putJump(allLoopIterationStartAddress);
-        Code.fixup(loopExitJumpAddressPlaceholder);
+        Code.putJump(allInsertLoopStartAddr);
+        Code.fixup(allInsertExitAddr);
 
         Code.put(Code.exit);
         Code.put(Code.return_);
         
-        generatePrintSetMethod();
+        initPrintSetMethod();
         
-        generateUnionMethod();
+        initUnionMethod();
 	}
 	
-	private void generatePrintSetMethod() {
+	private void initPrintSetMethod() {
         SemanticAnalyzer.printSetMeth.setAdr(Code.pc);
 
         Code.put(Code.enter);
@@ -194,66 +196,69 @@ public class CodeGenerator extends VisitorAdaptor {
 
         Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.printSetMeth.getLocalSymbols().iterator();
 
-        Obj setAddress = localSymbolsIterator.next();
-        Obj printWidth = localSymbolsIterator.next();
+        Obj setToPrint = localSymbolsIterator.next();
+        Obj elemPrintWidth = localSymbolsIterator.next();
 
-        Obj setSize = localSymbolsIterator.next();
-        Obj currentSetIndex = localSymbolsIterator.next();
+        Obj setLength = localSymbolsIterator.next();
+        Obj setElemIdx = localSymbolsIterator.next();
 
-        Code.load(setAddress);
+        Code.load(setToPrint);
         Code.loadConst(0);
         Code.put(Code.aload);
-        Code.store(setSize);
+        Code.store(setLength);
 
-        Code.load(setSize);
+        Code.load(setLength);
         Code.loadConst(0);
         Code.putFalseJump(Code.gt, 0);
-        int skipLoopIfEmptyPlaceholder = Code.pc - 2;
+        
+        int emptySetSkipLoopAddr = Code.pc - 2;
 
         Code.loadConst(0);
         Code.loadConst(1);
         Code.put(Code.add);
-        Code.store(currentSetIndex);
+        Code.store(setElemIdx);
 
-        int loopIterationStartAddress = Code.pc;
+        int printLoopStartAddr = Code.pc;
 
-        Code.load(currentSetIndex);
-        Code.load(setSize);
+        Code.load(setElemIdx);
+        Code.load(setLength);
         Code.putFalseJump(Code.le, 0);
-        int loopExitJumpAddressPlaceholder = Code.pc - 2;
+        
+        int exitPrintLoopAddr = Code.pc - 2;
 
-        Code.load(setAddress);
-        Code.load(currentSetIndex);
+        Code.load(setToPrint);
+        Code.load(setElemIdx);
         Code.put(Code.aload);
-        Code.load(printWidth);
+        Code.load(elemPrintWidth);
         Code.put(Code.print);
 
-        Code.load(currentSetIndex);
-        Code.load(setSize);
+        Code.load(setElemIdx);
+        Code.load(setLength);
         Code.putFalseJump(Code.ne, 0);
-        int skipPrintingSpaceJumpAddressPlaceholder = Code.pc - 2;
+        
+        int skipSpacePrintAddr = Code.pc - 2;
 
         Code.loadConst(' ');
         Code.loadConst(1);
         Code.put(Code.bprint);
 
-        Code.fixup(skipPrintingSpaceJumpAddressPlaceholder);
+        Code.fixup(skipSpacePrintAddr);
 
-        Code.load(currentSetIndex);
+        Code.load(setElemIdx);
         Code.loadConst(1);
         Code.put(Code.add);
-        Code.store(currentSetIndex);
+        Code.store(setElemIdx);
 
-        Code.putJump(loopIterationStartAddress);
-        Code.fixup(loopExitJumpAddressPlaceholder);
+        Code.putJump(printLoopStartAddr);
+        Code.fixup(exitPrintLoopAddr);
 
-        Code.fixup(skipLoopIfEmptyPlaceholder);
+        Code.fixup(emptySetSkipLoopAddr);
 
         Code.put(Code.exit);
         Code.put(Code.return_);
     }
 	
-	private void generateUnionMethod() {
+	private void initUnionMethod() {
 		SemanticAnalyzer.unionMeth.setAdr(Code.pc);
 
 		Code.put(Code.enter);
@@ -266,84 +271,90 @@ public class CodeGenerator extends VisitorAdaptor {
         Obj leftSet = localSymbolsIterator.next();
         Obj rightSet = localSymbolsIterator.next();
 
-        Obj sourceSetSize = localSymbolsIterator.next();
-        Obj currentSourceSetIndex = localSymbolsIterator.next();
+        Obj sourceSetSizeVar = localSymbolsIterator.next();
+        Obj currentSrcSetIdx = localSymbolsIterator.next();
 
-        clearDestinationSetIfNotEqualToLeftAndRightSet(destinationSet, leftSet, rightSet);
+        ensureDestinationSetMatchesLeftAndRight(destinationSet, leftSet, rightSet);
 
         Code.load(destinationSet);
         Code.load(leftSet);
         Code.putFalseJump(Code.ne, 0);
-        int destinationEqualToLeftJumpAddressPlaceholder = Code.pc - 2;
+        
+        int leftSetMatchAddr = Code.pc - 2;
 
-        addSourceToDestinationSet(destinationSet, leftSet, sourceSetSize, currentSourceSetIndex);
-        Code.fixup(destinationEqualToLeftJumpAddressPlaceholder);
+        mergeSourceIntoDestinationSet(destinationSet, leftSet, sourceSetSizeVar, currentSrcSetIdx);
+        Code.fixup(leftSetMatchAddr);
 
         Code.load(destinationSet);
         Code.load(rightSet);
         Code.putFalseJump(Code.ne, 0);
-        int destinationEqualToRightJumpAddressPlaceholder = Code.pc - 2;
+        
+        int rightSetMatchAddr = Code.pc - 2;
 
-        addSourceToDestinationSet(destinationSet, rightSet, sourceSetSize, currentSourceSetIndex);
-        Code.fixup(destinationEqualToRightJumpAddressPlaceholder);
+        mergeSourceIntoDestinationSet(destinationSet, rightSet, sourceSetSizeVar, currentSrcSetIdx);
+        Code.fixup(rightSetMatchAddr);
 
         Code.put(Code.exit);
         Code.put(Code.return_);
 	}
 	
-    private void clearDestinationSetIfNotEqualToLeftAndRightSet(Obj destinationSet, Obj leftSet, Obj rightSet) {
-        Code.load(destinationSet);
-        Code.load(leftSet);
-        Code.putFalseJump(Code.ne, 0);
-        int destinationEqualToLeftJumpAddressPlaceholder = Code.pc - 2;
+	private void ensureDestinationSetMatchesLeftAndRight(Obj destinationSet, Obj leftSet, Obj rightSet) {
+	    Code.load(destinationSet);
+	    Code.load(leftSet);
+	    Code.putFalseJump(Code.ne, 0);
+	    
+	    int leftSetMatchAddr = Code.pc - 2;
 
-        Code.load(destinationSet);
-        Code.load(rightSet);
-        Code.putFalseJump(Code.ne, 0);
-        int destinationEqualToRightJumpAddressPlaceholder = Code.pc - 2;
+	    Code.load(destinationSet);
+	    Code.load(rightSet);
+	    Code.putFalseJump(Code.ne, 0);
+	    
+	    int rightSetMatchAddr = Code.pc - 2;
 
-        Code.load(destinationSet);
-        Code.loadConst(0);
-        Code.loadConst(0);
-        Code.put(Code.astore);
+	    Code.load(destinationSet);
+	    Code.loadConst(0);
+	    Code.loadConst(0);
+	    Code.put(Code.astore);
 
-        Code.fixup(destinationEqualToLeftJumpAddressPlaceholder);
-        Code.fixup(destinationEqualToRightJumpAddressPlaceholder);
-    }
+	    Code.fixup(leftSetMatchAddr);
+	    Code.fixup(rightSetMatchAddr);
+	}
 
-    private void addSourceToDestinationSet(Obj destinationSet, Obj sourceSet, Obj sourceSetSize, Obj currentSourceSetIndex) {
-        Code.load(sourceSet);
-        Code.loadConst(0);
-        Code.put(Code.aload);
-        Code.store(sourceSetSize);
+	private void mergeSourceIntoDestinationSet(Obj destinationSet, Obj sourceSet, Obj sourceSetSize, Obj currentSourceSetIndex) {
+	    Code.load(sourceSet);
+	    Code.loadConst(0);
+	    Code.put(Code.aload);
+	    Code.store(sourceSetSize);
 
-        Code.loadConst(0);
-        Code.loadConst(1);
-        Code.put(Code.add);
-        Code.store(currentSourceSetIndex);
+	    Code.loadConst(0);
+	    Code.loadConst(1);
+	    Code.put(Code.add);
+	    Code.store(currentSourceSetIndex);
 
-        int loopIterationStartAddress = Code.pc;
+	    int sourceMergeLoopStartAddr = Code.pc;
 
-        Code.load(currentSourceSetIndex);
-        Code.load(sourceSetSize);
-        Code.putFalseJump(Code.le, 0);
-        int exitLoopJumpAddressPlaceholder = Code.pc - 2;
+	    Code.load(currentSourceSetIndex);
+	    Code.load(sourceSetSize);
+	    Code.putFalseJump(Code.le, 0);
+	    
+	    int exitMergeLoopAddr  = Code.pc - 2;
 
-        Code.load(destinationSet);
-        Code.load(sourceSet);
-        Code.load(currentSourceSetIndex);
-        Code.put(Code.aload);
-        Code.put(Code.call);
-        Code.put2(getPredefinedMethodAddress("add") - Code.pc + 1);
+	    Code.load(destinationSet);
+	    Code.load(sourceSet);
+	    Code.load(currentSourceSetIndex);
+	    Code.put(Code.aload);
+	    Code.put(Code.call);
+	    Code.put2(getPredefinedMethodAddress("add") - Code.pc + 1);
 
-        Code.load(currentSourceSetIndex);
-        Code.loadConst(1);
-        Code.put(Code.add);
-        Code.store(currentSourceSetIndex);
+	    Code.load(currentSourceSetIndex);
+	    Code.loadConst(1);
+	    Code.put(Code.add);
+	    Code.store(currentSourceSetIndex);
 
-        Code.putJump(loopIterationStartAddress);
-        Code.fixup(exitLoopJumpAddressPlaceholder);
-    }
+	    Code.putJump(sourceMergeLoopStartAddr);
+	    Code.fixup(exitMergeLoopAddr);
+	}
+
 	
 	@Override
 	public void visit(ProgName progName) { }
