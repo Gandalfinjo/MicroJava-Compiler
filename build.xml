@@ -3,8 +3,6 @@
 	<target name="delete">
 		<delete>
 			<fileset dir="src/rs/ac/bg/etf/pp1">
-				<exclude name="sym_old.java" />
-				<exclude name="Yylex.java" />
 				<exclude name="RuleVisitor.java" />
 				<exclude name="SemanticAnalyzer.java" />
 				<exclude name="CodeGenerator.java"/>
@@ -18,7 +16,7 @@
 		</delete>
 	</target>
 	
-	<target name="lexerGen" depends="delete">
+	<target name="lexerGen" depends="repackage">
 		<java jar="lib/JFlex.jar" fork="true">
 			<arg value="-d"/>
 			<arg value="./src/rs/ac/bg/etf/pp1" />
@@ -50,6 +48,8 @@
 			<classpath>
 				<pathelement path="lib/JFlex.jar" />
 				<pathelement path="lib/cup_v10k.jar" />
+				<pathelement path="lib/mj-runtime-1.1.jarr" />
+				<pathelement path="lib/symboltable-1-1.jar" />
 			</classpath>
 		</javac>
 	</target>
