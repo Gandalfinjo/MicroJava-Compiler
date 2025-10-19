@@ -28,6 +28,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj maxElementMeth;
 	public static Obj isEmptyMeth;
 	public static Obj containsMeth;
+	public static Obj equalsMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -213,6 +214,27 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(containsFlag);
         
         containsMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // equals(s1: set, s2: set): bool
+        equalsMeth = new Obj(Obj.Meth, "equals", boolType, 0, 2);
+        Tab.currentScope.addToLocals(equalsMeth);
+        Tab.openScope();
+        
+        Obj equalsSetA = new Obj(Obj.Var, "setA", setType, 0, 1);
+        Obj equalsSetB = new Obj(Obj.Var, "setB", setType, 1, 1);
+        
+        Obj equalsIndexA = new Obj(Obj.Var, "indexA", Tab.intType, 2, 1);
+        Obj equalsIndexB = new Obj(Obj.Var, "indexB", Tab.intType, 3, 1);
+        Obj equalsFlag = new Obj(Obj.Var, "equalsFlag", Tab.intType, 4, 1);
+        
+        Tab.currentScope.addToLocals(equalsSetA);
+        Tab.currentScope.addToLocals(equalsSetB);
+        Tab.currentScope.addToLocals(equalsIndexA);
+        Tab.currentScope.addToLocals(equalsIndexB);
+        Tab.currentScope.addToLocals(equalsFlag);
+        
+        equalsMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 

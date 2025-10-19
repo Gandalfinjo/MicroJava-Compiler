@@ -1,0 +1,40 @@
+// TestEquals
+
+program testEquals
+
+int niz[];
+int niz2[];
+int niz3[];
+
+set s1, s2, s3;
+	
+{
+	void main()	
+	{		
+		niz = new int[6];
+		niz2 = new int[6];
+		niz3 = new int[5];
+		
+		niz[0] = 1; niz[1] = 2; niz[2] = 3;
+		niz[3] = 7; niz[4] = 4; niz[5] = 5;
+		niz2[0] = 1; niz2[1] = 2; niz2[2] = 3;
+		niz2[3] = 7; niz2[4] = 4; niz2[5] = 5;
+		niz3[0] = 1; niz3[1] = 2; niz3[2] = 3; niz3[3] = 4; niz3[4] = 5;
+		s1 = new set[6];
+		s2 = new set[6];
+		s3 = new set[5];
+		addAll(s1, niz);
+		addAll(s2, niz2);
+		addAll(s3, niz3);
+		print(s1);
+		print(eol);
+		print(s2);
+		print(eol);
+		print(s3);
+		print(eol);
+		print(equals(s1, s2)); // True
+		print(eol);	
+		print(equals(s1, s3)); // False
+		print(eol);
+	}
+}
