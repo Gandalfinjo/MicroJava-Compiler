@@ -185,6 +185,8 @@ public class CodeGenerator extends VisitorAdaptor {
         initPrintSetMethod();
         
         initUnionMethod();
+        
+        initOverlapsMethod();
 	}
 	
 	private void initPrintSetMethod() {
@@ -354,7 +356,116 @@ public class CodeGenerator extends VisitorAdaptor {
 	    Code.putJump(sourceMergeLoopStartAddr);
 	    Code.fixup(exitMergeLoopAddr);
 	}
+	
+	private void initOverlapsMethod() {
+		SemanticAnalyzer.overlapsMeth.setAdr(Code.pc);
 
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.overlapsMeth.getLevel());
+        Code.put(SemanticAnalyzer.overlapsMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.overlapsMeth.getLocalSymbols().iterator();
+
+        Obj setA = localSymbolsIterator.next();
+        Obj setB = localSymbolsIterator.next();
+        
+        Obj indexA = localSymbolsIterator.next();
+        Obj indexB = localSymbolsIterator.next();
+        Obj foundFlag = localSymbolsIterator.next();
+        
+        // foundFlag = 0 - false
+        Code.loadConst(0);
+        Code.store(foundFlag);
+        
+        // sizeA = a[0]
+        Obj tempSizeA = new Obj(Obj.Var, "sizeA", Tab.intType, 10, 1);
+        Code.load(setA);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(tempSizeA);
+        
+        // sizeB = b[0]
+        Obj tempSizeB = new Obj(Obj.Var, "sizeB", Tab.intType, 11, 1);
+        Code.load(setB);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(tempSizeB);
+        
+        // indexA = 1
+        Code.loadConst(1);
+        Code.store(indexA);
+        
+        int outerLoopStart = Code.pc;
+        
+        // if (indexA > sizeA) -> exit outer loop
+        Code.load(indexA);
+        Code.load(tempSizeA);
+        Code.putFalseJump(Code.le, 0);
+        int outerLoopExit = Code.pc - 2;
+        
+        // indexB = 1
+        Code.loadConst(1);
+        Code.store(indexB);
+        
+        int innerLoopStart = Code.pc;
+        
+        // if (indexB > sizeB) -> exit inner loop
+        Code.load(indexB);
+        Code.load(tempSizeB);
+        Code.putFalseJump(Code.le, 0);
+        int innerLoopExit = Code.pc - 2;
+        
+        // load a[indexA]
+        Code.load(setA);
+        Code.load(indexA);
+        Code.put(Code.aload);
+        
+        // load b[indexB]
+        Code.load(setB);
+        Code.load(indexB);
+        Code.put(Code.aload);
+        
+        // compare
+        Code.putFalseJump(Code.eq, 0);
+        int noMatchJump = Code.pc - 2;
+        
+        // if equal -> foundFlag = 1 -> return immediately
+        Code.loadConst(1);
+        Code.store(foundFlag);
+        
+        // jump to the end of the method
+        Code.putJump(0);
+        int foundReturnJump = Code.pc - 2;
+        
+        // fix skip over match
+        Code.fixup(noMatchJump);
+        
+        // indexB++
+        Code.load(indexB);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexB);
+        
+        // repeat inner loop
+        Code.putJump(innerLoopStart);
+        Code.fixup(innerLoopExit);
+        
+        // indexA++
+        Code.load(indexA);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexA);
+        
+        // repeat outer loop
+        Code.putJump(outerLoopStart);
+        Code.fixup(outerLoopExit);
+        
+        // finish: return foundFlag
+        Code.fixup(foundReturnJump);
+        Code.load(foundFlag);
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
 	
 	@Override
 	public void visit(ProgName progName) { }
@@ -530,6 +641,32 @@ public class CodeGenerator extends VisitorAdaptor {
 			width = nc.getN1();
 			list = nc.getNumConstList();
 		}
+		
+	    if (stmt.getExpr().struct.equals(SemanticAnalyzer.boolType)) {
+	        int printFalseAddr, printEndAddr;
+
+	        Code.loadConst(1);
+	        Code.putFalseJump(Code.eq, 0);
+	        printFalseAddr = Code.pc - 2;
+
+	        for (char c : "True".toCharArray()) {
+	            Code.loadConst(c);
+	            Code.loadConst(1);
+	            Code.put(Code.bprint);
+	        }
+	        Code.putJump(0);
+	        printEndAddr = Code.pc - 2;
+
+	        Code.fixup(printFalseAddr);
+	        for (char c : "False".toCharArray()) {
+	            Code.loadConst(c);
+	            Code.loadConst(1);
+	            Code.put(Code.bprint);
+	        }
+	        Code.fixup(printEndAddr);
+
+	        return;
+	    }
 		
 		Code.loadConst(width);
 		

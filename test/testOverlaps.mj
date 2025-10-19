@@ -1,0 +1,25 @@
+// TestOverlaps
+
+program testOverlaps
+
+int niz[];
+int niz2[];
+
+set s1, s2, s3;
+	
+{
+	void main()	
+	{		
+		niz = new int[3];
+		niz2 = new int[3];
+		
+		niz[0] = 1; niz[1] = 2; niz[2] = 3;
+		niz2[0] = 4; niz2[1] = 5; niz2[2] = 6;
+		s1 = new set[5]; s2 = new set[5]; s3 = new set[10];
+		addAll(s1, niz);
+		add(s2, 3); add(s2, 5); add(s2, 6);
+		//addAll(s2, niz2);
+		print(overlaps(s1, s2)); // False
+		print(eol);		
+	}
+}

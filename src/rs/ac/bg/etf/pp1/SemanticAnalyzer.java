@@ -24,6 +24,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj addAllMeth;
 	public static Obj printSetMeth;
 	public static Obj unionMeth;
+	public static Obj overlapsMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -137,6 +138,27 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(localSymbol2);
         
         unionMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // overlaps(s1: set, s2: set): bool
+        overlapsMeth = new Obj(Obj.Meth, "overlaps", boolType, 0, 2);
+        Tab.currentScope.addToLocals(overlapsMeth);
+        Tab.openScope();
+        
+        Obj formalSetA = new Obj(Obj.Var, "s1", setType, 0, 1);
+        Obj formalSetB = new Obj(Obj.Var, "s2", setType, 1, 1);
+        
+        Obj overlapsIndexA = new Obj(Obj.Var, "indexA", Tab.intType, 2, 1);
+        Obj overlapsIndexB = new Obj(Obj.Var, "indexB", Tab.intType, 3, 1);
+        Obj overlapsFound = new Obj(Obj.Var, "foundFlag", Tab.intType, 4, 1);
+        
+        Tab.currentScope.addToLocals(formalSetA);
+        Tab.currentScope.addToLocals(formalSetB);
+        Tab.currentScope.addToLocals(overlapsIndexA);
+        Tab.currentScope.addToLocals(overlapsIndexB);
+        Tab.currentScope.addToLocals(overlapsFound);
+        
+        overlapsMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 
