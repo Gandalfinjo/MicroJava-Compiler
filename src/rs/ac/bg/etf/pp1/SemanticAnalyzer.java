@@ -25,6 +25,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj printSetMeth;
 	public static Obj unionMeth;
 	public static Obj overlapsMeth;
+	public static Obj maxElementMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -159,6 +160,23 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(overlapsFound);
         
         overlapsMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // maxElement(s: set): int
+        maxElementMeth = new Obj(Obj.Meth, "maxElement", Tab.intType, 0, 1);
+        Tab.currentScope.addToLocals(maxElementMeth);
+        Tab.openScope();
+        
+        Obj maxS = new Obj(Obj.Var, "s", setType, 0, 1);
+        
+        Obj maxIndex = new Obj(Obj.Var, "index", Tab.intType, 1, 1);
+        Obj max = new Obj(Obj.Var, "max", Tab.intType, 2, 1);
+        
+        Tab.currentScope.addToLocals(maxS);
+        Tab.currentScope.addToLocals(maxIndex);
+        Tab.currentScope.addToLocals(max);
+        
+        maxElementMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 

@@ -187,6 +187,8 @@ public class CodeGenerator extends VisitorAdaptor {
         initUnionMethod();
         
         initOverlapsMethod();
+        
+        initMaxElementMethod();
 	}
 	
 	private void initPrintSetMethod() {
@@ -463,6 +465,86 @@ public class CodeGenerator extends VisitorAdaptor {
         // finish: return foundFlag
         Code.fixup(foundReturnJump);
         Code.load(foundFlag);
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+	private void initMaxElementMethod() {
+		SemanticAnalyzer.maxElementMeth.setAdr(Code.pc);
+
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.maxElementMeth.getLevel());
+        Code.put(SemanticAnalyzer.maxElementMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.maxElementMeth.getLocalSymbols().iterator();
+
+        Obj s = localSymbolsIterator.next();
+        
+        Obj index = localSymbolsIterator.next();
+        Obj max = localSymbolsIterator.next();
+        
+        // size = s[0]
+        Obj tempSize = new Obj(Obj.Var, "tempSize", Tab.intType, 10, 1);
+        Code.load(s);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(tempSize);
+        
+        // index = 1
+        Code.loadConst(1);
+        Code.store(index);
+        
+        // max = s[1]
+        Code.load(s);
+        Code.load(index);
+        Code.put(Code.aload);
+        Code.store(max);
+        
+        // index = 2
+        Code.loadConst(2);
+        Code.store(index);
+        
+        int startLoop = Code.pc;
+        
+        // if (index > size) -> exit loop
+        Code.load(index);
+        Code.load(tempSize);
+        Code.putFalseJump(Code.le, 0);
+        int exitLoop = Code.pc - 2;
+        
+        // load s[index]
+        Code.load(s);
+        Code.load(index);
+        Code.put(Code.aload);
+        
+        // load max
+        Code.load(max);
+        
+        // compare
+        Code.putFalseJump(Code.gt, 0);
+        int lessEqualJump = Code.pc - 2;
+        
+        // max = s[index]
+        Code.load(s);
+        Code.load(index);
+        Code.put(Code.aload);
+        Code.store(max);
+        
+        // fixup lessEqualJump
+        Code.fixup(lessEqualJump);
+        
+        // index++
+        Code.load(index);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(index);
+        
+        // repeat loop
+        Code.putJump(startLoop);
+        Code.fixup(exitLoop);
+        
+        // return max
+        Code.load(max);
         Code.put(Code.exit);
         Code.put(Code.return_);
 	}
