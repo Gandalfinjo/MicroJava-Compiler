@@ -189,6 +189,8 @@ public class CodeGenerator extends VisitorAdaptor {
         initOverlapsMethod();
         
         initMaxElementMethod();
+        
+        initIsEmptyMethod();
 	}
 	
 	private void initPrintSetMethod() {
@@ -545,6 +547,53 @@ public class CodeGenerator extends VisitorAdaptor {
         
         // return max
         Code.load(max);
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+	private void initIsEmptyMethod() {
+		SemanticAnalyzer.isEmptyMeth.setAdr(Code.pc);
+
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.isEmptyMeth.getLevel());
+        Code.put(SemanticAnalyzer.isEmptyMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.isEmptyMeth.getLocalSymbols().iterator();
+
+        Obj s = localSymbolsIterator.next();
+        
+        Obj empty = localSymbolsIterator.next();
+        
+        // size = s[0]
+        Obj tempSize = new Obj(Obj.Var, "tempSize", Tab.intType, 10, 1);
+        Code.load(s);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(tempSize);
+        
+        // size == 0
+        Code.load(tempSize);
+        Code.loadConst(0);
+        Code.putFalseJump(Code.eq, 0);
+        int notEmptyJump = Code.pc - 2;
+        
+        // empty = 1 - true;
+        Code.loadConst(1);
+        Code.store(empty);
+        
+        
+        // jump to return
+        Code.putJump(0);
+        int jumpTrue = Code.pc - 2;
+        
+        // empty = 0 - false;
+        Code.fixup(notEmptyJump);
+        Code.loadConst(0);
+        Code.store(empty);
+        
+        // return empty
+        Code.fixup(jumpTrue);
+        Code.load(empty);
         Code.put(Code.exit);
         Code.put(Code.return_);
 	}

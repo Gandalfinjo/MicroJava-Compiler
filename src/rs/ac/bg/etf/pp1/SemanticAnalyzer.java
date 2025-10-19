@@ -26,6 +26,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj unionMeth;
 	public static Obj overlapsMeth;
 	public static Obj maxElementMeth;
+	public static Obj isEmptyMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -177,6 +178,21 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(max);
         
         maxElementMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // isEmpty(s: set): bool
+        isEmptyMeth = new Obj(Obj.Meth, "isEmpty", boolType, 0, 1);
+        Tab.currentScope.addToLocals(isEmptyMeth);
+        Tab.openScope();
+        
+        Obj emptyS = new Obj(Obj.Var, "s", setType, 0, 1);
+        
+        Obj emptyFlag = new Obj(Obj.Var, "empty", Tab.intType, 2, 1);
+        
+        Tab.currentScope.addToLocals(emptyS);
+        Tab.currentScope.addToLocals(emptyFlag);
+        
+        isEmptyMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 
