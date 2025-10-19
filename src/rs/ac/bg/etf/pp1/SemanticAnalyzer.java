@@ -27,6 +27,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj overlapsMeth;
 	public static Obj maxElementMeth;
 	public static Obj isEmptyMeth;
+	public static Obj containsMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -193,6 +194,25 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(emptyFlag);
         
         isEmptyMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // contains(s: set, x: int): bool
+        containsMeth = new Obj(Obj.Meth, "contains", boolType, 0, 2);
+        Tab.currentScope.addToLocals(containsMeth);
+        Tab.openScope();
+        
+        Obj containsS = new Obj(Obj.Var, "s", setType, 0, 1);
+        Obj containsX = new Obj(Obj.Var, "x", Tab.intType, 1, 1);
+        
+        Obj containsIndex = new Obj(Obj.Var, "index", Tab.intType, 2, 1);
+        Obj containsFlag = new Obj(Obj.Var, "containsFlag", Tab.intType, 3, 1);
+        
+        Tab.currentScope.addToLocals(containsS);
+        Tab.currentScope.addToLocals(containsX);
+        Tab.currentScope.addToLocals(containsIndex);
+        Tab.currentScope.addToLocals(containsFlag);
+        
+        containsMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 

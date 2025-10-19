@@ -191,6 +191,8 @@ public class CodeGenerator extends VisitorAdaptor {
         initMaxElementMethod();
         
         initIsEmptyMethod();
+        
+        initContainsMethod();
 	}
 	
 	private void initPrintSetMethod() {
@@ -594,6 +596,83 @@ public class CodeGenerator extends VisitorAdaptor {
         // return empty
         Code.fixup(jumpTrue);
         Code.load(empty);
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+	private void initContainsMethod() {
+		SemanticAnalyzer.containsMeth.setAdr(Code.pc);
+
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.containsMeth.getLevel());
+        Code.put(SemanticAnalyzer.containsMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.containsMeth.getLocalSymbols().iterator();
+
+        Obj s = localSymbolsIterator.next();
+        Obj x = localSymbolsIterator.next();
+        
+        Obj index = localSymbolsIterator.next();
+        Obj containsFlag = localSymbolsIterator.next();
+        
+        // size = s[0]
+        Obj tempSize = new Obj(Obj.Var, "tempSize", Tab.intType, 10, 1);
+        Code.load(s);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(tempSize);
+        
+        // index = 1
+        Code.loadConst(1);
+        Code.store(index);
+        
+        int startLoop = Code.pc;
+        
+        // if (index > size) -> exit loop
+        Code.load(index);
+        Code.load(tempSize);
+        Code.putFalseJump(Code.le, 0);
+        int exitLoop = Code.pc - 2;
+        
+        // load s[index]
+        Code.load(s);
+        Code.load(index);
+        Code.put(Code.aload);
+        
+        // load x
+        Code.load(x);
+        
+        // compare
+        Code.putFalseJump(Code.eq, 0);
+        int notEqualJump = Code.pc - 2;
+        
+        // containsFlag = 1 -> return immediately
+        Code.loadConst(1);
+        Code.store(containsFlag);
+        
+        // jump to the end of the method
+        Code.putJump(0);
+        int foundReturnJump = Code.pc - 2;
+        
+        Code.fixup(notEqualJump);
+        
+        // index++
+        Code.load(index);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(index);
+        
+        // repeat the loop
+        Code.putJump(startLoop);
+        Code.fixup(exitLoop);
+        
+        // contains = 0
+        Code.loadConst(0);
+        Code.store(containsFlag);
+        
+        // return
+        Code.fixup(foundReturnJump);
+        Code.load(containsFlag);
         Code.put(Code.exit);
         Code.put(Code.return_);
 	}
