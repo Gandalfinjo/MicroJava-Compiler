@@ -29,6 +29,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj isEmptyMeth;
 	public static Obj containsMeth;
 	public static Obj equalsMeth;
+	public static Obj copyMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -235,6 +236,23 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(equalsFlag);
         
         equalsMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // copy(dest: set, src: set): void
+        copyMeth = new Obj(Obj.Var, "copy", Tab.noType, 0, 2);
+        Tab.currentScope.addToLocals(copyMeth);
+        Tab.openScope();
+        
+        Obj destSet = new Obj(Obj.Var, "dest", setType, 0, 1);
+        Obj srcSet = new Obj(Obj.Var, "src", setType, 1, 1);
+        
+        Obj copyIndex = new Obj(Obj.Var, "index", Tab.intType, 2, 1);
+        
+        Tab.currentScope.addToLocals(destSet);
+        Tab.currentScope.addToLocals(srcSet);
+        Tab.currentScope.addToLocals(copyIndex);
+        
+        copyMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 

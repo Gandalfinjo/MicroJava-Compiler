@@ -1,0 +1,25 @@
+// TestCopy
+
+program testCopy
+
+int niz[];
+
+set s1, s2;
+	
+{
+	void main()	
+	{		
+		niz = new int[6];
+		
+		niz[0] = 1; niz[1] = 2; niz[2] = 3;
+		niz[3] = 7; niz[4] = 4; niz[5] = 5;
+		s1 = new set[6];
+		s2 = new set[6];
+		addAll(s1, niz);
+		copy(s2, s1);
+		print(s1);
+		print(eol);
+		print(s2);
+		print(eol);
+	}
+}

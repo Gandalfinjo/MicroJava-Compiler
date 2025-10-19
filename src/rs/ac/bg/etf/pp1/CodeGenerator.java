@@ -195,6 +195,8 @@ public class CodeGenerator extends VisitorAdaptor {
         initContainsMethod();
         
         initEqualsMethod();
+        
+        initCopyMethod();
 	}
 	
 	private void initPrintSetMethod() {
@@ -806,6 +808,70 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.fixup(notEqualJump);
         Code.fixup(differentSizesJump);
         Code.load(equalsFlag);
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+	private void initCopyMethod() {
+		SemanticAnalyzer.copyMeth.setAdr(Code.pc);
+
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.copyMeth.getLevel());
+        Code.put(SemanticAnalyzer.copyMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.copyMeth.getLocalSymbols().iterator();
+
+        Obj dest = localSymbolsIterator.next();
+        Obj src = localSymbolsIterator.next();
+        
+        Obj index = localSymbolsIterator.next();
+        
+        // size = src[0]
+        Obj tempSize = new Obj(Obj.Var, "tempSize", Tab.intType, 10, 1);
+        Code.load(src);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(tempSize);
+        
+        // dest[0] = src[0]
+        Code.load(dest);
+        Code.loadConst(0);
+        Code.load(src);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.put(Code.astore);
+        
+        // index = 1
+        Code.loadConst(1);
+        Code.store(index);
+        
+        int startLoop = Code.pc;
+        
+        // if (index > size) -> exit loop
+        Code.load(index);
+        Code.load(tempSize);
+        Code.putFalseJump(Code.le, 0);
+        int exitLoop = Code.pc - 2;
+        
+        // dest[index] = src[index]
+        Code.load(dest);
+        Code.load(index);
+        Code.load(src);
+        Code.load(index);
+        Code.put(Code.aload);
+        Code.put(Code.astore);
+        
+        // index++
+        Code.load(index);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(index);
+        
+        // repeat the loop
+        Code.putJump(startLoop);
+        Code.fixup(exitLoop);
+        
+        // return
         Code.put(Code.exit);
         Code.put(Code.return_);
 	}
