@@ -30,6 +30,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj containsMeth;
 	public static Obj equalsMeth;
 	public static Obj copyMeth;
+	public static Obj subsetMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -239,7 +240,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.closeScope();
         
         // copy(dest: set, src: set): void
-        copyMeth = new Obj(Obj.Var, "copy", Tab.noType, 0, 2);
+        copyMeth = new Obj(Obj.Meth, "copy", Tab.noType, 0, 2);
         Tab.currentScope.addToLocals(copyMeth);
         Tab.openScope();
         
@@ -253,6 +254,27 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(copyIndex);
         
         copyMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // subset(s1: set, s2: set): bool
+        subsetMeth = new Obj(Obj.Meth, "subset", boolType, 0, 2);
+        Tab.currentScope.addToLocals(subsetMeth);
+        Tab.openScope();
+        
+        Obj subsetSetA = new Obj(Obj.Var, "setA", setType, 0, 1);
+        Obj subsetSetB = new Obj(Obj.Var, "setB", setType, 1, 1);
+        
+        Obj subsetIndexA = new Obj(Obj.Var, "indexA", Tab.intType, 2, 1);
+        Obj subsetIndexB = new Obj(Obj.Var, "indexB", Tab.intType, 3, 1);
+        Obj subsetFlag = new Obj(Obj.Var, "subsetFlag", Tab.intType, 4, 1);
+        
+        Tab.currentScope.addToLocals(subsetSetA);
+        Tab.currentScope.addToLocals(subsetSetB);
+        Tab.currentScope.addToLocals(subsetIndexA);
+        Tab.currentScope.addToLocals(subsetIndexB);
+        Tab.currentScope.addToLocals(subsetFlag);
+        
+        subsetMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 

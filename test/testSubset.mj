@@ -1,0 +1,61 @@
+// TestSubset
+
+program testSubset
+
+int niz[];
+int niz2[];
+int niz3[];
+int niz4[];
+int niz5[];
+
+set s1, s2, s3, s4, s5;
+	
+{
+	void main()	
+	{		
+		niz = new int[6];
+		niz2 = new int[6];
+		niz3 = new int[5];
+		niz4 = new int[3];
+		niz5 = new int[8];
+		
+		niz[0] = 1; niz[1] = 2; niz[2] = 3;
+		niz[3] = 7; niz[4] = 4; niz[5] = 5;
+		niz2[0] = 1; niz2[1] = 2; niz2[2] = 3;
+		niz2[3] = 7; niz2[4] = 4; niz2[5] = 5;
+		niz3[0] = 1; niz3[1] = 2; niz3[2] = 3; niz3[3] = 4; niz3[4] = 5;
+		niz4[0] = 9; niz4[1] = 8; niz4[2] = 2;
+		niz5[0] = 1; niz5[1] = 2; niz5[2] = 3; niz5[3] = 4;
+		niz5[4] = 5; niz5[5] = 6; niz5[6] = 7; niz5[7] = 8;
+		s1 = new set[6];
+		s2 = new set[6];
+		s3 = new set[5];
+		s4 = new set[3];
+		s5 = new set[8];
+		addAll(s1, niz);
+		addAll(s2, niz2);
+		addAll(s3, niz3);
+		addAll(s4, niz4);
+		addAll(s5, niz5);
+		print(s1);
+		print(eol);
+		print(s2);
+		print(eol);
+		print(s3);
+		print(eol);
+		print(s4);
+		print(eol);
+		print(s5);
+		print(eol);
+		print(subset(s2, s1)); // True
+		print(eol);	
+		print(subset(s3, s1)); // True
+		print(eol);
+		print(subset(s4, s1)); // False
+		print(eol);
+		print(subset(s5, s1)); // False
+		print(eol);
+		print(subset(s1, s1)); // True
+		print(eol);
+	}
+}

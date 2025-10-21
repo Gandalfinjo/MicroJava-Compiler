@@ -197,6 +197,8 @@ public class CodeGenerator extends VisitorAdaptor {
         initEqualsMethod();
         
         initCopyMethod();
+        
+        initSubsetMethod();
 	}
 	
 	private void initPrintSetMethod() {
@@ -872,6 +874,137 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.fixup(exitLoop);
         
         // return
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+	private void initSubsetMethod() {
+		SemanticAnalyzer.subsetMeth.setAdr(Code.pc);
+
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.subsetMeth.getLevel());
+        Code.put(SemanticAnalyzer.subsetMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.subsetMeth.getLocalSymbols().iterator();
+
+        Obj setA = localSymbolsIterator.next();
+        Obj setB = localSymbolsIterator.next();
+        
+        Obj indexA = localSymbolsIterator.next();
+        Obj indexB = localSymbolsIterator.next();
+        Obj subsetFlag = localSymbolsIterator.next();
+        
+        // sizeA = setA[0]
+        Obj tempSizeA = new Obj(Obj.Var, "tempSizeA", Tab.intType, 10, 1);
+        Code.load(setA);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(tempSizeA);
+        
+        // sizeB = setB[0]
+        Obj tempSizeB = new Obj(Obj.Var, "tempSizeB", Tab.intType, 11, 1);
+        Code.load(setB);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(tempSizeB);
+        
+        // compare sizeA and sizeB
+        Code.load(tempSizeA);
+        Code.load(tempSizeB);
+        Code.putFalseJump(Code.le, 0);
+        int sizeABigger = Code.pc - 2;
+        
+        // indexA = 1;
+        Code.loadConst(1);
+        Code.store(indexA);
+        
+        int outerLoopStart = Code.pc;
+        
+        // if (indexA > sizeA) -> exit outer loop
+        Code.load(indexA);
+        Code.load(tempSizeA);
+        Code.putFalseJump(Code.le, 0);
+        int exitOuterLoop = Code.pc - 2;
+        
+        // equalsFlag = 0 - false
+        Code.loadConst(0);
+        Code.store(subsetFlag);
+        
+        // indexB = 1
+        Code.loadConst(1);
+        Code.store(indexB);
+        
+        int innerLoopStart = Code.pc;
+        
+        // if (indexB > sizeB) -> exit outer loop
+        Code.load(indexB);
+        Code.load(tempSizeB);
+        Code.putFalseJump(Code.le, 0);
+        int exitInnerLoop = Code.pc - 2;
+        
+        // load setA[indexA]
+        Code.load(setA);
+        Code.load(indexA);
+        Code.put(Code.aload);
+        
+        // load setB[indexB]
+        Code.load(setB);
+        Code.load(indexB);
+        Code.put(Code.aload);
+        
+        // compare
+        Code.putFalseJump(Code.eq, 0);
+        int notEqual = Code.pc - 2;
+        
+        // subsetFlag = 1 - true
+        Code.loadConst(1);
+        Code.store(subsetFlag);
+        Code.putJump(0);
+        int breakJump = Code.pc - 2;
+        
+        Code.fixup(notEqual);
+        
+        // indexB++
+        Code.load(indexB);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexB);
+        
+        // repeat inner loop
+        Code.putJump(innerLoopStart);
+        Code.fixup(breakJump);
+        Code.fixup(exitInnerLoop);
+        
+        // if (subsetFlag == false) return false
+        Code.load(subsetFlag);
+        Code.loadConst(0);
+        Code.putFalseJump(Code.eq, 0);
+        int equalsTrue = Code.pc - 2;
+        
+        // jump to the end of the method
+        Code.putJump(0);
+        int notEqualJump = Code.pc - 2;
+        
+        Code.fixup(equalsTrue);
+        
+        // indexA++
+        Code.load(indexA);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexA);
+        
+        // repeat outer loop
+        Code.putJump(outerLoopStart);
+        Code.fixup(exitOuterLoop);
+        
+        // subsetFlag = 1 - true
+        Code.loadConst(1);
+        Code.store(subsetFlag);
+        
+        // return
+        Code.fixup(notEqualJump);
+        Code.fixup(sizeABigger);
+        Code.load(subsetFlag);
         Code.put(Code.exit);
         Code.put(Code.return_);
 	}
