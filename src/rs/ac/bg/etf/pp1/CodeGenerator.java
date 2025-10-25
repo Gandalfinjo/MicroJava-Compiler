@@ -2,10 +2,60 @@ package rs.ac.bg.etf.pp1;
 
 import java.util.Iterator;
 
-import rs.ac.bg.etf.pp1.ast.*;
-import rs.etf.pp1.symboltable.*;
-import rs.etf.pp1.symboltable.concepts.*;
+import rs.ac.bg.etf.pp1.ast.ActParams;
+import rs.ac.bg.etf.pp1.ast.ActParamsInner;
+import rs.ac.bg.etf.pp1.ast.ActParamsOption;
+import rs.ac.bg.etf.pp1.ast.ActParsDSTail;
+import rs.ac.bg.etf.pp1.ast.AddopTerm;
+import rs.ac.bg.etf.pp1.ast.AddopTerms;
+import rs.ac.bg.etf.pp1.ast.AssignopExprDSTail;
+import rs.ac.bg.etf.pp1.ast.BoolFactor;
+import rs.ac.bg.etf.pp1.ast.CharFactor;
+import rs.ac.bg.etf.pp1.ast.DecrementDSTail;
+import rs.ac.bg.etf.pp1.ast.Designator;
+import rs.ac.bg.etf.pp1.ast.DesignatorFactor;
+import rs.ac.bg.etf.pp1.ast.Division;
+import rs.ac.bg.etf.pp1.ast.DotDesignatorTail;
+import rs.ac.bg.etf.pp1.ast.Equals;
+import rs.ac.bg.etf.pp1.ast.ExprDesignatorTail;
+import rs.ac.bg.etf.pp1.ast.ExprFactor;
+import rs.ac.bg.etf.pp1.ast.ExprsExtendedList;
+import rs.ac.bg.etf.pp1.ast.FixedDesignatorStatement;
+import rs.ac.bg.etf.pp1.ast.Higher;
+import rs.ac.bg.etf.pp1.ast.HiglerEqual;
+import rs.ac.bg.etf.pp1.ast.IncrementDSTail;
+import rs.ac.bg.etf.pp1.ast.Lower;
+import rs.ac.bg.etf.pp1.ast.LowerEqual;
+import rs.ac.bg.etf.pp1.ast.MethodDeclaration;
+import rs.ac.bg.etf.pp1.ast.Minus;
+import rs.ac.bg.etf.pp1.ast.Modulo;
+import rs.ac.bg.etf.pp1.ast.MulopFactor;
+import rs.ac.bg.etf.pp1.ast.MulopFactors;
+import rs.ac.bg.etf.pp1.ast.Multiplication;
+import rs.ac.bg.etf.pp1.ast.NegativeSignExpr;
+import rs.ac.bg.etf.pp1.ast.NewFactor;
+import rs.ac.bg.etf.pp1.ast.NoActParamsInner;
+import rs.ac.bg.etf.pp1.ast.NoActParamsOption;
+import rs.ac.bg.etf.pp1.ast.NoExprsExtendedList;
+import rs.ac.bg.etf.pp1.ast.NoSignExpr;
+import rs.ac.bg.etf.pp1.ast.NotEquals;
+import rs.ac.bg.etf.pp1.ast.NumConstList;
+import rs.ac.bg.etf.pp1.ast.NumConsts;
+import rs.ac.bg.etf.pp1.ast.NumFactor;
+import rs.ac.bg.etf.pp1.ast.OptionalDesignatorStatement;
+import rs.ac.bg.etf.pp1.ast.Plus;
+import rs.ac.bg.etf.pp1.ast.PrintStatement;
+import rs.ac.bg.etf.pp1.ast.ProgName;
+import rs.ac.bg.etf.pp1.ast.ReadStatement;
+import rs.ac.bg.etf.pp1.ast.RelopCondFactTail;
+import rs.ac.bg.etf.pp1.ast.Term;
+import rs.ac.bg.etf.pp1.ast.TypeMethodSignature;
+import rs.ac.bg.etf.pp1.ast.VisitorAdaptor;
+import rs.ac.bg.etf.pp1.ast.VoidMethodSignature;
 import rs.etf.pp1.mj.runtime.Code;
+import rs.etf.pp1.symboltable.Tab;
+import rs.etf.pp1.symboltable.concepts.Obj;
+import rs.etf.pp1.symboltable.concepts.Struct;
 
 public class CodeGenerator extends VisitorAdaptor {
 	public int mainPc;
@@ -199,6 +249,12 @@ public class CodeGenerator extends VisitorAdaptor {
         initCopyMethod();
         
         initSubsetMethod();
+        
+        initIntersectMethod();
+        
+        initDifferenceMethod();
+        
+        initDisjointMethod();
 	}
 	
 	private void initPrintSetMethod() {
@@ -1005,6 +1061,357 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.fixup(notEqualJump);
         Code.fixup(sizeABigger);
         Code.load(subsetFlag);
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+	private void initIntersectMethod() {
+		SemanticAnalyzer.intersectMeth.setAdr(Code.pc);
+		
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.intersectMeth.getLevel());
+        Code.put(SemanticAnalyzer.intersectMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.intersectMeth.getLocalSymbols().iterator();
+
+        Obj dest = localSymbolsIterator.next();
+        Obj setA = localSymbolsIterator.next();
+        Obj setB = localSymbolsIterator.next();
+        
+        Obj indexA = localSymbolsIterator.next();
+        Obj indexB = localSymbolsIterator.next();
+        
+        // dest[0] = 0
+        Code.load(dest);
+        Code.loadConst(0);
+        Code.loadConst(0);
+        Code.put(Code.astore);
+
+        // sizeA = setA[0]
+        Obj sizeA = new Obj(Obj.Var, "sizeA", Tab.intType, 10, 1);
+        Code.load(setA);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(sizeA);
+        
+        // sizeB = setB[0]
+        Obj sizeB = new Obj(Obj.Var, "sizeB", Tab.intType, 11, 1);
+        Code.load(setB);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(sizeB);
+        
+        // indexA = 1
+        Code.loadConst(1);
+        Code.store(indexA);
+        
+        // start outer loop
+        int outerLoopStart = Code.pc;
+        
+        // if (indexA > sizeA) -> exit outer loop
+        Code.load(indexA);
+        Code.load(sizeA);
+        Code.putFalseJump(Code.le, 0);
+        int outerLoopExit = Code.pc - 2;
+        
+        // indexB = 1
+        Code.loadConst(1);
+        Code.store(indexB);
+        
+        // start inner loop
+        int innerLoopStart = Code.pc;
+        
+        // if (indexB > sizeB) -> exit inner loop
+        Code.load(indexB);
+        Code.load(sizeB);
+        Code.putFalseJump(Code.le, 0);
+        int innerLoopExit = Code.pc - 2;
+        
+        // load setA[indexA] and setB[indexB]
+        Code.load(setA);
+        Code.load(indexA);
+        Code.put(Code.aload);
+        Code.load(setB);
+        Code.load(indexB);
+        Code.put(Code.aload);
+        
+        // compare
+        Code.putFalseJump(Code.eq, 0);
+        int notEqualJump = Code.pc - 2;
+        
+        // add(dest, setA[indexA])
+        Code.load(dest);
+        Code.load(setA);
+        Code.load(indexA);
+        Code.put(Code.aload);
+        Code.put(Code.call);
+        Code.put2(getPredefinedMethodAddress("add") - Code.pc + 1);
+        
+        // break
+        Code.putJump(0);
+        int breakJump = Code.pc - 2;
+        
+        // indexB++
+        Code.fixup(notEqualJump);
+        Code.load(indexB);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexB);
+        
+        // repeat inner loop
+        Code.putJump(innerLoopStart);
+        Code.fixup(breakJump);
+        Code.fixup(innerLoopExit);
+        
+        // indexA++
+        Code.load(indexA);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexA);
+        
+        // repeat outer loop
+        Code.putJump(outerLoopStart);
+        Code.fixup(outerLoopExit);
+        
+        // return
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+	private void initDifferenceMethod() {
+		SemanticAnalyzer.differenceMeth.setAdr(Code.pc);
+		
+		Code.put(Code.enter);
+        Code.put(SemanticAnalyzer.differenceMeth.getLevel());
+        Code.put(SemanticAnalyzer.differenceMeth.getLocalSymbols().size());
+
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.differenceMeth.getLocalSymbols().iterator();
+
+        Obj dest = localSymbolsIterator.next();
+        Obj setA = localSymbolsIterator.next();
+        Obj setB = localSymbolsIterator.next();
+        
+        Obj indexA = localSymbolsIterator.next();
+        Obj indexB = localSymbolsIterator.next();
+        Obj foundFlag = localSymbolsIterator.next();
+        
+        // sizeA = setA[0]
+        Obj sizeA = new Obj(Obj.Var, "sizeA", Tab.intType, 10, 1);
+        Code.load(setA);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(sizeA);
+        
+        // sizeB = setB[0]
+        Obj sizeB = new Obj(Obj.Var, "sizeB", Tab.intType, 11, 1);
+        Code.load(setB);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(sizeB);
+        
+        // indexA = 1
+        Code.loadConst(1);
+        Code.store(indexA);
+        
+        // begin outer loop
+        int outerLoopStart = Code.pc;
+        
+        // if (indexA > sizeA) -> exit outer loop
+        Code.load(indexA);
+        Code.load(sizeA);
+        Code.putFalseJump(Code.le, 0);
+        int outerLoopExit = Code.pc - 2;
+        
+        // foundFlag = 0 - false
+        Code.loadConst(0);
+        Code.store(foundFlag);
+        
+        // indexB = 1
+        Code.loadConst(1);
+        Code.store(indexB);
+        
+        // begin inner loop
+        int innerLoopStart = Code.pc;
+        
+        // if (indexB > sizeB) -> exit inner loop
+        Code.load(indexB);
+        Code.load(sizeB);
+        Code.putFalseJump(Code.le, 0);
+        int innerLoopExit = Code.pc - 2;
+        
+        // load setA[indexA]
+        Code.load(setA);
+        Code.load(indexA);
+        Code.put(Code.aload);
+        
+        // load setB[indexB]
+        Code.load(setB);
+        Code.load(indexB);
+        Code.put(Code.aload);
+        
+        // compare
+        Code.putFalseJump(Code.eq, 0);
+        int notEqualJump = Code.pc - 2;
+        
+        // foundFlag = 1 - true
+        Code.loadConst(1);
+        Code.store(foundFlag);
+        
+        // break
+        Code.putJump(0);
+        int breakJump = Code.pc - 2;
+        
+        Code.fixup(notEqualJump);
+        
+        // indexB++
+        Code.load(indexB);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexB);
+        
+        // repeat inner loop
+        Code.putJump(innerLoopStart);
+        Code.fixup(breakJump);
+        Code.fixup(innerLoopExit);
+        
+        // if (foundFlag == 0) add to dest
+        Code.load(foundFlag);
+        Code.loadConst(0);
+        Code.putFalseJump(Code.eq, 0);
+        int foundJump = Code.pc - 2;
+        
+        // add(dest, setA[indexA])
+        Code.load(dest);
+        Code.load(setA);
+        Code.load(indexA);
+        Code.put(Code.aload);
+        Code.put(Code.call);
+        Code.put2(getPredefinedMethodAddress("add") - Code.pc + 1);
+        
+        Code.fixup(foundJump);
+        
+        // indexA++
+        Code.load(indexA);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexA);
+        
+        // repeat outer loop
+        Code.putJump(outerLoopStart);
+        Code.fixup(outerLoopExit);
+        
+        // retrun
+        Code.put(Code.exit);
+        Code.put(Code.return_);
+	}
+	
+	private void initDisjointMethod() {
+		SemanticAnalyzer.disjointMeth.setAdr(Code.pc);
+		
+		Code.put(Code.enter);
+		Code.put(SemanticAnalyzer.disjointMeth.getLevel());
+		Code.put(SemanticAnalyzer.disjointMeth.getLocalSymbols().size());
+		
+        Iterator<Obj> localSymbolsIterator = SemanticAnalyzer.disjointMeth.getLocalSymbols().iterator();
+        
+        Obj setA = localSymbolsIterator.next();
+        Obj setB = localSymbolsIterator.next();
+        
+        Obj indexA = localSymbolsIterator.next();
+        Obj indexB = localSymbolsIterator.next();
+        Obj foundFlag = localSymbolsIterator.next();
+        
+        // foundFlag = 1 - true
+        Code.loadConst(1);
+        Code.store(foundFlag);
+        
+        // sizeA = setA[0]
+        Obj sizeA = new Obj(Obj.Var, "sizeA", Tab.intType, 10, 1);
+        Code.load(setA);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(sizeA);
+        
+        // sizeB = setB[0]
+        Obj sizeB = new Obj(Obj.Var, "sizeB", Tab.intType, 11, 1);
+        Code.load(setB);
+        Code.loadConst(0);
+        Code.put(Code.aload);
+        Code.store(sizeB);
+        
+        // indexA = 1
+        Code.loadConst(1);
+        Code.store(indexA);
+        
+        // begin outer loop
+        int outerLoopStart = Code.pc;
+        
+        // if (indexA > sizeA) -> exit outer loop
+        Code.load(indexA);
+        Code.load(sizeA);
+        Code.putFalseJump(Code.le, 0);
+        int outerLoopExit = Code.pc - 2;
+        
+        // indexB = 1
+        Code.loadConst(1);
+        Code.store(indexB);
+        
+        // begin inner loop
+        int innerLoopStart = Code.pc;
+        
+        // if (indexB > sizeB) -> exit inner loop
+        Code.load(indexB);
+        Code.load(sizeB);
+        Code.putFalseJump(Code.le, 0);
+        int innerLoopExit = Code.pc - 2;
+        
+        // load (setA[indexA])
+        Code.load(setA);
+        Code.load(indexA);
+        Code.put(Code.aload);
+        
+        // load(setB[indexB])
+        Code.load(setB);
+        Code.load(indexB);
+        Code.put(Code.aload);
+        
+        // compare
+        Code.putFalseJump(Code.eq, 0);
+        int notEqualJump = Code.pc - 2;
+        
+        // foundFlag = 0 - false
+        Code.loadConst(0);
+        Code.store(foundFlag);
+        
+        // jump to the end of the method
+        Code.putJump(0);
+        int returnFalseJump = Code.pc - 2;
+        
+        Code.fixup(notEqualJump);
+        
+        // indexB++
+        Code.load(indexB);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexB);
+        
+        // repeat inner loop
+        Code.putJump(innerLoopStart);
+        Code.fixup(innerLoopExit);
+        
+        // indexA++
+        Code.load(indexA);
+        Code.loadConst(1);
+        Code.put(Code.add);
+        Code.store(indexA);
+        
+        // repeat outer loop
+        Code.putJump(outerLoopStart);
+        Code.fixup(outerLoopExit);
+        
+        // return
+        Code.fixup(returnFalseJump);
+        Code.load(foundFlag);
         Code.put(Code.exit);
         Code.put(Code.return_);
 	}

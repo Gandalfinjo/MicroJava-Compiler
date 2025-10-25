@@ -31,6 +31,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public static Obj equalsMeth;
 	public static Obj copyMeth;
 	public static Obj subsetMeth;
+	public static Obj intersectMeth;
+	public static Obj differenceMeth;
+	public static Obj disjointMeth;
 	public static Obj addParamA;
 	public static Obj addParamB;
 	public static Obj addAllParamA;
@@ -275,6 +278,71 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.currentScope.addToLocals(subsetFlag);
         
         subsetMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // intersect(dest: set, s1: set, s2: set): void
+        intersectMeth = new Obj(Obj.Meth, "intersect", Tab.noType, 0, 3);
+        Tab.currentScope.addToLocals(intersectMeth);
+        Tab.openScope();
+        
+        Obj intersectDest = new Obj(Obj.Var, "dest", setType, 0, 1);
+        Obj intersectSetA = new Obj(Obj.Var, "setA", setType, 1, 1);
+        Obj intersectSetB = new Obj(Obj.Var, "setB", setType, 2, 1);
+        
+        Obj intersectIndexA = new Obj(Obj.Var, "indexA", Tab.intType, 3, 1);
+        Obj intersectIndexB = new Obj(Obj.Var, "indexB", Tab.intType, 4, 1);
+        
+        Tab.currentScope.addToLocals(intersectDest);
+        Tab.currentScope.addToLocals(intersectSetA);
+        Tab.currentScope.addToLocals(intersectSetB);
+        Tab.currentScope.addToLocals(intersectIndexA);
+        Tab.currentScope.addToLocals(intersectIndexB);
+
+        intersectMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // difference(dest: set, s1: set, s2: set): void
+        differenceMeth = new Obj(Obj.Meth, "difference", Tab.noType, 0, 3);
+        Tab.currentScope.addToLocals(differenceMeth);
+        Tab.openScope();
+        
+        Obj differenceDest = new Obj(Obj.Var, "dest", setType, 0, 1);
+        Obj differenceSetA = new Obj(Obj.Var, "setA", setType, 1, 1);
+        Obj differenceSetB = new Obj(Obj.Var, "setB", setType, 2, 1);
+        
+        Obj differenceIndexA = new Obj(Obj.Var, "indexA", Tab.intType, 3, 1);
+        Obj differenceIndexB = new Obj(Obj.Var, "indexB", Tab.intType, 4, 1);
+        Obj differenceFoundFlag = new Obj(Obj.Var, "foundFlag", Tab.intType, 5, 1);
+        
+        Tab.currentScope.addToLocals(differenceDest);
+        Tab.currentScope.addToLocals(differenceSetA);
+        Tab.currentScope.addToLocals(differenceSetB);
+        Tab.currentScope.addToLocals(differenceIndexA);
+        Tab.currentScope.addToLocals(differenceIndexB);
+        Tab.currentScope.addToLocals(differenceFoundFlag);
+        
+        differenceMeth.setLocals(Tab.currentScope.getLocals());
+        Tab.closeScope();
+        
+        // disjoint(s1: set, s2: set): bool
+        disjointMeth = new Obj(Obj.Meth, "disjoint", boolType, 0, 2);
+        Tab.currentScope.addToLocals(disjointMeth);
+        Tab.openScope();
+        
+        Obj disjointSetA = new Obj(Obj.Var, "setA", setType, 0, 1);
+        Obj disjointSetB = new Obj(Obj.Var, "setB", setType, 1, 2);
+        
+        Obj disjointIndexA = new Obj(Obj.Var, "indexA", Tab.intType, 2, 1);
+        Obj disjointIndexB = new Obj(Obj.Var, "indexB", Tab.intType, 3, 1);
+        Obj disjointFoundFlag = new Obj(Obj.Var, "foundFlag", Tab.intType, 4, 1);
+        
+        Tab.currentScope.addToLocals(disjointSetA);
+        Tab.currentScope.addToLocals(disjointSetB);
+        Tab.currentScope.addToLocals(disjointIndexA);
+        Tab.currentScope.addToLocals(disjointIndexB);
+        Tab.currentScope.addToLocals(disjointFoundFlag);
+        
+        disjointMeth.setLocals(Tab.currentScope.getLocals());
         Tab.closeScope();
     }
 

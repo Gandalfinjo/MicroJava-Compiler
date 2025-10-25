@@ -1,0 +1,35 @@
+// TestDifference
+
+program testDifference
+
+int niz[];
+int niz2[];
+
+set s1, s2, s3;
+	
+{
+	void main()	
+	{		
+		niz = new int[6];
+		niz2 = new int[6];
+
+		niz[0] = 1; niz[1] = 2; niz[2] = 3;
+		niz[3] = 7; niz[4] = 4; niz[5] = 5;
+		niz2[0] = 1; niz2[1] = 2; niz2[2] = 3;
+		niz2[3] = 6; niz2[4] = 4; niz2[5] = 8;
+		s1 = new set[6];
+		s2 = new set[6];
+		s3 = new set[6];
+		addAll(s1, niz);
+		addAll(s2, niz2);
+		print(eol);
+		difference(s3, s1, s2);
+		print(eol);
+		print(s1);
+		print(eol);
+		print(s2);
+		print(eol);
+		print(s3); // 7, 5
+		print(eol);
+	}
+}
